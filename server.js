@@ -1,9 +1,13 @@
 // includes
 const express = require('express');
+const cors = require('cors');
 const morgan = require('morgan');
 
 // mount express
 const app = express();
+
+// setup CORS
+app.use(cors());
 
 // log the http layer
 app.use(morgan('common'));
@@ -12,8 +16,13 @@ app.use(morgan('common'));
 app.use(express.static('public'));
 
 // handle root GET call
-app.get('/', function (req, res) {
+app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html');
+});
+
+// handle products GET call
+app.get('/products', (req, res) => {
+  res.sendFile(__dirname + '/views/products.html');
 });
 
 // setup server
