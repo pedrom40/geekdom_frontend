@@ -1,0 +1,45 @@
+.get-started {
+
+  font-size:0;
+  background-image:url('https://static.bannerstack.com/img/index-get-started.gif');
+  background-repeat:no-repeat;
+  background-size:cover;
+  background-position-x:-100px;
+  overflow:hidden;
+
+  a {
+    display:block;
+    height:152px;
+  }
+}
+
+@media only screen and (min-width:768px) {
+
+  .get-started {
+    a {
+      height:225px;
+    }
+  }
+
+}
+@media only screen and (min-width:1024px) {
+
+  .get-started {
+    a {
+      height:275px;
+    }
+  }
+
+}
+@media only screen and (min-width:1280px) {
+
+  .get-started {
+
+    background-size:initial;
+
+    a {
+      height:315px;
+    }
+  }
+
+}

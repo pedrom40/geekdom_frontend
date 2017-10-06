@@ -1,0 +1,45 @@
+footer {
+  padding:8px 5px;
+  font-size: 12px;
+  color:white;
+  text-align:center;
+  border-bottom:solid 8px $primary-color;
+  background:$secondary-color;
+
+  ul {
+    list-style:none;
+    margin-bottom:0;
+
+    li {
+      display:inline-block;
+      margin-bottom:0;
+
+      a {
+        padding-left:2px;
+        color:white;
+
+      }
+
+      &:last-child a::after {
+        content:'';
+      }
+    }
+  }
+}
+
+@media only screen and (min-width:768px) {
+
+  footer {
+    height:44px;
+
+    .siteinfo {
+      float:right;
+    }
+
+    ul {
+      float:left;
+      margin-top:2px;
+    }
+  }
+
+}

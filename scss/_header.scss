@@ -1,0 +1,16 @@
+header {
+
+  height:100px;
+  border-top:solid 8px $primary-color;
+  background:$secondary-color;
+
+  .logo {
+    position:absolute;
+    top:35px;
+    left:18px;
+    width:213px;
+    height:40px;
+    background:url('https://static.bannerstack.com/img/BannerStack-logo-mobile.png') no-repeat;
+  }
+
+}

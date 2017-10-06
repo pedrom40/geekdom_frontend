@@ -8,9 +8,12 @@ const app = express();
 // log the http layer
 app.use(morgan('common'));
 
+// setup static assets
+app.use(express.static('public'));
+
 // handle root GET call
 app.get('/', function (req, res) {
-  res.send('Hello World!')
+  res.sendFile(__dirname + '/views/index.html');
 });
 
 // setup server
