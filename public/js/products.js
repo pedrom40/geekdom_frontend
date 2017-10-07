@@ -560,7 +560,7 @@ function callProductsService (data, callback) {
   const settings = {
     url: 'https://services.bannerstack.com/products.cfc',
     data: data,
-    dataType: 'json',
+    dataType: 'jsonp',
     type: 'GET',
     success: callback,
     fail: showAjaxError

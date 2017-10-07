@@ -109,7 +109,7 @@ function callUserService (data, callback) {
   var settings = {
     url: 'https://services.bannerstack.com/user.cfc',
     data: data,
-    dataType: 'json',
+    dataType: 'jsonp',
     type: 'GET',
     success: callback,
     fail: showAjaxError

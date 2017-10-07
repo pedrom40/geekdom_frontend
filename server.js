@@ -1,13 +1,9 @@
 // includes
 const express = require('express');
-const cors = require('cors');
 const morgan = require('morgan');
 
 // mount express
 const app = express();
-
-// setup CORS
-app.use(cors());
 
 // log the http layer
 app.use(morgan('common'));
