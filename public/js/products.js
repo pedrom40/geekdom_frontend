@@ -28,7 +28,7 @@ function splitUrlIntoArray () {
 function checkUrlForContent () {
 
   // get info from URL
-  let urlArray = splitUrlIntoArray();console.log(urlArray);
+  let urlArray = splitUrlIntoArray();
 
   // if this is NOT the products page
   if (urlArray[0] !== 'products') {
@@ -512,7 +512,7 @@ function updateMainImage (imgSrc) {
 function getProductCategories () {
   const qData = {
     method:'getProductCategories'
-  }
+  };console.log(qData);
   callProductsService(qData, loadProductCategories);
 }
 // handle all categories
