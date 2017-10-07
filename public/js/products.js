@@ -96,8 +96,8 @@ function loadCategoryProducts (data) {
 
     const template = `
       <div class="product-box">
-        <a href="/${category[1].toString().replace(/ /g, '-')}/${category[0]}">
-          <div class="product-img" style="background-image:url('/img/products/${category[2]}');"></div>
+        <a href="/products/${category[1].toString().replace(/ /g, '-')}/">
+          <div class="product-img" style="background-image:url('https://static.bannerstack.com/img/products/${category[2]}');"></div>
           <div class="product-name">${category[1]}</div>
           <div class="product-short-desc">${category[3]}</div>
           <div class="product-details-btn">
@@ -194,7 +194,7 @@ function loadProductDetails (data) {
   // handle images
   let imgHTML = '';
   data[4].map( img => {
-    imgHTML = `${imgHTML} <img src="/img/products/${img}" alt="${data[1]}" class="thumb js-thumb">`;
+    imgHTML = `${imgHTML} <img src="https://static.bannerstack.com/img/products/${img}" alt="${data[1]}" class="thumb js-thumb">`;
   });
 
   // handle product details
@@ -209,7 +209,9 @@ function loadProductDetails (data) {
         <div class="row">
           <div class="column">
             <div class="main-img">
-              <a href="/img/products/${data[4][0]}" target="_blank" class="js-main-img-btn"><img src="/img/products/${data[4][0]}" alt="${data[1]}" class="js-main-img"></a>
+              <a href="https://static.bannerstack.com/img/products/${data[4][0]}" target="_blank" class="js-main-img-btn">
+                <img src="https://static.bannerstack.com/img/products/${data[4][0]}" alt="${data[1]}" class="js-main-img">
+              </a>
             </div>
             <div class="thumbnails">
               ${imgHTML}
@@ -529,8 +531,8 @@ function loadProductCategories (data) {
 
     const template = `
       <div class="product-box">
-        <a href="/${category[1].toString().replace(/ /g, '-')}/${category[0]}">
-          <div class="product-img" style="background-image:url('/img/categories/${category[2]}');"></div>
+        <a href="/products/${category[1].toString().replace(/ /g, '-')}/">
+          <div class="product-img" style="background-image:url('https://static.bannerstack.com/img/categories/${category[2]}');"></div>
           <div class="product-name">${category[1]}</div>
           <div class="product-short-desc">${category[3]}</div>
           <div class="product-details-btn">
