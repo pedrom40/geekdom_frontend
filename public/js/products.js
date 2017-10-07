@@ -512,7 +512,7 @@ function updateMainImage (imgSrc) {
 function getProductCategories () {
   const qData = {
     method:'getProductCategories'
-  };console.log(qData);
+  }
   callProductsService(qData, loadProductCategories);
 }
 // handle all categories
@@ -560,7 +560,7 @@ function callProductsService (data, callback) {
   const settings = {
     url: 'https://services.bannerstack.com/products.cfc',
     data: data,
-    dataType: 'jsonp',
+    dataType: 'json',
     type: 'GET',
     success: callback,
     fail: showAjaxError
