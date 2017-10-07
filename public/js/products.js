@@ -28,7 +28,7 @@ function splitUrlIntoArray () {
 function checkUrlForContent () {
 
   // get info from URL
-  let urlArray = splitUrlIntoArray();
+  let urlArray = splitUrlIntoArray();console.log(urlArray);
 
   // if this is NOT the products page
   if (urlArray[0] !== 'products') {
@@ -517,7 +517,7 @@ function getProductCategories () {
 }
 // handle all categories
 function loadProductCategories (data) {
-  console.log(data);
+
   // set page title
   updatePageTitle('ALL PRODUCTS');
 
