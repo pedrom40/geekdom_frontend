@@ -517,7 +517,7 @@ function getProductCategories () {
 }
 // handle all categories
 function loadProductCategories (data) {
-
+  console.log(data);
   // set page title
   updatePageTitle('ALL PRODUCTS');
 
