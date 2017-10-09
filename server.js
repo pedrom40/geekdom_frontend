@@ -23,9 +23,12 @@ app.get('/products', (req, res) => {
 
 // handle product category call
 app.get('/products/:category/', (req, res) => {
-  const {category} = req.params;
-  console.log(category);
-  res.send(`you asked to see ${category} products`);
+  res.sendFile(__dirname + '/views/products.html');
+});
+
+// handle product call
+app.get('/products/:category/:product', (req, res) => {
+  res.sendFile(__dirname + '/views/products.html');
 });
 
 // setup server

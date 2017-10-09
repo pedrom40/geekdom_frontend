@@ -28,19 +28,34 @@ function splitUrlIntoArray () {
 function checkUrlForContent () {
 
   // get info from URL
-  let urlArray = splitUrlIntoArray();
+  let urlArray = splitUrlIntoArray();console.log(urlArray);
 
   // if this is NOT the products page
-  if (urlArray[0] !== 'products') {
+  if (urlArray[0] == 'products') {
 
-    // check for category match
-    checkForCategoryMatch(urlArray);
+    // if there's a product category
+    if (urlArray.length === 3) {
 
-  }
-  else {
+      // check for category match
+      checkForCategoryMatch(urlArray);
 
-    // get all categories
-    getProductCategories();
+    }
+
+    // if there's a product name
+    else if (urlArray.length === 4) {
+
+      // check for category match
+      checkForProductMatch();
+
+    }
+
+    // if it's the products page with no other parameters
+    else {
+
+      // get all categories
+      getProductCategories();
+
+    }
 
   }
 
@@ -50,8 +65,7 @@ function checkUrlForContent () {
 function checkForCategoryMatch (data) {
 
   const qData = {
-    categoryName: data[0].toString().replace(/-/g, ' '),
-    categoryId: data[1],
+    categoryName: data[1].toString().replace(/-/g, ' '),
     method:'getCategoryFromUrl'
   }
   callProductsService(qData, categoryResult);
@@ -96,7 +110,7 @@ function loadCategoryProducts (data) {
 
     const template = `
       <div class="product-box">
-        <a href="/products/${category[1].toString().replace(/ /g, '-')}/">
+        <a href="/products/${category[5].toString().replace(/ /g, '-')}/${category[1].toString().replace(/ /g, '-')}/">
           <div class="product-img" style="background-image:url('https://static.bannerstack.com/img/products/${category[2]}');"></div>
           <div class="product-name">${category[1]}</div>
           <div class="product-short-desc">${category[3]}</div>
@@ -147,8 +161,7 @@ function checkForProductMatch () {
 function lookForProductMatch (data) {
 
   const qData = {
-    productName: data[0].toString().replace(/-/g, ' '),
-    productId: data[1],
+    productName: data[2].toString().replace(/-/g, ' '),
     method:'getProductFromUrl'
   }
   callProductsService(qData, productResult);
