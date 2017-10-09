@@ -28,9 +28,9 @@ function splitUrlIntoArray () {
 function checkUrlForContent () {
 
   // get info from URL
-  let urlArray = splitUrlIntoArray();console.log(urlArray);
+  let urlArray = splitUrlIntoArray();
 
-  // if this is NOT the products page
+  // if this is a products page
   if (urlArray[0] == 'products') {
 
     // if there's a product category
