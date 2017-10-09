@@ -80,7 +80,9 @@ app.post('/cart', jsonParser, (req, res) => {
   req.session.cart.push(req.body);
 
   // send to cart page
-  res.redirect('/cart');
+  res.json({
+    "itemAdded": "yes"
+  });
 
 });
 

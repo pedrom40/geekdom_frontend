@@ -220,7 +220,10 @@ function addProductToCart () {
   };
 
   // add it to cart, then show cart page
-  addItemToCart(productInfo);
+  addItemToCart(productInfo)
+    .then( () => {
+      window.location.assign('/cart');
+    });
 
 }
 
