@@ -195,8 +195,9 @@ function setOrderTotal (totalAmount) {
 
 // add product to cart
 function addProductToCart () {
-  const qData = {
-    method:'addItemToCart',
+
+  // gather cart item info
+  const productInfo = {
     productId: $('#productId').val(),
     productName: $('#productName').val(),
     productThumb: $('#productThumb').val(),
@@ -216,10 +217,11 @@ function addProductToCart () {
     shippingZip: $('#shippingZip').val(),
     shippingCost: $('#shippingCost').val(),
     shippingService: $('#shippingService').val()
-  }
-  callCartService(qData).then( () => {
-    window.location.assign('/cart');
-  });
+  };
+
+  // add it to cart, then show cart page
+  addItemToCart(productInfo);
+
 }
 
 // listen for cart checkout submissions
@@ -420,6 +422,22 @@ function callCartService (data, callback) {
     type: 'GET',
     fail: showAjaxError
   }
+
+  return $.ajax(settings);
+
+}
+
+// add product info to cart
+function addItemToCart(productInfo) {
+
+  const settings = {
+    url: '/cart/',
+    contentType: 'application/json',
+    dataType: 'json',
+    data: JSON.stringify(productInfo),
+    type: 'POST',
+    fail: showAjaxError
+  };
 
   return $.ajax(settings);
 
