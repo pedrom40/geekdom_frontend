@@ -2,7 +2,7 @@
 function initCart () {
 
   // if on cart or review page, call function to display cart contents
-  if (window.location.pathname === '/cart/' || window.location.pathname === '/review/') {
+  if (window.location.pathname === '/cart' || window.location.pathname === '/review') {
     getCartContents();
   }
 
@@ -19,10 +19,8 @@ function initCart () {
 
 // show what's in the cart because we're on the cart page
 function getCartContents () {
-  const qData = {
-    method:'getCartContents'
-  }
-  callCartService(qData)
+
+  getExpressCartContents()
 
     // reload cart contents
     .then( (data) => {
@@ -60,24 +58,25 @@ function displayCartContents (data) {
     data.map( (cartItem, index) => {
 
       let specs = '';
-      if (cartItem.product_specs !== '') {
-        specs = `| ${cartItem.product_specs}`;
+      if (cartItem.productSpecs !== '') {
+        specs = `| ${cartItem.productSpecs}`;
       }
 
       const template = `
         <div class="row cart-contents">
           <div class="column product-name">
-            <img src="/img/products/${cartItem.product_thumb}" alt="${cartItem.product_name}">
-            <h4>${cartItem.product_name}</h4>
-            <p>${cartItem.product_width}"W X ${cartItem.product_height}"H ${specs}</p>
+            <img src="https://static.bannerstack.com/img/products/${cartItem.productThumb}" alt="${cartItem.productName}">
+            <h4>${cartItem.productName}</h4>
+            <p>${cartItem.productWidth}"W X ${cartItem.productHeight}"H ${specs}</p>
+
             <div class="row">
               <div class="column">
                 <label for="${index}-product-qty">Quantity</label>
-                <input type="number" id="${index}-product-qty" class="js-qty-cart" maxlength="10" required value="${cartItem.product_qty}">
+                <input type="number" id="${index}-product-qty" class="js-qty-cart" maxlength="10" required value="${cartItem.productQty}">
               </div>
               <div class="column">
                 <label for="${index}-product-price">Price ($)</label>
-                <input type="number" id="${index}-product-price" readonly value="${cartItem.product_price}">
+                <input type="number" id="${index}-product-price" readonly value="${cartItem.productPrice}">
               </div>
               <div class="column">
                 <label for="${index}-shipping-service">Shipping Service</label>
@@ -88,25 +87,30 @@ function displayCartContents (data) {
                 </select>
               </div>
             </div>
-            <div class="row">
-              <div class="column">
-                <a href="#" id="${index}-delete" class="product-details-btn js-delete-cart">
-                  <i class="fa fa-ban" aria-hidden="true"></i>
-                  REMOVE FROM CART
-                  <i class="fa fa-caret-right" aria-hidden="true"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-          <div class="column column-10"></div>
 
+            <hr>
+
+            <label>Ship to</label>
+            <p>
+              <em>${cartItem.shippingName}</em><br>
+              ${cartItem.shippingAddress}<br>
+              ${cartItem.shippingCity}, ${cartItem.shippingState} ${cartItem.shippingZip}
+            </p>
+
+            <a href="#" id="${index}-delete" class="product-details-btn js-delete-cart">
+              <i class="fa fa-ban" aria-hidden="true"></i>
+              REMOVE
+              <i class="fa fa-caret-right" aria-hidden="true"></i>
+            </a>
+
+          </div>
         </div>
       `;
 
       $('.js-cart-display').append(template);
 
       // previous total + item price + shipping cost
-      orderTotal = orderTotal + cartItem.product_price + 5.99;
+      orderTotal = orderTotal + Number(cartItem.productPrice) + 5.99;
 
     });
 
@@ -444,6 +448,18 @@ function addItemToCart(productInfo) {
 
   return $.ajax(settings);
 
+}
+
+// get cart contents from express session
+function getExpressCartContents () {
+
+  const settings = {
+    url: '/getCart/',
+    type: 'GET',
+    fail: showAjaxError
+  };
+
+  return $.ajax(settings);
 }
 
 $(initCart)

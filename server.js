@@ -91,6 +91,11 @@ app.get('/cart', (req, res) => {
   res.sendFile(__dirname + '/views/cart.html');
 });
 
+// pass cart contents
+app.get('/getCart', (req, res) => {
+  res.json(req.session.cart);
+});
+
 // setup server
 app.listen(process.env.PORT || 8080, () => {
   console.log(`Your app is listening on port ${process.env.PORT || 8080}`);
