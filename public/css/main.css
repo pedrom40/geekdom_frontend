@@ -423,8 +423,7 @@ footer {
       .cart .main-row .cart-product-rows .cart-contents {
         margin: 15px 0; }
         .cart .main-row .cart-product-rows .cart-contents .product-name {
-          padding-bottom: 15px;
-          border-bottom: solid 1px #31302e; }
+          padding-bottom: 15px; }
           .cart .main-row .cart-product-rows .cart-contents .product-name img {
             margin: 15px 0;
             padding: 15px;

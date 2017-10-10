@@ -66,8 +66,18 @@ function displayCartContents (data) {
         <div class="row cart-contents">
           <div class="column product-name">
             <img src="https://static.bannerstack.com/img/products/${cartItem.productThumb}" alt="${cartItem.productName}">
+          </div>
+          <div class="column">
             <h4>${cartItem.productName}</h4>
             <p>${cartItem.productWidth}"W X ${cartItem.productHeight}"H ${specs}</p>
+            <label>Ship to</label>
+            <p>
+              <em>${cartItem.shippingName}</em><br>
+              ${cartItem.shippingAddress}<br>
+              ${cartItem.shippingCity}, ${cartItem.shippingState} ${cartItem.shippingZip}
+            </p>
+          </div>
+          <div class="column">
 
             <div class="row">
               <div class="column">
@@ -78,31 +88,20 @@ function displayCartContents (data) {
                 <label for="${index}-product-price">Price ($)</label>
                 <input type="number" id="${index}-product-price" readonly value="${cartItem.productPrice}">
               </div>
-              <div class="column">
-                <label for="${index}-shipping-service">Shipping Service</label>
-                <select id="${index}-shipping-service" class="js-shipping-cart">
-                  <option data-cost="5.99" value="Ground">Ground ($5.99)</option>
-                  <option data-cost="15.99" value="2-Day">2-Day ($15.99)</option>
-                  <option data-cost="35.99" value="Next Day Air">Next Day Air ($35.99)</option>
-                </select>
-              </div>
             </div>
 
-            <hr>
-
-            <label>Ship to</label>
-            <p>
-              <em>${cartItem.shippingName}</em><br>
-              ${cartItem.shippingAddress}<br>
-              ${cartItem.shippingCity}, ${cartItem.shippingState} ${cartItem.shippingZip}
-            </p>
+            <label for="${index}-shipping-service">Shipping Service</label>
+            <select id="${index}-shipping-service" class="js-shipping-cart">
+              <option data-cost="5.99" value="Ground">Ground ($5.99)</option>
+              <option data-cost="15.99" value="2-Day">2-Day ($15.99)</option>
+              <option data-cost="35.99" value="Next Day Air">Next Day Air ($35.99)</option>
+            </select>
 
             <a href="#" id="${index}-delete" class="product-details-btn js-delete-cart">
               <i class="fa fa-ban" aria-hidden="true"></i>
               REMOVE
               <i class="fa fa-caret-right" aria-hidden="true"></i>
             </a>
-
           </div>
         </div>
       `;
