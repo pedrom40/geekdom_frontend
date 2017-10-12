@@ -22,7 +22,7 @@ var style = {
   }
 };
 
-if (window.location.pathname === '/cart/') {
+if (document.querySelector('#card-element') !== null) {
 
   // Create an instance of the card Element
   var card = elements.create('card', {style: style});
@@ -66,7 +66,7 @@ function callStripe () {
     }
     else {
 
-      // save all info to user session
+      // save all info to user session - users.js
       updateUserSession(result.token);
 
     }

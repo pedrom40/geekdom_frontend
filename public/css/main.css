@@ -440,6 +440,8 @@ footer {
 @media only screen and (min-width: 1024px) {
   .cart .main-row {
     display: flex; }
+    .cart .main-row .columnSpacer {
+      width: 40px; }
     .cart .main-row .cart-product-rows {
       width: 60%; }
     .cart .main-row .cart-form-rows {

@@ -34,13 +34,13 @@ app.use( (req, res, next) => {
       phone: '',
       email: '',
 
-      billing_name: '',
-      billing_address: '',
-      billing_city: '',
-      billing_state: '',
-      billing_zip: '',
-      card_token: '',
-      card_last_four: '',
+      billingName: '',
+      billingAddress: '',
+      billingCity: '',
+      billingState: '',
+      billingZip: '',
+      cardToken: '',
+      cardLastFour: '',
 
     }
 
@@ -94,6 +94,53 @@ app.get('/cart', (req, res) => {
 // pass cart contents
 app.get('/getCart', (req, res) => {
   res.json(req.session.cart);
+});
+
+// pass user contents
+app.get('/getUser', (req, res) => {
+  res.json(req.session.user);
+});
+
+// update cart info
+app.post('/updateCart', jsonParser, (req, res) => {
+
+  // update user session var
+  req.session.user = {
+
+    name: req.body.name,
+    phone: req.body.phone,
+    email: req.body.email,
+
+    billingName: req.body.billingName,
+    billingAddress: req.body.billingAddress,
+    billingCity: req.body.billingCity,
+    billingState: req.body.billingState,
+    billingZip: req.body.billingZip,
+    cardToken: req.body.cardToken,
+    cardLastFour: req.body.cardLastFour
+
+  }
+
+  // send success
+  res.json({
+    "userUpdated": "yes"
+  });
+
+});
+
+// checkout
+app.get('/checkout', (req, res) => {
+  res.sendFile(__dirname + '/views/checkout.html');
+});
+
+// review order
+app.get('/review', (req, res) => {
+  res.sendFile(__dirname + '/views/review.html');
+});
+
+// order confirmation page
+app.get('/confirmation/:orderId', (req, res) => {
+  res.send(`orderID: ${req.params.orderId}`);
 });
 
 // setup server

@@ -59,6 +59,10 @@
     .main-row {
       display:flex;
 
+      .columnSpacer {
+        width:40px;
+      }
+
       .cart-product-rows {
         width:60%;
       }

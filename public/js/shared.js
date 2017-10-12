@@ -95,6 +95,23 @@ function populateYearsSelect (element) {
 
 }
 
+// rebuild array of objects for CF
+function rebuildArrayOfObjectsForColdfusion (jsArray) {
+
+  // new var to rebuild cart contents
+  let newCartArray = [];
+
+  // convert each object in cart into a json string
+  jsArray.map( item => {
+
+    // convert object to string
+    newCartArray.push(JSON.stringify(item));
+
+  });
+
+  return `[${newCartArray.toString()}]`;
+}
+
 // handle error messages
 function showErrorMsg (msg) {
   $('.js-error-msg').html(`<h4>${msg}</h4>`);

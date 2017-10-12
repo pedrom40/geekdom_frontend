@@ -2,9 +2,12 @@
 function initCart () {
 
   // if on cart or review page, call function to display cart contents
-  if (window.location.pathname === '/cart' || window.location.pathname === '/review') {
-    getCartContents();
-  }
+  const pageUrlList = ['/cart', '/cart/', '/review', '/review/', '/checkout', '/checkout/'];
+  pageUrlList.map( (url) => {
+    if (window.location.pathname === url) {
+      getCartContents();
+    }
+  });
 
   // listen for cart form submit
   listenForCartFormSubmit();
@@ -62,6 +65,17 @@ function displayCartContents (data) {
         specs = `| ${cartItem.productSpecs}`;
       }
 
+      let removeBtn = '';
+      if (window.location.pathname !== '/review' && window.location.pathname !== '/review/') {
+        removeBtn = `
+          <a href="#" id="${index}-delete" class="product-details-btn js-delete-cart">
+            <i class="fa fa-ban" aria-hidden="true"></i>
+            REMOVE
+            <i class="fa fa-caret-right" aria-hidden="true"></i>
+          </a>
+        `;
+      }
+
       const template = `
         <div class="row cart-contents">
           <div class="column product-name">
@@ -97,11 +111,7 @@ function displayCartContents (data) {
               <option data-cost="35.99" value="Next Day Air">Next Day Air ($35.99)</option>
             </select>
 
-            <a href="#" id="${index}-delete" class="product-details-btn js-delete-cart">
-              <i class="fa fa-ban" aria-hidden="true"></i>
-              REMOVE
-              <i class="fa fa-caret-right" aria-hidden="true"></i>
-            </a>
+            ${removeBtn}
           </div>
         </div>
       `;
@@ -112,6 +122,29 @@ function displayCartContents (data) {
       orderTotal = orderTotal + Number(cartItem.productPrice) + 5.99;
 
     });
+
+    if (window.location.pathname !== '/checkout' && window.location.pathname !== '/checkout/' && window.location.pathname !== '/review' && window.location.pathname !== '/review/') {
+      $('.js-cart-display').append(`
+        <hr>
+        <div class="row">
+          <div class="column">
+            <a href="/products" class="product-details-btn">
+              <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+              KEEP SHOPPING
+              <i class="fa fa-caret-right" aria-hidden="true"></i>
+            </a>
+          </div>
+          <div class="column">
+            <a href="/checkout" class="product-details-btn">
+              <i class="fa fa-credit-card" aria-hidden="true"></i>
+              CHECKOUT
+              <i class="fa fa-caret-right" aria-hidden="true"></i>
+            </a>
+          </div>
+        </div>
+
+      `);
+    }
 
     // display order total
     setOrderTotal(orderTotal);
@@ -153,15 +186,12 @@ function deleteItemFromCart (itemId) {
 
   // get index of cart item to delete
   let itemIndex = itemId.split('-');
+  itemIndex = itemIndex[0];
 
-  // call cart service to handle delete
-  const qData = {
-    method:'deleteCartItem',
-    indexToDelete: itemIndex[0]
-  }
-  callCartService(qData).then(function() {
-    getCartContents();
-  });
+  getExpressCartContents()
+    .then( (data) => {
+      console.log(data);
+    });
 
 }
 
@@ -244,7 +274,7 @@ function listenForCartFormSubmit () {
     // if no errors
     if (!formError) {
 
-      // call stripe to verify card and get token
+      // call stripe to verify card and get token - stripeCode.js
       callStripe();
 
     }
@@ -282,31 +312,6 @@ function validateCartForm () {
   if ($('#user-email').val() !== $('#user-email-confirm').val()) {
     error = true;
     msg = `${msg} <li>Email Addresses do not match</li>`;
-  }
-
-  if ($('#shipping-name').val() === '') {
-    error = true;
-    msg = `${msg} <li>Please enter a name for the Ship to Location</li>`;
-  }
-
-  if ($('#shipping-address').val() === '') {
-    error = true;
-    msg = `${msg} <li>Please enter the Shipping Address</li>`;
-  }
-
-  if ($('#shipping-city').val() === '') {
-    error = true;
-    msg = `${msg} <li>Please enter the Shipping City</li>`;
-  }
-
-  if ($('#shipping-state').val() === '') {
-    error = true;
-    msg = `${msg} <li>Please enter the Shipping State</li>`;
-  }
-
-  if ($('#shipping-zip').val() === '') {
-    error = true;
-    msg = `${msg} <li>Please enter the Shipping Zip</li>`;
   }
 
   if ($('#billing-name').val() === '') {
@@ -374,13 +379,23 @@ function listenForOrderPlacement () {
 
 // runs when user clicks "Place Order" btn
 function placeOrder (amountToCharge) {
-  const qData = {
-    method:'chargeCard',
-    amountToCharge: amountToCharge
-  }
-  callCartService(qData).then( (data) => {
-    handleChargeResult(data);
-  });
+
+  // get user info for cart token
+  getUserSessionInfo()
+    .then( (data) => {
+
+      // pass to DB for processing
+      const qData = {
+        method:'chargeCard',
+        amountToCharge: amountToCharge,
+        cardToken: data.cardToken
+      }
+      callCartService(qData).then( (data) => {
+        handleChargeResult(data);
+      });
+
+    });
+
 }
 function handleChargeResult (data) {
   const jsonResponse = JSON.parse(data);
@@ -404,22 +419,130 @@ function handleChargeResult (data) {
 
 }
 
-// runs when charge to card was successful
+// runs when charge to card was successful, saves main order info, order items and payment info to Db
 function saveOrder (chargeInfo) {
-  const qData = {
-    method:'saveOrder',
-    chargeData: chargeInfo
-  }
-  callCartService(qData).then( (data) => {
-    orderResponse(data);
+
+  // var to hold order ID
+  let orderId = 0;
+  let qData = {};
+
+  // get user session info
+  getUserSessionInfo().then( (data) => {
+
+    // pass to service to save to DB
+    qData = {
+      method: 'saveOrderToDb',
+      chargeDesc: chargeInfo.description,
+      userEmail: data.email,
+      userPhone: data.phone
+    }
+    callCartService(qData).then( (data) => {
+
+      // parse JSON string from CF service
+      data = JSON.parse(data);
+
+      // if error
+      if (data.orderId === 0) {
+
+        // display error msg
+        showErrorMsg(data.errorMsg);
+
+      }
+
+      // no errors
+      else {
+
+        // save new order ID
+        orderId = data.orderId;
+
+        // get cart items
+        getExpressCartContents().then( (cartItems) => {
+
+          // convert to string for CF
+          const newCartArray = rebuildArrayOfObjectsForColdfusion(cartItems);
+
+          // pass to service to save order items
+          qData = {
+            method:'saveOrderItemsToDb',
+            orderId: orderId,
+            cartItems: newCartArray
+          }
+          callCartService(qData).then( (data) => {
+
+            // if error
+            if (data !== 'success') {
+
+              // display error msg
+              showErrorMsg(data);
+
+            }
+
+            // no errors
+            else {
+
+              // take out items we're saving
+              let chargeInfoToSend = {
+                order_id: orderId,
+                total_charge: chargeInfo.amount,
+                balance_transaction: chargeInfo.balance_transaction,
+                created: chargeInfo.created,
+                description: chargeInfo.description,
+                charge_id: chargeInfo.id,
+                card_id: chargeInfo.source.id,
+                card_type: chargeInfo.source.brand,
+                card_name: chargeInfo.source.name,
+                card_address: chargeInfo.source.address_line1,
+                card_city: chargeInfo.source.address_city,
+                card_state: chargeInfo.source.address_state,
+                card_zip: chargeInfo.source.address_zip,
+                card_country: chargeInfo.source.country,
+                card_exp_month: chargeInfo.source.exp_month,
+                card_exp_year: chargeInfo.source.exp_year,
+                card_last_four: chargeInfo.source.last4,
+                fingerprint: chargeInfo.source.fingerprint
+              }
+
+              // save payment info to Db
+              qData = {
+                method: 'saveOrderPaymentInfoToDb',
+                chargeInfo: JSON.stringify(chargeInfoToSend)
+              }
+              callCartService(qData).then( (data) => {
+
+                // if error
+                if (data !== 'success') {
+
+                  // display error msg
+                  showErrorMsg(data);
+
+                }
+
+                // no errors
+                else {
+
+                  // go to confirmation page
+                  window.location.assign(`/confirmation/${orderId}`);
+
+                }
+
+              });
+
+            }
+
+          });
+
+        });
+
+      }
+
+    });
+
   });
-}
-function orderResponse (data) {
-  console.log(data);
+
 }
 
-// makes all calls to user.cfc
-function callCartService (data, callback) {
+// makes all calls to cart.cfc
+function callCartService (data) {
 
   var settings = {
     url: 'https://services.bannerstack.com/cart.cfc',

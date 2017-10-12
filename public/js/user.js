@@ -2,79 +2,52 @@
 function initUser () {
 
   // check for existing info
-  checkForCurrentSession();
+  getUserSessionInfo()
+    .then( (data) => {
+
+      // if data exists
+      if (data.name !== '') {
+
+        // load session info to cart form
+        displayUserSession(data);
+
+      }
+
+    });
 
 }
 
-// look at session for existing info
-function checkForCurrentSession () {
-  const qData = {
-    method:'checkForExistingSession'
-  }
-  callUserService(qData, sessionResponse);
-}
-function sessionResponse (data) {
-
-  // if data exists
-  if (data === 1) {
-
-    if (window.location.pathname === '/cart/' || window.location.pathname === '/review/') {
-
-      // load session info to cart form
-      loadUserSessionInfo();
-
-    }
-
-  }
-
-}
-
-// call service to get session info and display it
-function loadUserSessionInfo () {
-  const qData = {
-    method:'getUserSession'
-  }
-  callUserService(qData, displayUserSession);
-}
+// load the data to the dom
 function displayUserSession (data) {
 
-  if (window.location.pathname === '/cart/') {
+  // if it's going into inputs
+  if (window.location.pathname === '/checkout' || window.location.pathname === '/checkout/') {
 
     $('#user-name').val(`${data.name}`);
     $('#user-phone').val(`${data.phone}`);
     $('#user-email').val(`${data.email}`);
 
-    $('#shipping-name').val(`${data.shipping_name}`);
-    $('#shipping-address').val(`${data.shipping_address}`);
-    $('#shipping-city').val(`${data.shipping_city}`);
-    $('#shipping-state').val(`${data.shipping_state}`);
-    $('#shipping-zip').val(`${data.shipping_zip}`);
-
-    $('#billing-name').val(`${data.billing_name}`);
-    $('#billing-address').val(`${data.billing_address}`);
-    $('#billing-city').val(`${data.billing_city}`);
-    $('#billing-state').val(`${data.billing_state}`);
-    $('#billing-zip').val(`${data.billing_zip}`);
+    $('#billing-name').val(`${data.billingName}`);
+    $('#billing-address').val(`${data.billingAddress}`);
+    $('#billing-city').val(`${data.billingCity}`);
+    $('#billing-state').val(`${data.billingState}`);
+    $('#billing-zip').val(`${data.billingZip}`);
 
   }
-  else if (window.location.pathname === '/review/') {
+
+  // if it's going into spans
+  else if (window.location.pathname === '/review' || window.location.pathname === '/review/') {
 
     $('#user-name').html(`${data.name}`);
     $('#user-phone').html(`${data.phone}`);
     $('#user-email').html(`${data.email}`);
 
-    $('#shipping-name').html(`${data.shipping_name}`);
-    $('#shipping-address').html(`${data.shipping_address}`);
-    $('#shipping-city').html(`${data.shipping_city}`);
-    $('#shipping-state').html(`${data.shipping_state}`);
-    $('#shipping-zip').html(`${data.shipping_zip}`);
-
-    $('#billing-name').html(`${data.billing_name}`);
-    $('#billing-address').html(`${data.billing_address}`);
-    $('#billing-city').html(`${data.billing_city}`);
-    $('#billing-state').html(`${data.billing_state}`);
-    $('#billing-zip').html(`${data.billing_zip}`);
-    $('#billing-last4').html(`${data.card_last_four}`);
+    $('#billing-name').html(`${data.billingName}`);
+    $('#billing-address').html(`${data.billingAddress}`);
+    $('#billing-city').html(`${data.billingCity}`);
+    $('#billing-state').html(`${data.billingState}`);
+    $('#billing-zip').html(`${data.billingZip}`);
+    $('#billing-last4').html(`${data.cardLastFour}`);
 
   }
 
@@ -83,40 +56,53 @@ function displayUserSession (data) {
 // update user session from cart form submit
 function updateUserSession (stripeTokenObject) {
 
-  const qData = {
-    method:'updateUserSession',
-    userName: $('#user-name').val(),
-    userPhone: $('#user-phone').val(),
-    userEmail: $('#user-email').val(),
+  const userData = {
+
+    name: $('#user-name').val(),
+    phone: $('#user-phone').val(),
+    email: $('#user-email').val(),
+
     billingName: $('#billing-name').val(),
     billingAddress: $('#billing-address').val(),
     billingCity: $('#billing-city').val(),
     billingState: $('#billing-state').val(),
     billingZip: $('#billing-zip').val(),
-
     cardToken: stripeTokenObject.id,
     cardLastFour: stripeTokenObject.card.last4
+
   }
-  callUserService(qData, goToReviewPage);
-}
-function goToReviewPage (data) {
-  window.location.assign('/review');
+  updateUserSessionInfo(userData)
+    .then( () => {
+      window.location.assign('/review');
+    });
+
 }
 
-// makes all calls to user.cfc
-function callUserService (data, callback) {
+// make call to cart post route
+function updateUserSessionInfo (userData) {
 
-  var settings = {
-    url: 'https://services.bannerstack.com/user.cfc',
-    data: data,
+  const settings = {
+    url: '/updateCart',
+    contentType: 'application/json',
     dataType: 'json',
-    type: 'GET',
-    success: callback,
+    data: JSON.stringify(userData),
+    type: 'POST',
     fail: showAjaxError
-  }
+  };
 
-  $.ajax(settings);
+  return $.ajax(settings);
 
+}
+
+// get user session info from express route
+function getUserSessionInfo () {
+  const settings = {
+    url: '/getUser/',
+    type: 'GET',
+    fail: showAjaxError
+  };
+
+  return $.ajax(settings);
 }
 
 $(initUser)
