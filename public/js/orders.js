@@ -33,43 +33,7 @@ function displayOrderInfo (order) {
 
   // display payment info
   displayPaymentInfo(order[2]);
-  /*
-  [
-    {
-      "phone":3619030942,
-      "order_number":"ilm-B2964C76",
-      "comments":"",
-      "email":"pedro@121texas.com",
-      "purchase_date":"2017-10-12 01:32:51"
-    },
-    [
-      {
-        "shipping_city":"Corpus Christi",
-        "shipping_zip":78417,
-        "shipping_cost":0.00,
-        "shipping_service":"Ground",
-        "product_specs_values":"",
-        "product_quantity":1,
-        "shipping_state":"TX",
-        "turnaround_time":"same",
-        "product_id":1,
-        "artwork_file":"upload",
-        "product_price":15.00,
-        "shipping_address":"6317 Harwick Drive",
-        "order_status":"New",
-        "product_specs":"",
-        "shipping_name":"CC Office"
-      }
-    ],
-    {
-      "total_charge":2099,
-      "card_name":"Mike D Morgan",
-      "card_type":"Visa",
-      "card_last_four":4242,
-      "charge_id":"ch_1BCBUFEY5W1T44NwzrvdhMgH"
-    }
-  ]
-  */
+
 }
 
 function displayMainOrderInfo (mainOrderInfo) {
@@ -84,8 +48,7 @@ function displayMainOrderInfo (mainOrderInfo) {
 
 }
 function displayCartItems (cartInfo) {
-  console.log('cart info');
-  console.log(cartInfo);
+
   // loop thru items
   cartInfo.map( (cartItem, index) => {
 
