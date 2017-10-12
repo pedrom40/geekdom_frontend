@@ -1,4 +1,5 @@
 function showAjaxError (data) {
+  console.log('Error data');
   console.log(data);
 }
 
