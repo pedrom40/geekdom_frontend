@@ -101,6 +101,11 @@ app.get('/getUser', (req, res) => {
   res.json(req.session.user);
 });
 
+// pass user contents
+app.get('/getUser', (req, res) => {
+  res.json(req.session.user);
+});
+
 // update cart info
 app.post('/updateCart', jsonParser, (req, res) => {
 
@@ -139,8 +144,8 @@ app.get('/review', (req, res) => {
 });
 
 // order confirmation page
-app.get('/confirmation/:orderId', (req, res) => {
-  res.send(`orderID: ${req.params.orderId}`);
+app.get('/confirmation', (req, res) => {
+  res.sendFile(__dirname + '/views/confirmation.html');
 });
 
 // setup server

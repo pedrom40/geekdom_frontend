@@ -433,6 +433,7 @@ function saveOrder (chargeInfo) {
     qData = {
       method: 'saveOrderToDb',
       chargeDesc: chargeInfo.description,
+      userName: data.name,
       userEmail: data.email,
       userPhone: data.phone
     }
@@ -521,7 +522,7 @@ function saveOrder (chargeInfo) {
                 else {
 
                   // go to confirmation page
-                  window.location.assign(`/confirmation/${orderId}`);
+                  window.location.assign(`/confirmation/?orderId=${orderId}`);
 
                 }
 
