@@ -7,7 +7,7 @@ function initApp () {
   listenForMenuToggle();
 
   // look for state select menus to populate
-  populateStateSelect('.js-states-select');
+  //populateStateSelect('.js-states-select');
 
 }
 
