@@ -304,6 +304,11 @@ function loadProductDetails (data) {
                       <option data-cost="35.99" value="Next Day Air">Next Day Air ($35.99)</option>
                     </select>
 
+                    <a href="#" class="product-details-btn js-shipping-rates-btn">
+                      <i class="fa fa-caret-left" aria-hidden="true"></i>
+                      GET RATES
+                    </a>
+
                     <div class="row">
                       <div class="column">
                         <a href="#" class="product-details-btn js-open-details-btn">
@@ -359,6 +364,9 @@ function loadProductDetails (data) {
 
   // listen for shipping setup clicks
   listenForShippingStepClicks();
+
+  // liste for shipping rates click
+  listenForShippingRatesClick();
 
   // liste for back to details btn clicks
   listenForBackToDetailsClicks();
@@ -504,6 +512,25 @@ function listenForShippingStepClicks () {
 
 }
 
+// listen for shipping rates click
+function listenForShippingRatesClick () {
+
+  $('.js-shipping-rates-btn').click( event => {
+    event.preventDefault();
+
+    const address_to = {
+      "name": $('#shippingName').val(),
+      "street1": $('#shippingAddress').val(),
+      "city": $('#shippingCity').val(),
+      "state": $('#shippingState').val(),
+      "zip": $('#shippingZip').val(),
+    }
+    getShippingRates(address_to);
+
+  });
+
+}
+
 // listen for back to product details btn clicks
 function listenForBackToDetailsClicks () {
 
@@ -582,6 +609,54 @@ function callProductsService (data, callback) {
   }
 
   $.ajax(settings);
+
+}
+
+// get shipping rates from shippo
+function getShippingRates (addressTo) {
+
+  const addressFrom = {
+    "company": "BannerStack.com",
+    "street1": "53 Camellia Way",
+    "city": "San Antonio",
+    "state": "TX",
+    "zip": "78209",
+    "country": "US",
+    "phone": "1234567890",
+    "email": "mike.morgan@121texas.com"
+  }
+
+  const data = {
+    address_from: addressFrom,
+    address_to: addressTo,
+    "async": false,
+    "parcels": [
+      {
+        "length": "5",
+        "width": "5",
+        "height": "5",
+        "distance_unit": "in",
+        "weight": "2",
+        "mass_unit": "lb"
+      }
+    ]
+  }
+
+  console.log(data);
+
+  const settings = {
+    url: 'https://api.goshippo.com/shipments/',
+    data: data,
+    dataType: 'json',
+    type: 'POST',
+    beforeSend: function(xhr){
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.setRequestHeader('Authorization', 'shippo_test_1b5eb8be60175e318626100b8d271fce90f6cb34');
+    },
+    fail: showAjaxError
+  }
+
+  return $.ajax(settings);
 
 }
 

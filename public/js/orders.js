@@ -104,16 +104,16 @@ function displayPaymentInfo (customerInfo) {
 // makes all calls to orders.cfc
 function callOrderService (data) {
 
-    var settings = {
-      url: 'https://services.bannerstack.com/orders.cfc',
-      data: data,
-      dataType: 'json',
-      type: 'GET',
-      fail: showAjaxError
-    }
-
-    return $.ajax(settings);
-
+  var settings = {
+    url: 'https://services.bannerstack.com/orders.cfc',
+    data: data,
+    dataType: 'json',
+    type: 'GET',
+    fail: showAjaxError
   }
+
+  return $.ajax(settings);
+
+}
 
 $(initOrder)
