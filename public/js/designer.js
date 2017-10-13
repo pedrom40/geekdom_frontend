@@ -6,7 +6,7 @@ let
   langCode = 'en',
   apiKey = 'bc47b4f2fe45c320901d400be04c5e2f',
   appApiUrl = 'https://pitchprint.net/api/front/',
-  designId = '4#vm2NXUFgsrPU4xo08(zT$fidK4^)',
+  designId = 'ab73e4cc5b80b05facfca35cca40d318',
   lang,
   designer,
   mode = 'new',
