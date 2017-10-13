@@ -79,11 +79,32 @@ app.post('/cart', jsonParser, (req, res) => {
 
   // add item to cart array
   req.session.cart.push(req.body);
+  console.log(req.session.cart);
+
+  // get newest item
+  const artworkSetting = req.session.cart[req.session.cart.length-1].artworkFile;
+
+  // object to return
+  let jsonResponse = {
+    nextStep: '/cart'
+  }
+
+  // if user wants to use the designer interface
+  if (artworkSetting === 'create') {
+    jsonResponse = {
+      nextStep: '/design'
+    }
+  }
+
+  // if user is uploading a file
+  else if (artworkSetting === 'upload') {
+    jsonResponse = {
+      nextStep: '/upload'
+    }
+  }
 
   // send to cart page
-  res.json({
-    "itemAdded": "yes"
-  });
+  res.json(jsonResponse);
 
 });
 

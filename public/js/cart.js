@@ -254,8 +254,8 @@ function addProductToCart () {
 
   // add it to cart, then show cart page
   addItemToCart(productInfo)
-    .then( () => {
-      window.location.assign('/cart');
+    .then( (data) => {
+      window.location.assign(data.nextStep);
     });
 
 }
