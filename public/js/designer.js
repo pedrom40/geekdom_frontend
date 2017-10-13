@@ -4,7 +4,7 @@ let
   apiBase = 'https://pitchprint.net/api/front/',
   buildPath = 'app/83/',
   langCode = 'en',
-  apiKey = 'acf4fa054f72a3ea6edb43c682c03f99',
+  apiKey = 'bc47b4f2fe45c320901d400be04c5e2f',
   appApiUrl = 'https://pitchprint.net/api/front/',
   designId = 'ab73e4cc5b80b05facfca35cca40d318',
   lang,
