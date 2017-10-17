@@ -6,6 +6,9 @@ function initApp () {
   // mobile listener for menu icon click
   listenForMenuToggle();
 
+  // look for state select menus to populate
+  populateStateSelect('.js-states-select');
+
 }
 
 // opens/closes mobile menu

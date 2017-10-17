@@ -62,7 +62,7 @@ function displayCartContents (data) {
 
       let specs = '';
       if (cartItem.productSpecs !== '') {
-        specs = `| ${cartItem.productSpecs}`;
+        specs = `<br>${cartItem.productSpecs.replace(/; /g, '<br>')}`;
       }
 
       let removeBtn = '';
@@ -188,10 +188,9 @@ function deleteItemFromCart (itemId) {
   let itemIndex = itemId.split('-');
   itemIndex = itemIndex[0];
 
-  getExpressCartContents()
-    .then( (data) => {
-      console.log(data);
-    });
+  $.get(`/deleteCartItem/${itemIndex}`, data => {
+    window.location.assign('/cart');
+  });
 
 }
 
@@ -229,6 +228,31 @@ function setOrderTotal (totalAmount) {
 // add product to cart
 function addProductToCart () {
 
+  // var to hold options
+  let productOptionsArray = [];
+
+  // get all options
+  const productOptions = $("select[name='productOptions']");
+
+  // loop over each option
+  productOptions.each( function() {
+
+    // get the name of the option
+    const labelName = $(this).attr('id') +'_label';
+
+    // if this option has a value
+    if ($(this).val() !== '') {
+
+      // combine them in one string
+      const valuePair = $('#'+labelName).text() +': '+ $(this).val();
+
+      // save to the options array
+      productOptionsArray.push(valuePair);
+
+    }
+
+  });
+
   // gather cart item info
   const productInfo = {
     productId: $('#productId').val(),
@@ -236,7 +260,7 @@ function addProductToCart () {
     productThumb: $('#productThumb').val(),
     productQty: $('#productQty').val(),
     productPrice: $('#productPrice').val(),
-    productSpecs: $('#productSpecs').val(),
+    productSpecs: productOptionsArray.join('; '),
     productWidth: $('#productWidth').val(),
     productHeight: $('#productHeight').val(),
     productWeight: $('#productWeight').val(),

@@ -75,11 +75,10 @@ app.get('/products/:category/:product', (req, res) => {
 });
 
 // handle cart POST (adding an item to the cart)
-app.post('/cart', jsonParser, (req, res) => {
+app.post('/cart', jsonParser, (req, res) => {console.log(req.body);
 
   // add item to cart array
   req.session.cart.push(req.body);
-  console.log(req.session.cart);
 
   // get newest item
   const artworkSetting = req.session.cart[req.session.cart.length-1].artworkFile;
@@ -123,13 +122,19 @@ app.get('/getUser', (req, res) => {
   res.json(req.session.user);
 });
 
-// pass user contents
-app.get('/getUser', (req, res) => {
-  res.json(req.session.user);
+// delete cart itme
+app.get('/deleteCartItem/:itemIndex', (req, res) => {
+
+  // remove item at the passed index
+  req.session.cart.splice(req.params.itemIndex, 1);
+
+  // pass back the cart
+  res.json(req.session.cart);
+
 });
 
-// update cart info
-app.post('/updateCart', jsonParser, (req, res) => {
+// update user info
+app.post('/updateUser', jsonParser, (req, res) => {
 
   // update user session var
   req.session.user = {

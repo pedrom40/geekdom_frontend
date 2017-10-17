@@ -54,7 +54,7 @@ function displayCartItems (cartInfo) {
 
     let specs = '';
     if (cartItem.product_specs !== '') {
-      specs = `<p>${cartItem.product_specs}</p>`;
+      specs = `<p>${cartItem.product_specs.replace(/; /g, '<br>')}</p>`;
     }
 
     const template = `

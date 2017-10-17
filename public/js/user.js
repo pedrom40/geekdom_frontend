@@ -82,7 +82,7 @@ function updateUserSession (stripeTokenObject) {
 function updateUserSessionInfo (userData) {
 
   const settings = {
-    url: '/updateCart',
+    url: '/updateUser',
     contentType: 'application/json',
     dataType: 'json',
     data: JSON.stringify(userData),

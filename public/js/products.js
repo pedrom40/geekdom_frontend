@@ -422,7 +422,7 @@ function populateProductOptions (options) {
 
     // set label and select menu
     const optionSelect = `
-      <label for="productOptions_${optionEditedName}">${option[0]}</label>
+      <label id="productOptions_${optionEditedName}_label" for="productOptions_${optionEditedName}">${option[0]}</label>
       <select id="productOptions_${optionEditedName}" name="productOptions">
         <option value=''>No ${option[0]}</option>
       </select>
