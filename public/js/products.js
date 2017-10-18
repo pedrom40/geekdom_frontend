@@ -226,9 +226,9 @@ function loadProductDetails (data) {
 
                 <label for="artworkFile">Design</label>
                 <select id="artworkFile">
-                  <option value="upload">I will upload my files</option>
-                  <option value="need">I need a design</option>
-                  <option value="create">I want to create a design</option>
+                  <option value="upload" data-price="0">I will upload my files</option>
+                  <option value="need" data-price="100">I need a design ($100)</option>
+                  <option value="create" data-price="0">I want to create a design</option>
                 </select>
 
                 <label for="productQty">Quantity</label>
@@ -344,11 +344,14 @@ function loadProductDetails (data) {
   // listen for shipping setup clicks
   listenForShippingStepClicks();
 
-  // liste for shipping rates click
+  // listen for shipping rates click
   listenForShippingRatesClick();
 
-  // liste for back to details btn clicks
+  // listen for back to details btn clicks
   listenForBackToDetailsClicks();
+
+  // listen for artowrk select menu changes
+  listenForArtworkChanges();
 
 }
 
@@ -447,11 +450,23 @@ function listenForQtyChanges () {
 
 }
 
+// listen for qty changes
+function listenForArtworkChanges () {
+
+  $('#artworkFile').change( event => {
+
+    // set price based on size selected
+    calculatePrice();
+
+  });
+
+}
+
 // calculate product price
 function calculatePrice () {
 
   // calculate price
-  const productPrice = $('#productSize').find(':selected').attr('data-price') * $('#productQty').val();
+  const productPrice = ( Number($('#artworkFile').find(':selected').attr('data-price')) + Number($('#productSize').find(':selected').attr('data-price')) ) * Number($('#productQty').val());
 
   // update price
   $('#productPrice').val(productPrice);
