@@ -1,10 +1,9 @@
 // includes
-const express = require('express');
-const morgan = require('morgan');
-const session = require('express-session');
-const bodyParser = require('body-parser');
-const jsonParser = bodyParser.json();
-//var shippo = require('shippo')('shippo_test_1b5eb8be60175e318626100b8d271fce90f6cb34');
+const express     = require('express');
+const morgan      = require('morgan');
+const session     = require('express-session');
+const bodyParser  = require('body-parser');
+const jsonParser  = bodyParser.json();
 
 // mount express
 const app = express();
@@ -54,6 +53,7 @@ app.use( (req, res, next) => {
 // setup static assets
 app.use(express.static('public'));
 
+
 // handle root GET call
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html');
@@ -81,7 +81,8 @@ app.post('/cart', jsonParser, (req, res) => {console.log(req.body);
   req.session.cart.push(req.body);
 
   // get newest item
-  const artworkSetting = req.session.cart[req.session.cart.length-1].artworkFile;
+  const newItemIndex = req.session.cart.length-1;
+  const artworkSetting = req.session.cart[newItemIndex].artworkFile;
 
   // object to return
   let jsonResponse = {
@@ -90,16 +91,21 @@ app.post('/cart', jsonParser, (req, res) => {console.log(req.body);
 
   // if user wants to use the designer interface
   if (artworkSetting === 'create') {
+
+    // send back url with design template id
     jsonResponse = {
-      nextStep: '/design'
+      nextStep: `/designs/?height=${req.session.cart[newItemIndex].productHeight}&width=${req.session.cart[newItemIndex].productWidth}`
     }
+
   }
 
   // if user is uploading a file
   else if (artworkSetting === 'upload') {
+
     jsonResponse = {
       nextStep: '/upload'
     }
+
   }
 
   // send to cart page
@@ -175,90 +181,16 @@ app.get('/confirmation', (req, res) => {
   res.sendFile(__dirname + '/views/confirmation.html');
 });
 
+// get design templates
+app.get('/designs', (req, res) => {
+  res.sendFile(__dirname + '/views/designTemplates.html');
+});
+
 // get designer plugin
-app.get('/design', (req, res) => {
+app.get('/createDesign', (req, res) => {
   res.sendFile(__dirname + '/views/design.html');
 });
 
-// get shipping rates
-/*app.get('/getShippingRates', (req, res) => {
-
-  var addressFrom  = {
-    "company":"BannerStack.com",
-    "street1":"53 Camellia Way",
-    "city":"San Antonio",
-    "state":"TX",
-    "zip":"78209",
-    "country":"US", //iso2 country code
-    "phone":"+1 361 816 0461",
-    "email":"support@bannerstack.com",
-  };
-
-  // example address_to object dict
-  var addressTo = {
-    "name":"Pedro Morin",
-    "street1":"7426 Vaquero Drive",
-    "city":"Corpus Christi",
-    "state":"TX",
-    "zip":"78414",
-    "country":"US", //iso2 country code
-    "phone":"+1 361 903 0942",
-    "email":"pedro@121texas.com",
-  };
-
-  // parcel object dict
-  var parcelOne = {
-    "length":"5",
-    "width":"5",
-    "height":"5",
-    "distance_unit":"in",
-    "weight":"2",
-    "mass_unit":"lb"
-  };
-
-  var parcelTwo = {
-    "length":"5",
-    "width":"5",
-    "height":"5",
-    "distance_unit":"in",
-    "weight":"2",
-    "mass_unit":"lb"
-  };
-
-  var shipment = {
-    "address_from": addressFrom,
-    "address_to": addressTo,
-    "parcels": [parcelOne, parcelTwo],
-  };
-
-  shippo.transaction.create({
-    "shipment": shipment,
-    "servicelevel_token": "ups_ground",
-    "carrier_account": "mik_288615soap",
-    "label_file_type": "png"
-  })
-  .then(function(transaction) {
-      shippo.transaction.list({
-        "rate": transaction.rate
-      })
-      .then(function(mpsTransactions) {
-          mpsTransactions.results.forEach(function(mpsTransaction){
-              if(mpsTransaction.status == "SUCCESS") {
-                console.log("Label URL: %s", mpsTransaction.label_url);
-                console.log("Tracking Number: %s", mpsTransaction.tracking_number);
-              }
-              else {
-                // hanlde error transactions
-                console.log("Message: %s", mpsTransactions.messages);
-              }
-          });
-      })
-  }, function(err) {
-    // Deal with an error
-    console.log("There was an error creating transaction : %s", err.detail);
-  });
-
-});*/
 
 // setup server
 app.listen(process.env.PORT || 8080, () => {

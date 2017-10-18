@@ -113,6 +113,22 @@ function rebuildArrayOfObjectsForColdfusion (jsArray) {
   return `[${newCartArray.toString()}]`;
 }
 
+// split URL into an array
+function splitUrlIntoArray () {
+
+  // get current path
+  const currentDir = window.location.pathname;
+
+  // split at the slashes
+  let urlArray = currentDir.split('/');
+
+  // remove empty first element
+  urlArray.shift();
+
+  return urlArray;
+
+}
+
 // handle error messages
 function showErrorMsg (msg) {
   $('.js-error-msg').html(`<h4>${msg}</h4>`);

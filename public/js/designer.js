@@ -1,17 +1,42 @@
-var
-  cdnBase = 'https://dta8vnpq1ae34.cloudfront.net/',    // CDN path to resources
-  rscBase = 'https://s3.amazonaws.com/pitchprint.rsc/', // Same path as above without the CDN caching.. good for loading design images that will change after customer edits.
-  apiBase = 'https://pitchprint.net/api/front/',        // Application API calls go here.
-  buildPath = 'app/83/',
+// init global variables needed for designer plugin
+var cdnBase, rscBase, apiBase, buildPath, langCode, apiKey, designId, userId, mode, version, lang, designer, projectSource, previews, numPages, projectId, designerShown, config, validationData;
 
-  langCode = 'en',                                      // Language code
-  apiKey = 'bc47b4f2fe45c320901d400be04c5e2f',          // Sample api key. You can generate one from https://pitchprint.net/admin/domains
+function getDesignId () {
 
-  designId = '70d7994133a0f8c8b3542d3173bb5d5e',        // Sample designId. After creating a design (https://pitchprint.net/admin/designs), you can get the ID from the category drop down (more options) > Export design list
-  userId = 'guest',                                     // This is useful for tracking who created what project against your apiKey
-  mode = 'new',                                         // "new" or "edit".. obvious
-  version = '8.3.0',
-  lang, designer, projectSource, previews, numPages, projectId, designerShown, config, validationData;
+  // get info from URL
+  let urlQueryString = window.location.search.toString().replace('?', '').split('&');
+
+  // search for equal sign
+  let equalIndex = urlQueryString[0].search('=');
+  equalIndex = equalIndex + 1;
+
+  // isolate the template id
+  let templateId = urlQueryString[0].slice(equalIndex, urlQueryString[0].length);
+
+  // start the process
+  initDesigner(templateId);
+
+}
+
+function initDesigner (templateId) {
+
+  cdnBase = 'https://dta8vnpq1ae34.cloudfront.net/';
+  rscBase = 'https://s3.amazonaws.com/pitchprint.rsc/';
+  apiBase = 'https://pitchprint.net/api/front/';
+  buildPath = 'app/83/';
+
+  langCode = 'en';
+  apiKey = 'bc47b4f2fe45c320901d400be04c5e2f';
+
+  designId = templateId;
+  userId = 'guest';
+  mode = 'new';
+  version = '8.3.0';
+
+  $('#launch_btn').hide();
+  validate();
+
+}
 
 function validate() {
   $.ajax({
@@ -135,7 +160,4 @@ function showDesigner() {
   }
 }
 
-$(function() {
-  $('#launch_btn').hide();
-  validate();
-})
+$(getDesignId)

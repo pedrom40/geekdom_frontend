@@ -8,22 +8,6 @@ function initProducts () {
 
 }
 
-// split URL into an array
-function splitUrlIntoArray () {
-
-  // get current path
-  const currentDir = window.location.pathname;
-
-  // split at the slashes
-  let urlArray = currentDir.split('/');
-
-  // remove empty first element
-  urlArray.shift();
-
-  return urlArray;
-
-}
-
 // checks URL for category, or product
 function checkUrlForContent () {
 
