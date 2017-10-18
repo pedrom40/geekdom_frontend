@@ -57,10 +57,15 @@ function displayCartItems (cartInfo) {
       specs = `<p>${cartItem.product_specs.replace(/; /g, '<br>')}</p>`;
     }
 
+    let productImgSrc = `https://static.bannerstack.com/img/products/${cartItem.product_thumb}`;
+    if (cartItem.template_preview !== '') {
+      productImgSrc = cartItem.template_preview;
+    }
+
     const template = `
       <div class="row cart-contents">
         <div class="column column-25 product-name">
-          <img src="https://static.bannerstack.com/img/products/${cartItem.product_thumb}" alt="${cartItem.product_name}">
+          <img src="${productImgSrc}" alt="${cartItem.product_name}">
         </div>
         <div class="column column-75">
           <h5>${cartItem.product_name}</h5>
