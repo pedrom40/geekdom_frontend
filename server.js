@@ -75,7 +75,7 @@ app.get('/products/:category/:product', (req, res) => {
 });
 
 // handle cart POST (adding an item to the cart)
-app.post('/cart', jsonParser, (req, res) => {console.log(req.body);
+app.post('/cart', jsonParser, (req, res) => {
 
   // add item to cart array
   req.session.cart.push(req.body);
@@ -94,7 +94,7 @@ app.post('/cart', jsonParser, (req, res) => {console.log(req.body);
 
     // send back url with design template id
     jsonResponse = {
-      nextStep: `/designs/?height=${req.session.cart[newItemIndex].productHeight}&width=${req.session.cart[newItemIndex].productWidth}`
+      nextStep: `/designs/?height=${req.session.cart[newItemIndex].productHeight}&width=${req.session.cart[newItemIndex].productWidth}&cartItemIndex=${newItemIndex}`
     }
 
   }
@@ -103,13 +103,24 @@ app.post('/cart', jsonParser, (req, res) => {console.log(req.body);
   else if (artworkSetting === 'upload') {
 
     jsonResponse = {
-      nextStep: '/upload'
+      nextStep: `/upload/?cartItemIndex=${newItemIndex}`
     }
 
   }
 
   // send to cart page
   res.json(jsonResponse);
+
+});
+
+// update session info
+app.put('/updateTemplateItemInfo', jsonParser, (req, res) => {
+
+  req.session.cart[req.body.cartItemIndex].template.designId = req.body.designId;
+  req.session.cart[req.body.cartItemIndex].template.preview = req.body.previewImg;
+  req.session.cart[req.body.cartItemIndex].template.projectId = req.body.projectId;
+
+  res.json({"updated": 1});
 
 });
 

@@ -1,17 +1,35 @@
 // init global variables needed for designer plugin
-var cdnBase, rscBase, apiBase, buildPath, langCode, apiKey, designId, userId, mode, version, lang, designer, projectSource, previews, numPages, projectId, designerShown, config, validationData;
+var templateId, cartItemIndex, cdnBase, rscBase, apiBase, buildPath, langCode, apiKey, designId, userId, mode, version, lang, designer, projectSource, previews, numPages, projectId, designerShown, config, validationData;
 
 function getDesignId () {
 
   // get info from URL
   let urlQueryString = window.location.search.toString().replace('?', '').split('&');
 
-  // search for equal sign
-  let equalIndex = urlQueryString[0].search('=');
-  equalIndex = equalIndex + 1;
+  urlQueryString.map( urlItem => {
 
-  // isolate the template id
-  let templateId = urlQueryString[0].slice(equalIndex, urlQueryString[0].length);
+    // search for equal sign
+    let equalIndex = urlItem.search('=');
+    equalIndex = equalIndex + 1;
+
+    // if this is the template id
+    if (urlItem.search('templateId') !== -1) {
+
+      // isolate the template id
+      templateId = urlItem.slice(equalIndex, urlItem.length);
+
+    }
+
+    // if this is the cart item index
+    else {
+
+      // isolate the template id
+      cartItemIndex = urlItem.slice(equalIndex, urlItem.length);
+      cartItemIndex = Number(cartItemIndex.replace('#', ''));
+
+    }
+
+  });
 
   // start the process
   initDesigner(templateId);
@@ -59,11 +77,15 @@ function validate() {
       else {
         alert(_data);
       }
+
+      $('#launch_btn').click();
+
     },
     error: function(_e) {
       console.log(_e);
     }
   });
+
 }
 
 // Load the language file as a json data
@@ -119,7 +141,8 @@ function onLibReady() {
 }
 
 function onSave(_val) {
-  console.log(_val);
+
+  // project details
   mode = 'edit';
   projectSource = _val.source;
   projectId = _val.projectId;
@@ -130,16 +153,45 @@ function onSave(_val) {
   var _prevDiv = $('#pp_preview_div');
   _prevDiv.empty();
 
+  // loop thru the pages
   for (var i=0; i < numPages; i++) {
     _prevDiv.append('<img style="border: 1px solid #eee; margin: 10px" src="' + rscBase + 'images/previews/' + projectId + '_' + (i+1) + '.jpg" >');		//Please note, previews are stored based on design page number, thus (i+1)... page 1, page 2...
   }
 
-  designer.close(true);	// Setting this to true ensures the designer is active but with previews shown.
-
-  // If you pass in false, you will need to collapse the editor or remove it from DOM.
+  // close designer plugin
+  designer.close(true);
 
   // Now show the launch button again, change the text to edit
   $('#launch_btn').show().text('Edit Design');
+
+  // update session with template info and go to cart
+  updateSessionTemplateInfo(projectSource.designId, previews[0], projectId)
+    .then( () => {
+      window.location.assign('/cart');
+    });
+
+}
+
+function updateSessionTemplateInfo (designId, previewImg, projectId) {
+
+  const dataObj = {
+    cartItemIndex: cartItemIndex,
+    designId: designId,
+    previewImg: previewImg,
+    projectId: projectId
+  }
+
+  const settings = {
+    url: '/updateTemplateItemInfo',
+    contentType: 'application/json',
+    dataType: 'json',
+    data: JSON.stringify(dataObj),
+    type: 'PUT',
+    fail: showAjaxError
+  };
+
+  return $.ajax(settings);
+
 }
 
 function showDesigner() {

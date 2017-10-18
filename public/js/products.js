@@ -288,11 +288,6 @@ function loadProductDetails (data) {
                       <option data-cost="35.99" value="Next Day Air">Next Day Air ($35.99)</option>
                     </select>
 
-                    <a href="#" class="product-details-btn js-shipping-rates-btn">
-                      <i class="fa fa-caret-left" aria-hidden="true"></i>
-                      GET RATES
-                    </a>
-
                     <div class="row">
                       <div class="column">
                         <a href="#" class="product-details-btn js-open-details-btn">

@@ -76,10 +76,15 @@ function displayCartContents (data) {
         `;
       }
 
+      let productImgSrc = `https://static.bannerstack.com/img/products/${cartItem.productThumb}`;
+      if (cartItem.template.preview !== '') {
+        productImgSrc = cartItem.template.preview;
+      }
+
       const template = `
         <div class="row cart-contents">
           <div class="column product-name">
-            <img src="https://static.bannerstack.com/img/products/${cartItem.productThumb}" alt="${cartItem.productName}">
+            <img src="${productImgSrc}" alt="${cartItem.productName}">
           </div>
           <div class="column">
             <h4>${cartItem.productName}</h4>
@@ -266,6 +271,11 @@ function addProductToCart () {
     productWeight: $('#productWeight').val(),
     productLength: $('#productLength').val(),
     turnaroundTime: $('#turnaroundTime').val(),
+    template: {
+      designId: '',
+      preview: '',
+      projectId: ''
+    },
     artworkFile: $('#artworkFile').val(),
     shippingName: $('#shippingName').val(),
     shippingAddress: $('#shippingAddress').val(),
