@@ -189,7 +189,13 @@ app.get('/review', (req, res) => {
 
 // order confirmation page
 app.get('/confirmation', (req, res) => {
+
+  // clear cart session var
+  req.session.cart = [];
+
+  // send to confirmation page
   res.sendFile(__dirname + '/views/confirmation.html');
+
 });
 
 // get design templates
