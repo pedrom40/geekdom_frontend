@@ -281,12 +281,12 @@ function loadProductDetails (data) {
                       </div>
                     </div>
 
-                    <label for="shippingService">Shipping Service</label>
-                    <select id="shippingService" class="js-shipping-cart">
-                      <option data-cost="5.99" value="Ground">Ground ($5.99)</option>
-                      <option data-cost="15.99" value="2-Day">2-Day ($15.99)</option>
-                      <option data-cost="35.99" value="Next Day Air">Next Day Air ($35.99)</option>
-                    </select>
+                    <div id="shippingSelectContainer" style="display:none;">
+                      <label for="shippingService">Shipping Service</label>
+                      <select id="shippingService" class="js-shipping-cart">
+                        <option value="" data-price="0">Waiting for rates...</option>
+                      </select>
+                    </div>
 
                     <div class="row">
                       <div class="column">
@@ -296,13 +296,24 @@ function loadProductDetails (data) {
                         </a>
                       </div>
                       <div class="column">
-                        <a href="#" class="product-details-btn js-add-to-cart-btn">
+                        <a href="#" class="product-details-btn js-shipping-rates-btn">
+                          GET SHIPPING RATES
+                          <i class="fa fa-caret-right" aria-hidden="true"></i>
+                        </a>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="column">
+                        <a href="#" class="product-details-btn js-add-to-cart-btn" style="display:none">
                           <i class="fa fa-shopping-cart" aria-hidden="true"></i>
                           ADD TO CART
                           <i class="fa fa-caret-right" aria-hidden="true"></i>
                         </a>
                       </div>
                     </div>
+
+                    <div class="address-suggestions"></div>
 
                   </div>
                 </div>
@@ -466,11 +477,15 @@ function listenForArtworkChanges () {
 function calculatePrice () {
 
   // calculate price
-  const productPrice = ( Number($('#artworkFile').find(':selected').attr('data-price')) + Number($('#productSize').find(':selected').attr('data-price')) ) * Number($('#productQty').val());
+  const artworkCharge = Number($('#artworkFile').find(':selected').attr('data-price'));
+  const sizeCharge = Number($('#productSize').find(':selected').attr('data-price'));
+  const shippingCharge = Number($('#shippingService').find(':selected').attr('data-price'));
+  const qtyNum = Number($('#productQty').val());
+  const productPrice = (artworkCharge  + sizeCharge + shippingCharge) * qtyNum;
 
   // update price
   $('#productPrice').val(productPrice);
-  $('.js-order-total').html(`${productPrice}`);
+  $('.js-order-total').html(`${productPrice.toFixed(2)}`);
 
 }
 
@@ -512,14 +527,83 @@ function listenForShippingRatesClick () {
   $('.js-shipping-rates-btn').click( event => {
     event.preventDefault();
 
-    const address_to = {
-      "name": $('#shippingName').val(),
-      "street1": $('#shippingAddress').val(),
-      "city": $('#shippingCity').val(),
-      "state": $('#shippingState').val(),
-      "zip": $('#shippingZip').val(),
+    // setup ship to address
+    const shipTo = {
+      customerName: $('#shippingName').val(),
+      address: $('#shippingAddress').val(),
+      city: $('#shippingCity').val(),
+      state: $('#shippingState').val(),
+      zip: $('#shippingZip').val(),
+      countryCode: 'US',
+      pkgWeight: $('#productWeight').val()
     }
-    getShippingRates(address_to);
+
+    // validate address
+    validateShippingAddress(shipTo)
+      .then( addressResponse => {
+
+        // if address unknown
+        if (addressResponse.AddressClassification.Code === "0") {
+
+          // empty out HTML
+          $('.address-suggestions').empty();
+
+          // add response desc
+          $('.address-suggestions').append(`<h4>The address above is not valid. Following are some suggestions to correct it:</h4>`);
+
+          // if there is more than one suggestion
+          if (Array.isArray(addressResponse.AddressKeyFormat)) {
+
+            addressResponse.AddressKeyFormat.map( addr => {
+
+              const addressSuggestion = `
+                <p>
+                  ${addr.AddressLine}<br>
+                  ${addr.Region}
+                </p>
+              `;
+
+              // add suggestion info
+              $('.address-suggestions').append(addressSuggestion);
+
+            });
+
+          }
+
+          // if just one response
+          else {
+
+            const addressSuggestion = `
+              <p>
+                ${addressResponse.AddressKeyFormat.AddressLine}<br>
+                ${addressResponse.AddressKeyFormat.Region}
+              </p>
+            `;
+
+            // add suggestion info
+            $('.address-suggestions').append(addressSuggestion);
+
+          }
+
+        }
+
+        // if address good, then get shipping rates
+        else {
+
+          getShippingRates(shipTo)
+            .then( ratesResponse => {
+
+              // populate shipping select menu
+              populateShippingOptions(ratesResponse);
+
+              // show add to cart btn
+              $('.js-add-to-cart-btn').show();
+
+            });
+
+        }
+
+      });
 
   });
 
@@ -603,54 +687,6 @@ function callProductsService (data, callback) {
   }
 
   $.ajax(settings);
-
-}
-
-// get shipping rates from shippo
-function getShippingRates (addressTo) {
-
-  const addressFrom = {
-    "company": "BannerStack.com",
-    "street1": "53 Camellia Way",
-    "city": "San Antonio",
-    "state": "TX",
-    "zip": "78209",
-    "country": "US",
-    "phone": "1234567890",
-    "email": "mike.morgan@121texas.com"
-  }
-
-  const data = {
-    address_from: addressFrom,
-    address_to: addressTo,
-    "async": false,
-    "parcels": [
-      {
-        "length": "5",
-        "width": "5",
-        "height": "5",
-        "distance_unit": "in",
-        "weight": "2",
-        "mass_unit": "lb"
-      }
-    ]
-  }
-
-  console.log(data);
-
-  const settings = {
-    url: 'https://api.goshippo.com/shipments/',
-    data: data,
-    dataType: 'json',
-    type: 'POST',
-    beforeSend: function(xhr){
-      xhr.setRequestHeader('Content-Type', 'application/json');
-      xhr.setRequestHeader('Authorization', 'shippo_test_1b5eb8be60175e318626100b8d271fce90f6cb34');
-    },
-    fail: showAjaxError
-  }
-
-  return $.ajax(settings);
 
 }
 

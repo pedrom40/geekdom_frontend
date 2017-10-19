@@ -227,8 +227,7 @@ app.get('/createDesign', (req, res) => {
 // validate address
 app.get('/validateAddress', (req, res) => {
 
-  const addressResponse = {}
-
+  // pass to ups api
   ups.address_validation({
       name: req.query.customerName,
       address_line_1: req.query.address,
@@ -236,19 +235,57 @@ app.get('/validateAddress', (req, res) => {
       state_code: req.query.state,
       postal_code: req.query.zip,
       country_code: req.query.countryCode
-    }, function(err, res) {
-      if(err) {
-        console.log(err);
-        res.json(err);
+    }, function(err, response) {
+
+      // handle errors
+      if(err) {console.log(err);}
+
+      // send it back
+      res.json(response);
+
+  });
+
+});
+
+// get shipping rate
+app.get('/getShippingRates', (req, res) => {
+
+  // pass to ups api
+  ups.rates({
+    shipper: {
+      name: 'BannerStack',
+      address: {
+        address_line_1: '53 Camellia Way',
+        city: 'San Antonio',
+        state_code: 'TX',
+        country_code: 'US',
+        postal_code: '78209'
       }
+    },
+    ship_to: {
+      name: req.query.customerName,
+      address: {
+        address_line_1: req.query.address,
+        city: req.query.city,
+        state_code: req.query.state,
+        postal_code: req.query.zip,
+        country_code: req.query.countryCode
+      }
+    },
+    packages: [
+      {
+        description: 'My Package',
+        weight: req.query.pkgWeight
+      }
+    ]
+  }, function(err, response) {
 
-    console.log(util.inspect(res, {depth: null}));
+    // handle errors
+    if(err) {return console.log(err);}
 
-    addressResponse = util.inspect(res, {depth: null});
+    // send response
+    res.json(response);
 
-  }).then( data => {
-    console.log(data);
-    res.json(data);
   });
 
 });
