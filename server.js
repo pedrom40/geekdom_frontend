@@ -4,6 +4,19 @@ const morgan      = require('morgan');
 const session     = require('express-session');
 const bodyParser  = require('body-parser');
 const jsonParser  = bodyParser.json();
+const upsAPI      = require('shipping-ups');
+const util        = require('util');
+const fs          = require('fs');
+
+// setup ups
+const ups = new upsAPI({
+  environment: 'live', // or sandbox
+  username: 'mikemorgan6603',
+  password: 'N@tPr1nT',
+  access_key: '5D34F61318AFE568',
+  imperial: true // set to false for metric
+});
+
 
 // mount express
 const app = express();
@@ -43,6 +56,9 @@ app.use( (req, res, next) => {
       cardLastFour: '',
 
     }
+
+    // init admin session
+    req.session.adminId = 0;
 
   }
 
@@ -206,6 +222,35 @@ app.get('/designs', (req, res) => {
 // get designer plugin
 app.get('/createDesign', (req, res) => {
   res.sendFile(__dirname + '/views/design.html');
+});
+
+// validate address
+app.get('/validateAddress', (req, res) => {
+
+  const addressResponse = {}
+
+  ups.address_validation({
+      name: req.query.customerName,
+      address_line_1: req.query.address,
+      city: req.query.city,
+      state_code: req.query.state,
+      postal_code: req.query.zip,
+      country_code: req.query.countryCode
+    }, function(err, res) {
+      if(err) {
+        console.log(err);
+        res.json(err);
+      }
+
+    console.log(util.inspect(res, {depth: null}));
+
+    addressResponse = util.inspect(res, {depth: null});
+
+  }).then( data => {
+    console.log(data);
+    res.json(data);
+  });
+
 });
 
 

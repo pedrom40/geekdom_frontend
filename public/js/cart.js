@@ -286,11 +286,24 @@ function addProductToCart () {
     shippingService: $('#shippingService').val()
   };
 
+  // validate address
+  validateShippingAddress({
+    customerName: $('#shippingName').val(),
+    address: $('#shippingAddress').val(),
+    city: $('#shippingCity').val(),
+    state: $('#shippingState').val(),
+    zip: $('#shippingZip').val(),
+    countryCode: 'US'
+  })
+  .then( data => {
+    console.log(data);
+  });
+
   // add it to cart, then show cart page
-  addItemToCart(productInfo)
+  /*addItemToCart(productInfo)
     .then( (data) => {
       window.location.assign(data.nextStep);
-    });
+    });*/
 
 }
 
@@ -613,6 +626,19 @@ function getExpressCartContents () {
   const settings = {
     url: '/getCart/',
     type: 'GET',
+    fail: showAjaxError
+  };
+
+  return $.ajax(settings);
+}
+
+// get cart contents from express session
+function validateShippingAddress (addressObj) {
+
+  const settings = {
+    url: '/validateAddress',
+    type: 'GET',
+    data: addressObj,
     fail: showAjaxError
   };
 
