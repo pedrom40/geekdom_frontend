@@ -110,18 +110,26 @@ function displayCartContents (data) {
             </div>
 
             <label for="${index}-shipping-service">Shipping Service</label>
-            <select id="${index}-shipping-service" class="js-shipping-cart">
-              <option data-cost="5.99" value="Ground">Ground ($5.99)</option>
-              <option data-cost="15.99" value="2-Day">2-Day ($15.99)</option>
-              <option data-cost="35.99" value="Next Day Air">Next Day Air ($35.99)</option>
-            </select>
+            <select id="${index}-shipping-service" class="js-shipping-cart"></select>
 
             ${removeBtn}
           </div>
         </div>
       `;
 
+      // add to cart HTML
       $('.js-cart-display').append(template);
+
+      // get shipping rates
+      getShippingOptions({
+        customerName: cartItem.shippingName,
+        address: cartItem.shippingAddress,
+        city: cartItem.shippingCity,
+        state: cartItem.shippingState,
+        zip: cartItem.shippingZip,
+        countryCode: 'US',
+        pkgWeight: cartItem.productWeight
+      });
 
       // previous total + item price + shipping cost
       orderTotal = orderTotal + Number(cartItem.productPrice) + 5.99;

@@ -110,7 +110,8 @@ app.post('/cart', jsonParser, (req, res) => {
 
     // send back url with design template id
     jsonResponse = {
-      nextStep: `/designs/?height=${req.session.cart[newItemIndex].productHeight}&width=${req.session.cart[newItemIndex].productWidth}&cartItemIndex=${newItemIndex}`
+      nextStep: '/createDesign'
+      //`/designs/?height=${req.session.cart[newItemIndex].productHeight}&width=${req.session.cart[newItemIndex].productWidth}&cartItemIndex=${newItemIndex}`
     }
 
   }

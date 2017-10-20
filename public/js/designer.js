@@ -46,7 +46,7 @@ function initDesigner (templateId) {
   langCode = 'en';
   apiKey = 'bc47b4f2fe45c320901d400be04c5e2f';
 
-  designId = templateId;
+  designId = '4f2cdb04250bbd3338b98350721f7f93';//templateId;
   userId = 'guest';
   mode = 'new';
   version = '8.3.0';
