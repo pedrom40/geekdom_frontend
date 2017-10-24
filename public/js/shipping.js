@@ -26,7 +26,7 @@ function getShippingRates (shipTo) {
 }
 
 // populate shipping select menus
-function populateShippingOptions (rates) {console.log(rates);
+function populateShippingOptions (rates) {
 
   $('#shippingService').empty();
 
@@ -54,6 +54,31 @@ function populateShippingOptions (rates) {console.log(rates);
   });
 
   $('#shippingSelectContainer').show();
+
+}
+
+// update shipping options for cart item
+function populateCartItemShippingOptions (rates, itemIndex) {
+
+  $(`${itemIndex}-shipping-service`).empty();
+
+  // loop thru rates
+  rates.RatedShipment.map( (rate, index) => {
+
+    // get service name, "UPS Ground"
+    const serviceName = getServiceName(rate.Service.Code);console.log(serviceName);
+
+    // setup select options tag
+    const template =`
+      <option value="${rate.Service.Code}" data-price="${rate.TotalCharges.MonetaryValue}">
+        ${serviceName} ($${rate.TotalCharges.MonetaryValue})
+      </option>
+    `;
+
+    // add it to shipping select menu
+    $(`${itemIndex}-shipping-service`).append(template);
+
+  });
 
 }
 

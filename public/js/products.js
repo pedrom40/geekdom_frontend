@@ -296,16 +296,7 @@ function loadProductDetails (data) {
                         </a>
                       </div>
                       <div class="column">
-                        <a href="#" class="product-details-btn js-shipping-rates-btn">
-                          GET SHIPPING RATES
-                          <i class="fa fa-caret-right" aria-hidden="true"></i>
-                        </a>
-                      </div>
-                    </div>
-
-                    <div class="row">
-                      <div class="column">
-                        <a href="#" class="product-details-btn js-add-to-cart-btn" style="display:none">
+                        <a href="#" class="product-details-btn js-add-to-cart-btn">
                           <i class="fa fa-shopping-cart" aria-hidden="true"></i>
                           ADD TO CART
                           <i class="fa fa-caret-right" aria-hidden="true"></i>
@@ -328,7 +319,6 @@ function loadProductDetails (data) {
               <input type="hidden" id="productWeight" value="">
               <input type="hidden" id="productLength" value="">
               <input type="hidden" id="productSpecs" value="">
-              <input type="hidden" id="shippingCost" value="0">
 
             </form>
           </div>
@@ -355,14 +345,14 @@ function loadProductDetails (data) {
   // listen for shipping setup clicks
   listenForShippingStepClicks();
 
-  // listen for shipping rates click
-  listenForShippingRatesClick();
-
   // listen for back to details btn clicks
   listenForBackToDetailsClicks();
 
   // listen for artowrk select menu changes
   listenForArtworkChanges();
+
+  // listen for shipping rates changes
+  listenForShippingRatesChanges();
 
 }
 
@@ -390,7 +380,11 @@ function loadProductSizes (data) {
     }
 
     // add options
-    const template = `<option value="${data[index][0]}" data-width="${data[index][1]}" data-height="${data[index][2]}" data-price="${data[index][3]}">${data[index][1]}" x ${data[index][2]}"</option>`;
+    const template = `
+      <option value="${data[index][0]}" data-width="${data[index][1]}" data-height="${data[index][2]}" data-price="${data[index][3]}">
+        ${data[index][1]}" x ${data[index][2]}"
+      </option>
+    `;
 
     // add to select menu
     $('#productSize').append(template);
@@ -473,19 +467,15 @@ function listenForArtworkChanges () {
 
 }
 
-// calculate product price
-function calculatePrice () {
+// listen for shipping rates changes
+function listenForShippingRatesChanges () {
 
-  // calculate price
-  const artworkCharge = Number($('#artworkFile').find(':selected').attr('data-price'));
-  const sizeCharge = Number($('#productSize').find(':selected').attr('data-price'));
-  const shippingCharge = Number($('#shippingService').find(':selected').attr('data-price'));
-  const qtyNum = Number($('#productQty').val());
-  const productPrice = (artworkCharge  + sizeCharge + shippingCharge) * qtyNum;
+  $('#shippingService').change( event => {
 
-  // update price
-  $('#productPrice').val(productPrice);
-  $('.js-order-total').html(`${productPrice.toFixed(2)}`);
+    // set price based on size selected
+    calculatePrice();
+
+  });
 
 }
 
@@ -502,7 +492,77 @@ function listenForCartClicks () {
 
     // if add to cart button was clicked
     else if ($(event.target).attr('class') === 'product-details-btn js-add-to-cart-btn') {
-      addProductToCart();
+
+      // setup ship to address
+      const shipTo = {
+        customerName: $('#shippingName').val(),
+        address: $('#shippingAddress').val(),
+        city: $('#shippingCity').val(),
+        state: $('#shippingState').val(),
+        zip: $('#shippingZip').val(),
+        countryCode: 'US',
+        pkgWeight: $('#productWeight').val()
+      }
+
+      // validate address
+      validateShippingAddress(shipTo)
+        .then( addressResponse => {
+
+          // if address unknown
+          if (addressResponse.AddressClassification.Code === "0") {
+
+            // empty out HTML
+            $('.address-suggestions').empty();
+
+            // add response desc
+            $('.address-suggestions').append(`<h4>The address above is not valid. Following are some suggestions to correct it:</h4>`);
+
+            // if there is more than one suggestion
+            if (Array.isArray(addressResponse.AddressKeyFormat)) {
+
+              addressResponse.AddressKeyFormat.map( addr => {
+
+                const addressSuggestion = `
+                  <p>
+                    ${addr.AddressLine}<br>
+                    ${addr.Region}
+                  </p>
+                `;
+
+                // add suggestion info
+                $('.address-suggestions').append(addressSuggestion);
+
+              });
+
+            }
+
+            // if just one response
+            else {
+
+              const addressSuggestion = `
+                <p>
+                  ${addressResponse.AddressKeyFormat.AddressLine}<br>
+                  ${addressResponse.AddressKeyFormat.Region}
+                </p>
+              `;
+
+              // add suggestion info
+              $('.address-suggestions').append(addressSuggestion);
+
+            }
+
+          }
+
+          // if address good, then add item to cart
+          else {
+
+            // add product to cart
+            addProductToCart();
+
+          }
+
+        });
+
     }
 
   });
@@ -517,94 +577,6 @@ function listenForShippingStepClicks () {
 
     $('.js-product-detail-form-elements').hide();
     $('.js-shipping-options').show();
-  });
-
-}
-
-// listen for shipping rates click
-function listenForShippingRatesClick () {
-
-  $('.js-shipping-rates-btn').click( event => {
-    event.preventDefault();
-
-    // setup ship to address
-    const shipTo = {
-      customerName: $('#shippingName').val(),
-      address: $('#shippingAddress').val(),
-      city: $('#shippingCity').val(),
-      state: $('#shippingState').val(),
-      zip: $('#shippingZip').val(),
-      countryCode: 'US',
-      pkgWeight: $('#productWeight').val()
-    }
-
-    // validate address
-    validateShippingAddress(shipTo)
-      .then( addressResponse => {
-
-        // if address unknown
-        if (addressResponse.AddressClassification.Code === "0") {
-
-          // empty out HTML
-          $('.address-suggestions').empty();
-
-          // add response desc
-          $('.address-suggestions').append(`<h4>The address above is not valid. Following are some suggestions to correct it:</h4>`);
-
-          // if there is more than one suggestion
-          if (Array.isArray(addressResponse.AddressKeyFormat)) {
-
-            addressResponse.AddressKeyFormat.map( addr => {
-
-              const addressSuggestion = `
-                <p>
-                  ${addr.AddressLine}<br>
-                  ${addr.Region}
-                </p>
-              `;
-
-              // add suggestion info
-              $('.address-suggestions').append(addressSuggestion);
-
-            });
-
-          }
-
-          // if just one response
-          else {
-
-            const addressSuggestion = `
-              <p>
-                ${addressResponse.AddressKeyFormat.AddressLine}<br>
-                ${addressResponse.AddressKeyFormat.Region}
-              </p>
-            `;
-
-            // add suggestion info
-            $('.address-suggestions').append(addressSuggestion);
-
-          }
-
-        }
-
-        // if address good, then get shipping rates
-        else {
-
-          getShippingRates(shipTo)
-            .then( ratesResponse => {
-
-              // populate shipping select menu
-              populateShippingOptions(ratesResponse);
-
-              // show add to cart btn
-              $('.js-add-to-cart-btn').show();
-
-            });
-
-        }
-
-      });
-
   });
 
 }
@@ -666,6 +638,22 @@ function loadProductCategories (data) {
     $('.js-category-list').append(template);
 
   });
+
+}
+
+// calculate product price
+function calculatePrice () {
+
+  // calculate price
+  const artworkCharge = Number($('#artworkFile').find(':selected').attr('data-price'));
+  const sizeCharge = Number($('#productSize').find(':selected').attr('data-price'));
+  const shippingCharge = Number($('#shippingService').find(':selected').attr('data-price'));
+  const qtyNum = Number($('#productQty').val());
+  const productPrice = (artworkCharge  + sizeCharge + shippingCharge) * qtyNum;
+
+  // update price
+  $('#productPrice').val(productPrice);
+  $('.js-order-total').html(`${productPrice.toFixed(2)}`);
 
 }
 

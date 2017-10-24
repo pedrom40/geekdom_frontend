@@ -12,9 +12,6 @@ function initCart () {
   // listen for cart form submit
   listenForCartFormSubmit();
 
-  // listen for shipping/billing copy click
-  listenForBillingCopyClick();
-
   // listen for "place order" clicks
   listenForOrderPlacement();
 
@@ -83,36 +80,32 @@ function displayCartContents (data) {
 
       const template = `
         <div class="row cart-contents">
-          <div class="column product-name">
+          <div class="column column-25 product-name">
             <img src="${productImgSrc}" alt="${cartItem.productName}">
+            ${removeBtn}
           </div>
           <div class="column">
             <h4>${cartItem.productName}</h4>
-            <p>${cartItem.productWidth}"W X ${cartItem.productHeight}"H ${specs}</p>
-            <label>Ship to</label>
-            <p>
-              <em>${cartItem.shippingName}</em><br>
-              ${cartItem.shippingAddress}<br>
-              ${cartItem.shippingCity}, ${cartItem.shippingState} ${cartItem.shippingZip}
-            </p>
-          </div>
-          <div class="column">
-
             <div class="row">
               <div class="column">
-                <label for="${index}-product-qty">Quantity</label>
-                <input type="number" id="${index}-product-qty" class="js-qty-cart" maxlength="10" required value="${cartItem.productQty}">
+                <p>
+                  <strong>Size:</strong> ${cartItem.productWidth}"W X ${cartItem.productHeight}"H<br>
+                  <strong>Quantity:</strong> ${cartItem.productQty}<br>
+                  <strong>Price:</strong> $${Number(cartItem.productPrice).toFixed(2)}
+                </p>
+                <p>${specs}</p>
               </div>
               <div class="column">
-                <label for="${index}-product-price">Price ($)</label>
-                <input type="number" id="${index}-product-price" readonly value="${cartItem.productPrice}">
+                <label>Ship to</label>
+                <p>
+                  <em>${cartItem.shippingName}</em><br>
+                  ${cartItem.shippingAddress}<br>
+                  ${cartItem.shippingCity}, ${cartItem.shippingState} ${cartItem.shippingZip}
+                </p>
+                <label for="${index}-shipping-service">Shipping Service</label>
+                <select id="${index}-shipping-service" class="js-shipping-cart"></select>
               </div>
             </div>
-
-            <label for="${index}-shipping-service">Shipping Service</label>
-            <select id="${index}-shipping-service" class="js-shipping-cart"></select>
-
-            ${removeBtn}
           </div>
         </div>
       `;
@@ -120,23 +113,13 @@ function displayCartContents (data) {
       // add to cart HTML
       $('.js-cart-display').append(template);
 
-      // get shipping rates
-      getShippingOptions({
-        customerName: cartItem.shippingName,
-        address: cartItem.shippingAddress,
-        city: cartItem.shippingCity,
-        state: cartItem.shippingState,
-        zip: cartItem.shippingZip,
-        countryCode: 'US',
-        pkgWeight: cartItem.productWeight
-      });
-
       // previous total + item price + shipping cost
       orderTotal = orderTotal + Number(cartItem.productPrice) + 5.99;
 
     });
 
-    if (window.location.pathname !== '/checkout' && window.location.pathname !== '/checkout/' && window.location.pathname !== '/review' && window.location.pathname !== '/review/') {
+    // only load the checkout buttons on certain pages
+    if (window.location.pathname !== '/cart' && window.location.pathname !== '/cart/' && window.location.pathname !== '/checkout' && window.location.pathname !== '/checkout/' && window.location.pathname !== '/review' && window.location.pathname !== '/review/') {
       $('.js-cart-display').append(`
         <hr>
         <div class="row">
@@ -162,7 +145,70 @@ function displayCartContents (data) {
     // display order total
     setOrderTotal(orderTotal);
 
+    // update shipping menus
+    updateShippingServiceMenus();
+
   }
+
+}
+
+// update shipping service menus
+function updateShippingServiceMenus () {
+
+  getExpressCartContents()
+    .then( cart => {
+
+      // loop thru number of items in cart
+      const cartToIndexFix = cart.length-1;
+      for (let i = 0; i <= cartToIndexFix; i++){
+
+        // get shipping rates
+        const shipTo = {
+          customerName: cart[i].shippingName,
+          address: cart[i].shippingAddress,
+          city: cart[i].shippingCity,
+          state: cart[i].shippingState,
+          zip: cart[i].shippingZip,
+          countryCode: 'US',
+          pkgWeight: cart[i].productWeight
+        }
+
+        getShippingRates(shipTo)
+          .then( rates => {
+
+            // send rates to function for updating
+            updateShippingServices(i, rates);
+
+          });
+
+      }
+
+    });
+}
+
+// populates shipping select menus
+function updateShippingServices (index, rates) {
+
+  // make sure select menu is empty
+  const shippingSelectMenu = document.getElementById(index+'-shipping-service');
+
+  // loop thru rates
+  rates.RatedShipment.map( (rate, i) => {
+
+    // get service name, "UPS Ground"
+    const serviceName = getServiceName(rate.Service.Code);
+
+    // setup option element
+    const option = document.createElement("option");
+
+    // give option elements the values it needs
+    option['text'] = `${serviceName} ($${rate.TotalCharges.MonetaryValue})`;
+    option['value'] = `${rate.Service.Code}-${rate.TotalCharges.MonetaryValue}`;
+
+    // add option to select menu
+    shippingSelectMenu.add(option, shippingSelectMenu[i]);
+
+  });
 
 }
 
@@ -254,7 +300,7 @@ function addProductToCart () {
     const labelName = $(this).attr('id') +'_label';
 
     // if this option has a value
-    if ($(this).val() !== '') {
+    if ($(this).val() !== '' && $(this).val() !== null) {
 
       // combine them in one string
       const valuePair = $('#'+labelName).text() +': '+ $(this).val();
@@ -290,8 +336,8 @@ function addProductToCart () {
     shippingCity: $('#shippingCity').val(),
     shippingState: $('#shippingState').val(),
     shippingZip: $('#shippingZip').val(),
-    shippingCost: $('#shippingCost').val(),
-    shippingService: $('#shippingService').val()
+    shippingCost: 0,
+    shippingService: ''
   };
 
   // add it to cart, then show cart page
@@ -391,20 +437,6 @@ function validateCartForm () {
   }
 
   return error;
-}
-
-// copies the shipping info into billing info
-function listenForBillingCopyClick () {
-
-  $('#billing-copy').click( event => {
-
-    $('#billing-address').val($('#shipping-address').val());
-    $('#billing-city').val($('#shipping-city').val());
-    $('#billing-state').val($('#shipping-state').val());
-    $('#billing-zip').val($('#shipping-zip').val());
-
-  });
-
 }
 
 // listen for submitted orders
