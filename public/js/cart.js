@@ -114,7 +114,7 @@ function displayCartContents (data) {
       $('.js-cart-display').append(template);
 
       // previous total + item price + shipping cost
-      orderTotal = orderTotal + Number(cartItem.productPrice) + 5.99;
+      orderTotal = orderTotal + Number(cartItem.productPrice);
 
     });
 
