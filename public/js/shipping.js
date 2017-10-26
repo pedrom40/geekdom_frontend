@@ -11,6 +11,51 @@ function validateShippingAddress (addressObj) {
   return $.ajax(settings);
 }
 
+// load address verification suggestions
+function loadAddressAlternatives (upsSuggestions) {
+
+  // empty out HTML
+  $('.address-suggestions').empty();
+
+  // add response desc
+  $('.address-suggestions').append(`<h4>The address above is not valid. Following are some suggestions to correct it:</h4>`);
+
+  // if there is more than one suggestion
+  if (Array.isArray(upsSuggestions.AddressKeyFormat)) {
+
+    upsSuggestions.AddressKeyFormat.map( addr => {
+
+      const addressSuggestion = `
+        <p>
+          ${addr.AddressLine}<br>
+          ${addr.Region}
+        </p>
+      `;
+
+      // add suggestion info
+      $('.address-suggestions').append(addressSuggestion);
+
+    });
+
+  }
+
+  // if just one response
+  else {
+
+    const addressSuggestion = `
+      <p>
+        ${upsSuggestions.AddressKeyFormat.AddressLine}<br>
+        ${upsSuggestions.AddressKeyFormat.Region}
+      </p>
+    `;
+
+    // add suggestion info
+    $('.address-suggestions').append(addressSuggestion);
+
+  }
+
+}
+
 // get shipping rates
 function getShippingRates (shipTo) {
 
@@ -60,30 +105,62 @@ function populateShippingOptions (rates) {
 // update shipping options for cart item
 function populateCartItemShippingOptions (rates, itemIndex) {
 
-  $(`${itemIndex}-shipping-service`).empty();
+  $(`#${itemIndex}-shipping-service`).empty();
+
+  // add pickup option
+  $(`#${itemIndex}-shipping-service`).append(`
+    <option value="pickup" data-price="0">
+      I'll Pick Up My Order (Free)
+    </option>
+  `);
 
   // loop thru rates
-  rates.RatedShipment.map( (rate, index) => {
+  rates.RatedShipment.map( rate => {
 
     // get service name, "UPS Ground"
-    const serviceName = getServiceName(rate.Service.Code);console.log(serviceName);
+    const serviceName = getShippingServiceName(rate.Service.Code);
 
     // setup select options tag
-    const template =`
+    const template = `
       <option value="${rate.Service.Code}" data-price="${rate.TotalCharges.MonetaryValue}">
         ${serviceName} ($${rate.TotalCharges.MonetaryValue})
       </option>
     `;
 
     // add it to shipping select menu
-    $(`${itemIndex}-shipping-service`).append(template);
+    $(`#${itemIndex}-shipping-service`).append(template);
+
+  });
+
+}
+
+// listen for shipping changes
+function listenForShippingServiceChanges () {
+
+  $('.js-shipping-cart').change( event => {
+    event.preventDefault();
+
+    // init shipping cost
+    let shippingCost = 0;
+
+    // go through each shipping item
+    $('.js-shipping-cart').each( function(index) {
+
+      // calc shipping cost
+      shippingCost = shippingCost + Number($(`#${index}-shipping-service`).find(':selected').attr('data-price'));
+
+    });
+
+    // add to order total
+    const orderTotal = Number($('#products-total').val()) + Number(shippingCost);
+    setOrderTotal(orderTotal);
 
   });
 
 }
 
 // get service name
-function getServiceName (code) {
+function getShippingServiceName (code) {
 
   const services = {
     "01": "UPS Next Day Air",

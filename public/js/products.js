@@ -28,7 +28,7 @@ function checkUrlForContent () {
     // if there's a product name
     else if (urlArray.length === 4) {
 
-      // check for category match
+      // check for product match
       checkForProductMatch();
 
     }
@@ -45,23 +45,23 @@ function checkUrlForContent () {
 
 }
 
-// check url for category name and id
-function checkForCategoryMatch (data) {
+// check url for category name
+function checkForCategoryMatch (catName) {
 
   const qData = {
-    categoryName: data[1].toString().replace(/-/g, ' '),
+    categoryName: catName[1].toString().replace(/-/g, ' '),
     method:'getCategoryFromUrl'
   }
   callProductsService(qData, categoryResult);
 
 }
-function categoryResult (data) {
+function categoryResult (categoryId) {
 
   // if a match is found
-  if (data !== 0) {
+  if (categoryId !== 0) {
 
     // load products from category
-    getProductsFromCategory(data);
+    getProductsFromCategory(categoryId);
 
   }
   else {
@@ -81,16 +81,16 @@ function getProductsFromCategory (catId) {
   }
   callProductsService(qData, loadCategoryProducts);
 }
-function loadCategoryProducts (data) {
+function loadCategoryProducts (categories) {
 
   // get category name from id
-  getCategoryName(data[0][4]);
+  getCategoryName(categories[0][4]);
 
   // hide root product page banners
   $('.js-banners').hide();
 
   // go through each category in the array
-  data.map( (category, index) => {
+  categories.map( (category, index) => {
 
     const template = `
       <div class="product-box">
@@ -142,10 +142,10 @@ function checkForProductMatch () {
 }
 
 // send info to products service
-function lookForProductMatch (data) {
+function lookForProductMatch (productName) {
 
   const qData = {
-    productName: data[2].toString().replace(/-/g, ' '),
+    productName: productName[2].toString().replace(/-/g, ' '),
     method:'getProductFromUrl'
   }
   callProductsService(qData, productResult);
@@ -153,13 +153,13 @@ function lookForProductMatch (data) {
 }
 
 // see if there was a product match
-function productResult (data) {
+function productResult (productId) {
 
   // if a match is found
-  if (data !== 0) {
+  if (productId !== 0) {
 
     // load products from category
-    getProductDetails(data);
+    getProductDetails(productId);
 
   }
   else {
@@ -186,12 +186,12 @@ function getProductDetails (prodId) {
 }
 
 // load product
-function loadProductDetails (data) {
+function loadProductDetails (product) {
 
   // handle images
   let imgHTML = '';
-  data[4].map( img => {
-    imgHTML = `${imgHTML} <img src="https://static.bannerstack.com/img/products/${img}" alt="${data[1]}" class="thumb js-thumb">`;
+  product[4].map( img => {
+    imgHTML = `${imgHTML} <img src="https://static.bannerstack.com/img/products/${img}" alt="${product[1]}" class="thumb js-thumb">`;
   });
 
   // handle product details
@@ -200,20 +200,20 @@ function loadProductDetails (data) {
       <div class="container">
         <div class="row">
           <div class="column">
-            <h1>${data[1]}</h1>
+            <h1>${product[1]}</h1>
           </div>
         </div>
         <div class="row">
           <div class="column">
             <div class="main-img">
-              <a href="https://static.bannerstack.com/img/products/${data[4][0]}" target="_blank" class="js-main-img-btn">
-                <img src="https://static.bannerstack.com/img/products/${data[4][0]}" alt="${data[1]}" class="js-main-img">
+              <a href="https://static.bannerstack.com/img/products/${product[4][0]}" target="_blank" class="js-main-img-btn">
+                <img src="https://static.bannerstack.com/img/products/${product[4][0]}" alt="${product[1]}" class="js-main-img">
               </a>
             </div>
             <div class="thumbnails">
               ${imgHTML}
             </div>
-            <div class="product-description">${data[3]}</div>
+            <div class="product-description">${product[3]}</div>
           </div>
           <div class="column">
             <form class="js-add-to-cart-form">
@@ -310,10 +310,10 @@ function loadProductDetails (data) {
                 </div>
               </div>
 
-              <input type="hidden" id="productId" value="${data[0]}">
+              <input type="hidden" id="productId" value="${product[0]}">
               <input type="hidden" id="productPrice" value="">
-              <input type="hidden" id="productName" value="${data[1]}">
-              <input type="hidden" id="productThumb" value="${data[4][1]}">
+              <input type="hidden" id="productName" value="${product[1]}">
+              <input type="hidden" id="productThumb" value="${product[4][1]}">
               <input type="hidden" id="productWidth" value="">
               <input type="hidden" id="productHeight" value="">
               <input type="hidden" id="productWeight" value="">
@@ -334,10 +334,10 @@ function loadProductDetails (data) {
   listenForCartClicks();
 
   // populate product sizes select menu
-  populateProductSizesMenu(data[0]);
+  populateProductSizesMenu(product[0]);
 
   // populate product options select menu
-  populateProductOptions(data[5]);
+  populateProductOptions(product[5]);
 
   // populate state select menu
   populateStateSelect('.js-states-select');
@@ -351,9 +351,6 @@ function loadProductDetails (data) {
   // listen for artowrk select menu changes
   listenForArtworkChanges();
 
-  // listen for shipping rates changes
-  listenForShippingRatesChanges();
-
 }
 
 // get and load product sizes
@@ -364,25 +361,25 @@ function populateProductSizesMenu (productId) {
   }
   callProductsService(qData, loadProductSizes);
 }
-function loadProductSizes (data) {
+function loadProductSizes (productSizes) {
 
   // go thru all sizes
-  data.map( (size, index) => {
+  productSizes.map( (size, index) => {
 
     // set initial width x height
     if (index === 0) {
-      $('#productWidth').val(data[index][1]);
-      $('#productHeight').val(data[index][2]);
-      $('#productPrice').val(data[index][3]);
-      $('.js-order-total').html(`${data[index][3]}`);
-      $('#productLength').val(data[index][4]);
-      $('#productWeight').val(data[index][5]);
+      $('#productWidth').val(productSizes[index][1]);
+      $('#productHeight').val(productSizes[index][2]);
+      $('#productPrice').val(productSizes[index][3]);
+      $('.js-order-total').html(`${productSizes[index][3]}`);
+      $('#productLength').val(productSizes[index][4]);
+      $('#productWeight').val(productSizes[index][5]);
     }
 
     // add options
     const template = `
-      <option value="${data[index][0]}" data-width="${data[index][1]}" data-height="${data[index][2]}" data-price="${data[index][3]}">
-        ${data[index][1]}" x ${data[index][2]}"
+      <option value="${productSizes[index][0]}" data-width="${productSizes[index][1]}" data-height="${productSizes[index][2]}" data-price="${productSizes[index][3]}">
+        ${productSizes[index][1]}" x ${productSizes[index][2]}"
       </option>
     `;
 
@@ -467,18 +464,6 @@ function listenForArtworkChanges () {
 
 }
 
-// listen for shipping rates changes
-function listenForShippingRatesChanges () {
-
-  $('#shippingService').change( event => {
-
-    // set price based on size selected
-    calculatePrice();
-
-  });
-
-}
-
 // listen for cart clicks
 function listenForCartClicks () {
 
@@ -511,45 +496,8 @@ function listenForCartClicks () {
           // if address unknown
           if (addressResponse.AddressClassification.Code === "0") {
 
-            // empty out HTML
-            $('.address-suggestions').empty();
-
-            // add response desc
-            $('.address-suggestions').append(`<h4>The address above is not valid. Following are some suggestions to correct it:</h4>`);
-
-            // if there is more than one suggestion
-            if (Array.isArray(addressResponse.AddressKeyFormat)) {
-
-              addressResponse.AddressKeyFormat.map( addr => {
-
-                const addressSuggestion = `
-                  <p>
-                    ${addr.AddressLine}<br>
-                    ${addr.Region}
-                  </p>
-                `;
-
-                // add suggestion info
-                $('.address-suggestions').append(addressSuggestion);
-
-              });
-
-            }
-
-            // if just one response
-            else {
-
-              const addressSuggestion = `
-                <p>
-                  ${addressResponse.AddressKeyFormat.AddressLine}<br>
-                  ${addressResponse.AddressKeyFormat.Region}
-                </p>
-              `;
-
-              // add suggestion info
-              $('.address-suggestions').append(addressSuggestion);
-
-            }
+            // load ups suggestions
+            loadAddressAlternatives(addressResponse);
 
           }
 
@@ -647,9 +595,8 @@ function calculatePrice () {
   // calculate price
   const artworkCharge = Number($('#artworkFile').find(':selected').attr('data-price'));
   const sizeCharge = Number($('#productSize').find(':selected').attr('data-price'));
-  const shippingCharge = Number($('#shippingService').find(':selected').attr('data-price'));
   const qtyNum = Number($('#productQty').val());
-  const productPrice = (artworkCharge  + sizeCharge + shippingCharge) * qtyNum;
+  const productPrice = (artworkCharge  + sizeCharge) * qtyNum;
 
   // update price
   $('#productPrice').val(productPrice);

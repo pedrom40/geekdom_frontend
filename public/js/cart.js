@@ -2,7 +2,7 @@
 function initCart () {
 
   // if on cart or review page, call function to display cart contents
-  const pageUrlList = ['/cart', '/cart/', '/review', '/review/', '/checkout', '/checkout/'];
+  const pageUrlList = ['/cart', '/cart/', '/review', '/review/'];
   pageUrlList.map( (url) => {
     if (window.location.pathname === url) {
       getCartContents();
@@ -96,14 +96,12 @@ function displayCartContents (data) {
                 <p>${specs}</p>
               </div>
               <div class="column">
-                <label>Ship to</label>
                 <p>
+                  <label>Ship to:</label>
                   <em>${cartItem.shippingName}</em><br>
                   ${cartItem.shippingAddress}<br>
                   ${cartItem.shippingCity}, ${cartItem.shippingState} ${cartItem.shippingZip}
                 </p>
-                <label for="${index}-shipping-service">Shipping Service</label>
-                <select id="${index}-shipping-service" class="js-shipping-cart"></select>
               </div>
             </div>
           </div>
@@ -145,70 +143,7 @@ function displayCartContents (data) {
     // display order total
     setOrderTotal(orderTotal);
 
-    // update shipping menus
-    updateShippingServiceMenus();
-
   }
-
-}
-
-// update shipping service menus
-function updateShippingServiceMenus () {
-
-  getExpressCartContents()
-    .then( cart => {
-
-      // loop thru number of items in cart
-      const cartToIndexFix = cart.length-1;
-      for (let i = 0; i <= cartToIndexFix; i++){
-
-        // get shipping rates
-        const shipTo = {
-          customerName: cart[i].shippingName,
-          address: cart[i].shippingAddress,
-          city: cart[i].shippingCity,
-          state: cart[i].shippingState,
-          zip: cart[i].shippingZip,
-          countryCode: 'US',
-          pkgWeight: cart[i].productWeight
-        }
-
-        getShippingRates(shipTo)
-          .then( rates => {
-
-            // send rates to function for updating
-            updateShippingServices(i, rates);
-
-          });
-
-      }
-
-    });
-}
-
-// populates shipping select menus
-function updateShippingServices (index, rates) {
-
-  // make sure select menu is empty
-  const shippingSelectMenu = document.getElementById(index+'-shipping-service');
-
-  // loop thru rates
-  rates.RatedShipment.map( (rate, i) => {
-
-    // get service name, "UPS Ground"
-    const serviceName = getServiceName(rate.Service.Code);
-
-    // setup option element
-    const option = document.createElement("option");
-
-    // give option elements the values it needs
-    option['text'] = `${serviceName} ($${rate.TotalCharges.MonetaryValue})`;
-    option['value'] = `${rate.Service.Code}-${rate.TotalCharges.MonetaryValue}`;
-
-    // add option to select menu
-    shippingSelectMenu.add(option, shippingSelectMenu[i]);
-
-  });
 
 }
 
@@ -220,14 +155,7 @@ function listenForQtyChangesInCart () {
   });
 
 }
-// listen for cart shipping changes
-function listenForShippingChangesInCart () {
 
-  $('.js-shipping-cart').change( event => {
-    recalculateOrderTotal();
-  });
-
-}
 // listen for cart deletions
 function listenForDeleteChangesInCart () {
 
