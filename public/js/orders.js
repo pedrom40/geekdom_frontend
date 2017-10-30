@@ -35,7 +35,6 @@ function displayOrderInfo (order) {
   displayPaymentInfo(order[2]);
 
 }
-
 function displayMainOrderInfo (mainOrderInfo) {
 
   // send info to html
@@ -103,6 +102,171 @@ function displayPaymentInfo (customerInfo) {
 
   const dollarAmt = customerInfo.total_charge / 100;
   $('#card-charge').html(`$${dollarAmt}`);
+
+}
+
+// runs when user clicks "Place Order" btn
+function placeOrder (amountToCharge) {
+
+  // get user info for cart token
+  getUserSessionInfo()
+    .then( (data) => {
+
+      // pass to DB for processing
+      const qData = {
+        method:'chargeCard',
+        amountToCharge: amountToCharge,
+        cardToken: data.cardToken
+      }
+      callCartService(qData).then( data => {
+        handleChargeResult(data);
+      });
+
+    });
+
+}
+function handleChargeResult (data) {
+  const jsonResponse = JSON.parse(data);
+
+  // if error
+  if (jsonResponse.hasOwnProperty("error")) {
+
+    // display error msg
+    $('.js-error-msg').html(`${jsonResponse.error.message}`);
+    $('.js-error-msg').show();
+
+  }
+
+  // no errors
+  else {
+
+    // save order details
+    saveOrder(jsonResponse);
+
+  }
+
+}
+
+// runs when charge to card was successful, saves main order info, order items and payment info to Db
+function saveOrder (chargeInfo) {
+
+  // var to hold order ID
+  let orderId = 0;
+  let qData = {};
+
+  // get user session info
+  getUserSessionInfo().then( data => {
+
+    // pass to service to save to DB
+    qData = {
+      method: 'saveOrderToDb',
+      chargeDesc: chargeInfo.description,
+      userName: data.name,
+      userEmail: data.email,
+      userPhone: data.phone
+    }
+    callCartService(qData).then( data => {
+
+      // parse JSON string from CF service
+      data = JSON.parse(data);
+
+      // if error
+      if (data.orderId === 0) {
+
+        // display error msg
+        showErrorMsg(data.errorMsg);
+
+      }
+
+      // no errors
+      else {
+
+        // save new order ID
+        orderId = data.orderId;
+
+        // get cart items
+        getExpressCartContents().then( cartItems => {
+
+          // convert to string for CF
+          const newCartArray = rebuildArrayOfObjectsForColdfusion(cartItems);
+
+          // pass to service to save order items
+          qData = {
+            method:'saveOrderItemsToDb',
+            orderId: orderId,
+            cartItems: newCartArray
+          }
+          callCartService(qData).then( data => {
+
+            // if error
+            if (data !== 'success') {
+
+              // display error msg
+              showErrorMsg(data);
+
+            }
+
+            // no errors
+            else {
+
+              // take out items we're saving
+              let chargeInfoToSend = {
+                order_id: orderId,
+                total_charge: chargeInfo.amount,
+                balance_transaction: chargeInfo.balance_transaction,
+                created: chargeInfo.created,
+                description: chargeInfo.description,
+                charge_id: chargeInfo.id,
+                card_id: chargeInfo.source.id,
+                card_type: chargeInfo.source.brand,
+                card_name: chargeInfo.source.name,
+                card_address: chargeInfo.source.address_line1,
+                card_city: chargeInfo.source.address_city,
+                card_state: chargeInfo.source.address_state,
+                card_zip: chargeInfo.source.address_zip,
+                card_country: chargeInfo.source.country,
+                card_exp_month: chargeInfo.source.exp_month,
+                card_exp_year: chargeInfo.source.exp_year,
+                card_last_four: chargeInfo.source.last4,
+                fingerprint: chargeInfo.source.fingerprint
+              }
+
+              // save payment info to Db
+              qData = {
+                method: 'saveOrderPaymentInfoToDb',
+                chargeInfo: JSON.stringify(chargeInfoToSend)
+              }
+              callCartService(qData).then( (data) => {
+
+                // if error
+                if (data !== 'success') {
+
+                  // display error msg
+                  showErrorMsg(data);
+
+                }
+
+                // no errors
+                else {
+
+                  // go to confirmation page
+                  window.location.assign(`/confirmation/?orderId=${orderId}`);
+
+                }
+
+              });
+
+            }
+
+          });
+
+        });
+
+      }
+
+    });
+
+  });
 
 }
 
