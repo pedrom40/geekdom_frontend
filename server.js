@@ -58,7 +58,12 @@ app.use( (req, res, next) => {
     }
 
     // init admin session
-    req.session.adminId = 0;
+    req.session.adminUser = {
+      id: 0,
+      email: '',
+      name: '',
+      validated: false
+    }
 
   }
 
@@ -289,6 +294,44 @@ app.get('/getShippingRates', (req, res) => {
 
   });
 
+});
+
+
+/* admin endpoints */
+
+// get admin session info
+app.get('/getAdminUser', jsonParser, (req, res) => {
+  res.json(req.session.adminUser);
+});
+
+// update admin session info
+app.get('/updateAdminUser', jsonParser, (req, res) => {
+
+  // update admin session
+  req.session.adminUser = {
+    id: req.query.id,
+    email: req.query.email,
+    name: req.query.name,
+    validated: req.query.validated
+  }
+
+  res.json(req.session.adminUser);
+
+});
+
+// admin dashboard
+app.get('/admin/dashboard', jsonParser, (req, res) => {
+  res.sendFile(__dirname + '/views/admin.html');
+});
+
+// admin login
+app.get('/admin/login', jsonParser, (req, res) => {
+  res.sendFile(__dirname + '/views/admin.html');
+});
+
+// list admin users
+app.get('/admin/users', jsonParser, (req, res) => {
+  res.sendFile(__dirname + '/views/admin.html');
 });
 
 

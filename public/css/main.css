@@ -467,4 +467,8 @@ footer {
 #card-errors {
   margin-top: 15px; }
 
+.adminLoginForm {
+  width: 300px;
+  margin: 50px auto; }
+
 /*# sourceMappingURL=main.css.map */
