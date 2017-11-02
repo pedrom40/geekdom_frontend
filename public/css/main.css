@@ -481,16 +481,17 @@ footer {
 #card-errors {
   margin-top: 15px; }
 
-.adminLoginForm {
-  width: 300px;
-  margin: 50px auto; }
-
 .admin a {
   color: #252525; }
 .admin form {
   padding: 0; }
+.admin .adminLoginForm {
+  width: 300px;
+  margin: 50px auto; }
 .admin .main-content {
   margin-top: 40px; }
+  .admin .main-content .admin-users-options {
+    text-align: right; }
 .admin .admin-menu {
   display: inline-block;
   margin: 50px;
