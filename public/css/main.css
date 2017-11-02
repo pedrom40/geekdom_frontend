@@ -34,7 +34,8 @@ h1, h2, h3, h4, h5, ul, p {
   letter-spacing: normal; }
 
 a {
-  text-decoration: none; }
+  text-decoration: none;
+  color: white; }
 
 img {
   width: 100%; }
@@ -470,5 +471,16 @@ footer {
 .adminLoginForm {
   width: 300px;
   margin: 50px auto; }
+
+.admin .main-content {
+  margin-top: 40px; }
+.admin .admin-menu {
+  display: inline-block;
+  margin: 50px;
+  font-family: "Montserrat", sans-serif; }
+  .admin .admin-menu a {
+    color: #252525; }
+  .admin .admin-menu dd a {
+    font-size: 0.9em; }
 
 /*# sourceMappingURL=main.css.map */

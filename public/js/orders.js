@@ -1,7 +1,13 @@
 // get the order ID to start the process
 function initOrder () {
 
-  getOrderId();
+  // get current view
+  const currentPath = window.location.pathname;
+
+  // if this is not an admin page
+  if (currentPath.search('admin') === -1) {
+    getOrderId();
+  }
 
 }
 

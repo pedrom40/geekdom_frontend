@@ -326,7 +326,7 @@ app.get('/admin/dashboard', jsonParser, (req, res) => {
 
 // admin login
 app.get('/admin/login', jsonParser, (req, res) => {
-  res.sendFile(__dirname + '/views/admin.html');
+  res.sendFile(__dirname + '/views/admin-login.html');
 });
 
 // list admin users

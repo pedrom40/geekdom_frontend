@@ -2,3 +2,26 @@
   width:300px;
   margin:50px auto;
 }
+
+.admin {
+
+  .main-content {
+    margin-top:40px;
+  }
+
+  .admin-menu {
+    display:inline-block;
+    margin:50px;
+    font-family:$primary-font-family;
+
+    a {
+      color:$primary-font-color
+    }
+
+    dd a {
+      font-size: 0.9em;
+    }
+
+  }
+
+}

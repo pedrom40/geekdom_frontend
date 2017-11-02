@@ -37,33 +37,28 @@
     <section class="yellow-title">
       <div class="row">
         <div class="column">
-          <h3 class="js-page-title"></h3>
+          <h3>ADMIN LOGIN</h3>
         </div>
       </div>
     </section>
 
     <section class="admin">
-      <div class="row">
-        <div class="column column-25">
-          <dl class="admin-menu">
-            <dt><a href="/admin/dashboard">Orders</a></dt>
-            <dt><a href="/admin/products">Products</a></dt>
-              <dd><a href="/admin/printers">Printers</a></dd>
-              <dd><a href="/admin/media">Media</a></dd>
-              <dd><a href="/admin/categories">Categories</a></dd>
-              <dd><a href="/admin/images">Images</a></dd>
-              <dd><a href="/admin/sizes">Sizes</a></dd>
-              <dd><a href="/admin/finishing">Finishing</a></dd>
-              <dd><a href="/admin/turnaround">Turnaround</a></dd>
-              <dd><a href="/admin/flat-charges">Flat Charges</a></dd>
-            <dt><a href="/admin/users">Users</a></dt>
-          </dl>
+      <form class="adminLoginForm">
+        <div class="row">
+          <div class="column">
+
+            <label for="adminEmail">Email</label>
+            <input type="email" id="adminEmail" placeholder="admin@email.com" required>
+
+            <label for="adminPassword">Password</label>
+            <input type="password" id="adminPassword" placeholder="******" required>
+
+            <input type="submit" id="adminLoginSubmitBtn" value="Login">
+            <div class="error-msg" style="display:none;"></div>
+
+          </div>
         </div>
-        <div class="column">
-          <div class="main-content js-admin-placeholder"></div>
-        </div>
-        <div class="column column-10"></div>
-      </div>
+      </form>
     </section>
 
     <footer role="content-info">
@@ -92,7 +87,6 @@
   <script src="/js/user.js" type="text/javascript"></script>
   <script src="/js/cart.js" type="text/javascript"></script>
   <script src="/js/shipping.js" type="text/javascript"></script>
-  <script src="/js/orders.js" type="text/javascript"></script>
   <script src="/js/admin.js" type="text/javascript"></script>
   <script src="/js/app.js" type="text/javascript"></script>
 

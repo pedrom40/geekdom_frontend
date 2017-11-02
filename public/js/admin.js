@@ -34,11 +34,11 @@ function checkForAdminSession () {
 
       }
 
-      // if you need to login
+      // if on login page
       else {
 
-        // load login form
-        loadLoginForm();
+        // make for active by listening for submit
+        listenForAdminLoginSubmit();
 
       }
 
@@ -46,11 +46,25 @@ function checkForAdminSession () {
 
 }
 
+// called when login form submitted
+function listenForAdminLoginSubmit () {
+
+  $('.adminLoginForm').submit( event => {
+    event.preventDefault();
+
+    // send msg and disable login btn
+    $('#adminLoginSubmitBtn').prop('value', 'Validating...');
+    $('#adminLoginSubmitBtn').prop('disabled', true);
+
+    // send to login function
+    loginAdminUser();
+
+  });
+
+}
+
 // find out what view the user wants
 function getViewRequested (viewRequested) {
-
-  // load admin menu
-  loadAdminMenu();
 
   // if dashboard view requested
   if (viewRequested === '/admin/dashboard') {
@@ -70,133 +84,90 @@ function getViewRequested (viewRequested) {
 
 }
 
-// loads admin nav menu after valid session verified
-function loadAdminMenu () {
-
-  // start fresh
-  $('.js-admin-menu').empty();
-
-  // markup menu
-  const adminMenu = `
-    <div class="column column-20">
-      <ul>
-        <li><a href="/admin/dashboard">Orders</a></li>
-        <li>
-          <a href="/admin/products">Products</a>
-          <ul>
-            <li><a href="/admin/printers">Printers</a></li>
-            <li><a href="/admin/media">Media</a></li>
-            <li><a href="/admin/categories">Categories</a></li>
-            <li><a href="/admin/images">Images</a></li>
-            <li><a href="/admin/sizes">Sizes</a></li>
-            <li><a href="/admin/finishing">Finishing</a></li>
-            <li><a href="/admin/turnaround">Turnaround</a></li>
-            <li><a href="/admin/flat-charges">Flat Charges</a></li>
-          </ul>
-        </li>
-        <li><a href="/admin/users">Users</a></li>
-      </ul>
-    </div>
-  `;
-
-  // send HTML to placeholder
-  $('.js-admin-menu').html(adminMenu);
-
-}
-
 // loads dashboard
 function loadAdminDashboard () {
 
-  // gets recent orders
-  let memberRows = ``;
-  const recentOrders = getRecentOrders();
+  // setup order display
+  let orderRowsHtml = '';
+  callOrderService({method: 'getOrders'})
+    .then( orders => {
 
-  // start fresh
-  $('.js-admin-placeholder').empty();
+      // markup order rows
+      orders.map( order => {
+        orderRowsHtml = `${orderRowsHtml}
+          <tr>
+            <td>${order[0]}</td>
+            <td>${order[2]}</td>
+            <td>${order[1]}</td>
+            <td>${order[3]}</td>
+            <td>${order[4]}</td>
+          </tr>`;
+      });
 
-  // markup display
-  const recentOrderList = `
-    <div class="row">
-      <div class="column">
+      // start fresh
+      $('.js-admin-placeholder').empty();
 
-        <label for="memberSearchTerm">Member Search</label>
-        <input type="text" id="memberSearchTerm" placeholder="Search by Name, Email or Phone">
-
+      // markup search form
+      const searchForm = `
         <div class="row">
-          <table>
-            <thead>
-              <tr>
-                <th>Customer</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Orders</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${memberRows}
-            </tbody>
-          </table>
+          <div class="column">
+            <label for="fromDate">From:</label>
+            <input type="date" id="fromDate" placeholder="mm/dd/yyyy">
+          </div>
+          <div class="column">
+            <label for="toDate">To:</label>
+            <input type="date" id="toDate" placeholder="mm/dd/yyyy">
+          </div>
+          <div class="column">
+            <label for="orderStatus">Status:</label>
+            <select id="orderStatus">
+              <option value="">All</option>
+            </select>
+          </div>
+          <div class="column">
+            <label for="orderNumber">Order #:</label>
+            <input type="text" id="orderNumber" placeholder="XXX-XXXXXX">
+          </div>
+          <div class="column">
+            <label for="products">Products:</label>
+            <select id="products">
+              <option value="">All</option>
+            </select>
+          </div>
         </div>
+      `;
 
-      </div>
-      <div class="column column-20">
-        <h4>Admin Users</h4>
-      </div>
-    </div>
-  `;
+      // markup display
+      const recentOrderList = `
+        <div class="row">
+          <div class="column">
 
-}
+            <h4>Orders</h4>
 
-// load login form
-function loadLoginForm () {
+            ${searchForm}
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Customer</th>
+                  <th>Order</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${orderRowsHtml}
+              </tbody>
+            </table>
 
-  // update page title
-  $('.js-page-title').html('ADMIN LOGIN');
-
-  // make sure the placeholder is emtpy
-  $('.js-admin-placeholder').empty();
-
-  // markup form
-  const template = `
-    <form class="adminLoginForm">
-      <div class="row">
-        <div class="column">
-
-          <label for="adminEmail">Email</label>
-          <input type="email" id="adminEmail" placeholder="admin@email.com" required>
-
-          <label for="adminPassword">Password</label>
-          <input type="password" id="adminPassword" placeholder="******" required>
-
-          <input type="submit" id="adminLoginSubmitBtn" value="Login">
-
-          <div class="error-msg" style="display:none;"></div>
-
+          </div>
         </div>
-      </div>
-    </form>
-  `;
+      `;
 
-  // add to HTML
-  $('.js-admin-placeholder').html(template);
+      // start fresh
+      $('.js-admin-placeholder').html(recentOrderList);
 
-  // make for active by listening for submit
-  listenForAdminLoginSubmit();
-
-}
-function listenForAdminLoginSubmit () {
-
-  $('.adminLoginForm').submit( event => {
-    event.preventDefault();
-
-    // send msg and disable login btn
-    $('#adminLoginSubmitBtn').prop('value', 'Validating...');
-    $('#adminLoginSubmitBtn').prop('disabled', true);
-
-    // send to login function
-    loginAdminUser();
-
-  });
+    });
 
 }
 
@@ -227,10 +198,10 @@ function handleLoginResponse (loginResponse) {console.log(loginResponse);
 
     // update admin user session
     updateAdminUserSession(loginResponse)
-      .then( userResponse => {console.log(userResponse);
+      .then( userResponse => {
 
         // send user to dashboard
-        //window.location.assign('/admin/dashboard');
+        window.location.assign('/admin/dashboard');
 
       });
 
