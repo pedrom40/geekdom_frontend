@@ -105,4 +105,19 @@ function getUserSessionInfo () {
   return $.ajax(settings);
 }
 
+// call user web service
+function callUserService (data) {
+
+  const settings = {
+    url: 'https://services.bannerstack.com/user.cfc',
+    data: data,
+    dataType: 'json',
+    type: 'GET',
+    fail: showAjaxError
+  }
+
+  return $.ajax(settings);
+
+}
+
 $(initUser)

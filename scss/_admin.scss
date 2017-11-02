@@ -5,6 +5,14 @@
 
 .admin {
 
+  a {
+    color:$primary-font-color;
+  }
+
+  form {
+    padding:0;
+  }
+
   .main-content {
     margin-top:40px;
   }
@@ -13,10 +21,6 @@
     display:inline-block;
     margin:50px;
     font-family:$primary-font-family;
-
-    a {
-      color:$primary-font-color
-    }
 
     dd a {
       font-size: 0.9em;

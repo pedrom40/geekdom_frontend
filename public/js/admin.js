@@ -78,13 +78,92 @@ function getViewRequested (viewRequested) {
   else if (viewRequested === '/admin/users') {
 
     // load admin users view
-    console.log('load admin users list');
+    loadAdminUsers();
 
   }
 
 }
 
-// loads dashboard
+// attempt to login admin user
+function loginAdminUser () {
+
+  // create login obj
+  const loginValues = {
+    method: 'loginUser',
+    email: $('#adminEmail').val(),
+    password: $('#adminPassword').val()
+  }
+
+  // send to service for validation
+  callAdminService(loginValues)
+    .then( loginResponse => {
+
+      // figure out how to handle the result
+      handleLoginResponse(loginResponse);
+
+    });
+
+}
+function handleLoginResponse (loginResponse) {console.log(loginResponse);
+
+  // if login successfull
+  if (loginResponse.validated) {
+
+    // update admin user session
+    updateAdminUserSession(loginResponse)
+      .then( userResponse => {
+
+        // send user to dashboard
+        window.location.assign('/admin/dashboard');
+
+      });
+
+  }
+
+  // if not
+  else {
+
+    // send failed msg
+    $('.error-msg').html(loginResponse.msg);
+    $('.error-msg').show();
+
+    // reinstate login btn
+    $('#adminLoginSubmitBtn').prop('value', 'LOGIN');
+    $('#adminLoginSubmitBtn').prop('disabled', false);
+
+  }
+
+}
+
+// updates admin user session
+function updateAdminUserSession (adminUser) {
+
+  // get user session info from express route
+  const settings = {
+    url: '/updateAdminUser/',
+    data: adminUser,
+    type: 'GET',
+    fail: showAjaxError
+  };
+
+  return $.ajax(settings);
+
+}
+
+// get user session info from express route
+function getAdminSessionInfo () {
+  const settings = {
+    url: '/getAdminUser/',
+    type: 'GET',
+    fail: showAjaxError
+  };
+
+  return $.ajax(settings);
+}
+
+/* admin views */
+
+// dashboard
 function loadAdminDashboard () {
 
   // setup order display
@@ -171,82 +250,115 @@ function loadAdminDashboard () {
 
 }
 
-// attempt to login admin user
-function loginAdminUser () {
+// users
+function loadAdminUsers () {
 
-  // create login obj
-  const loginValues = {
-    method: 'loginUser',
-    email: $('#adminEmail').val(),
-    password: $('#adminPassword').val()
-  }
+    // setup member display
+    callUserService({method: 'getMembers'})
+      .then( members => {
 
-  // send to service for validation
-  callAdminService(loginValues)
-    .then( loginResponse => {
+        // markup order rows
+        let memberRowsHtml = '';
+        members.map( member => {
+          memberRowsHtml = `${memberRowsHtml}
+            <tr>
+              <td>${member[0]}</td>
+              <td>${member[1]}</td>
+              <td>${member[2]}</td>
+              <td>${member[3]}</td>
+            </tr>
+          `;
+        });
 
-      // figure out how to handle the result
-      handleLoginResponse(loginResponse);
+        // markup admin rows
+        let adminRowsHtml = '';
+        callUserService({method: 'getAdminUsers'})
+          .then( adminUsers => {
 
-    });
+            adminUsers.map( adminUser => {
+              adminRowsHtml = `${adminRowsHtml}
+                <tr>
+                  <td><a href="#" id="admin-edit-btn_${adminUser[0]}">${adminUser[1]}</a></td>
+                  <td><a href="#" id="admin-delete-btn_${adminUser[0]}"><i class="fa fa-trash" aria-hidden="true"></i></a></td>
+                </tr>
+              `;
+            });
 
-}
-function handleLoginResponse (loginResponse) {console.log(loginResponse);
+            // start fresh
+            $('.js-admin-placeholder').empty();
 
-  // if login successfull
-  if (loginResponse.validated) {
+            // markup search form
+            const memberSearchForm = `
+              <div class="row">
+                <div class="column">
+                  <label for="memberSearchTerm" class="sr-only">Member Search Term</label>
+                  <input type="text" id="memberSearchTerm" placeholder="Search by Name, Email or Phone">
+                </div>
+              </div>
+            `;
 
-    // update admin user session
-    updateAdminUserSession(loginResponse)
-      .then( userResponse => {
+            // markup admin form
+            const adminForm = `
+              <form class="js-add-admin-user">
 
-        // send user to dashboard
-        window.location.assign('/admin/dashboard');
+                <label for="adminName">Name:</label>
+                <input type="text" id="adminName" placeholder="New Guy">
+
+                <label for="adminEmail">Email:</label>
+                <input type="email" id="adminEmail" placeholder="new@guy.com">
+
+                <label for="adminPassword">Password:</label>
+                <input type="password" id="adminPasword" placeholder="******">
+
+                <input type="submit" id="adminSubmit" value="Add">
+
+              </form>
+            `;
+
+            // markup display
+            const displayHtml = `
+              <div class="row">
+                <div class="column">
+                  <h4>Members</h4>
+
+                  ${memberSearchForm}
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Customer</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Orders</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${memberRowsHtml}
+                    </tbody>
+                  </table>
+                </div>
+                <div class="column column-10"></div>
+                <div class="column">
+                  <h4>Admin</h4>
+                  <table>
+                    <tbody>
+                      ${adminRowsHtml}
+                    </tbody>
+                  </table>
+
+                  <h4>Add Admin</h4>
+                  ${adminForm}
+                </div>
+              </div>
+            `;
+
+            // load markup to page
+            $('.js-admin-placeholder').html(displayHtml);
+
+          });
 
       });
 
   }
-
-  // if not
-  else {
-
-    // send failed msg
-    $('.error-msg').html(loginResponse.msg);
-    $('.error-msg').show();
-
-    // reinstate login btn
-    $('#adminLoginSubmitBtn').prop('value', 'LOGIN');
-    $('#adminLoginSubmitBtn').prop('disabled', false);
-
-  }
-
-}
-
-// updates admin user session
-function updateAdminUserSession (adminUser) {
-
-  // get user session info from express route
-  const settings = {
-    url: '/updateAdminUser/',
-    data: adminUser,
-    type: 'GET',
-    fail: showAjaxError
-  };
-
-  return $.ajax(settings);
-
-}
-
-// get user session info from express route
-function getAdminSessionInfo () {
-  const settings = {
-    url: '/getAdminUser/',
-    type: 'GET',
-    fail: showAjaxError
-  };
-
-  return $.ajax(settings);
-}
 
 // makes all calls to admin service
 function callAdminService (data) {

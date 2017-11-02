@@ -55,6 +55,19 @@ input, select, textarea {
 select:focus {
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="14" viewBox="0 0 29 14" width="29"><path fill="#fdaf17" d="M9.37727 3.625l5.08154 6.93523L19.54036 3.625"/></svg>'); }
 
+input[type='date'] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: transparent;
+  border: 0.1rem solid #d1d1d1;
+  border-radius: .4rem;
+  box-shadow: none;
+  box-sizing: inherit;
+  height: 3.8rem;
+  padding: .6rem 1.0rem;
+  width: 100%; }
+
 input[type=submit] {
   width: 100%;
   font-family: "Montserrat", sans-serif;
@@ -472,14 +485,16 @@ footer {
   width: 300px;
   margin: 50px auto; }
 
+.admin a {
+  color: #252525; }
+.admin form {
+  padding: 0; }
 .admin .main-content {
   margin-top: 40px; }
 .admin .admin-menu {
   display: inline-block;
   margin: 50px;
   font-family: "Montserrat", sans-serif; }
-  .admin .admin-menu a {
-    color: #252525; }
   .admin .admin-menu dd a {
     font-size: 0.9em; }
 
