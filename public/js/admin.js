@@ -610,7 +610,7 @@ function deleteAdminUser (adminUserId) {
 
         // if successful
         if (response === 'success') {
-          initAdmin();
+          loadAdminUsers();
         }
 
         // if not
@@ -619,6 +619,10 @@ function deleteAdminUser (adminUserId) {
         }
 
       });
+
+  }
+  else {
+    return false;
   }
 
 }
@@ -729,7 +733,7 @@ function deleteCategory (categoryId) {
 
         // if successful
         if (response === 'success') {
-          initAdmin();
+          loadCategories();
         }
 
         // if not
@@ -738,6 +742,10 @@ function deleteCategory (categoryId) {
         }
 
       });
+
+  }
+  else {
+    return false;
   }
 
 }
