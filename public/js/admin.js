@@ -82,6 +82,14 @@ function getViewRequested (viewRequested) {
 
   }
 
+  // if product categories list view requested
+  else if (viewRequested === '/admin/categories') {
+
+    // load admin users view
+    loadCategories();
+
+  }
+
 }
 
 // attempt to login admin user
@@ -104,7 +112,7 @@ function loginAdminUser () {
     });
 
 }
-function handleLoginResponse (loginResponse) {console.log(loginResponse);
+function handleLoginResponse (loginResponse) {
 
   // if login successfull
   if (loginResponse.validated) {
@@ -124,8 +132,7 @@ function handleLoginResponse (loginResponse) {console.log(loginResponse);
   else {
 
     // send failed msg
-    $('.error-msg').html(loginResponse.msg);
-    $('.error-msg').show();
+    showErrorMsg(loginResponse.msg);
 
     // reinstate login btn
     $('#adminLoginSubmitBtn').prop('value', 'LOGIN');
@@ -161,7 +168,8 @@ function getAdminSessionInfo () {
   return $.ajax(settings);
 }
 
-/* admin views */
+
+/** admin views **/
 
 // dashboard
 function loadAdminDashboard () {
@@ -279,8 +287,8 @@ function loadAdminUsers () {
             adminRowsHtml = `${adminRowsHtml}
               <tr>
                 <td>${adminUser[1]}</td>
-                <td class="admin-users-options">
-                  <a href="#" title="Edit User"><i id="admin-edit-btn_${adminUser[0]}" class="fa fa-pencil" aria-hidden="true"></i></a> |
+                <td class="admin-options">
+                  <a href="#" title="Edit User"><i id="admin-edit-btn_${adminUser[0]}" class="fa fa-pencil" aria-hidden="true"></i></a>
                   <a href="#" title="Delete User"><i id="admin-delete-btn_${adminUser[0]}" class="fa fa-trash" aria-hidden="true"></i></a>
                 </td>
               </tr>
@@ -367,34 +375,203 @@ function loadAdminUsers () {
 
 }
 
+// product categories
+function loadCategories () {
+
+  // setup member display
+  callProductsService({method: 'getCategories'})
+    .then( categories => {
+
+      // markup category rows
+      let categorRowsHtml = '';
+      categories.map( category => {
+
+        // setup value for featured
+        let categoryFeaturedStatus = '';
+        if (category[3] === 1) {
+          categoryFeaturedStatus = 'Yes';
+        }
+        else {
+          categoryFeaturedStatus = 'No';
+        }
+
+        // setup value for active
+        let categoryActiveStatus = '';
+        if (category[4] === 1) {
+          categoryActiveStatus = 'Yes';
+        }
+        else {
+          categoryActiveStatus = 'No';
+        }
+
+        // add the rows to the HTML placeholder
+        categorRowsHtml = `${categorRowsHtml}
+          <tr>
+            <td><img src="https://static.bannerstack.com/img/categories/${category[2]}"></td>
+            <td>${category[1]}</td>
+            <td>${categoryFeaturedStatus}</td>
+            <td>${categoryActiveStatus}</td>
+            <td class="admin-options">
+              <a href="#" title="Edit"><i id="category-edit-btn_${category[0]}" class="fa fa-pencil" aria-hidden="true"></i></a>
+              <a href="#" title="Delete"><i id="category-delete-btn_${category[0]}" class="fa fa-trash" aria-hidden="true"></i></a>
+            </td>
+          </tr>
+        `;
+      });
+
+      // start fresh
+      $('.js-admin-placeholder').empty();
+
+      // markup search form
+      const categorySearchForm = `
+        <div class="row">
+          <div class="column">
+            <label for="categorySearchTerm" class="sr-only">Category Search Term</label>
+            <input type="text" id="categorySearchTerm" placeholder="Search by Name">
+          </div>
+        </div>
+      `;
+
+      // markup category form
+      const categoryForm = `
+        <form class="js-admin-category-form" enctype="multipart/form-data">
+
+          <label for="categoryName">Name:</label>
+          <input type="text" id="categoryName" placeholder="New Category" required>
+
+          <div id="categoryImgHolder"></div>
+          <label for="categoryThumb">Thumbnail:</label>
+          <input type="file" id="fileupload" name="file" placeholder="jpg, gif and png files (RGB only)">
+          <div id="progress">
+            <div id="bar"></div>
+          </div>
+
+          <label for="categoryShortDesc">Short Description:</label>
+          <input type="text" id="categoryShortDesc" placeholder="Short description" required>
+
+          <label for="categoryLongDesc">Long Description:</label>
+          <textarea id="categoryLongDesc" placeholder="Detailed category description"></textarea>
+
+          <label for="categoryFeatured">Featured:</label>
+          <select id="categoryFeatured">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+          </select>
+
+          <label for="categoryActive">Active:</label>
+          <select id="categoryActive">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+          </select>
+
+          <input type="submit" id="categorySubmit" value="Add">
+          <input type="hidden" id="categoryId">
+          <input type="hidden" id="categoryThumb">
+
+        </form>
+      `;
+
+      // markup display
+      const displayHtml = `
+        <div class="row">
+          <div class="column">
+            <h4>Categories</h4>
+
+            ${categorySearchForm}
+            <table>
+              <thead>
+                <tr>
+                  <th>Thumb</th>
+                  <th>Name</th>
+                  <th>Featured</th>
+                  <th>Active</th>
+                  <th>Options</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${categorRowsHtml}
+              </tbody>
+            </table>
+          </div>
+          <div class="column column-10"></div>
+          <div class="column column-33">
+            <h4 class="js-form-title">Add Category</h4>
+            ${categoryForm}
+          </div>
+        </div>
+      `;
+
+      // load markup to page
+      $('.js-admin-placeholder').html(displayHtml);
+
+      // setup listeners
+      listenForAdminActions();
+
+      // init file upload listener
+      const uploadData = {
+        methodUrl: 'products.cfc?method=uploadCategoryPic',
+        imgNamePlaceholder: '#categoryThumb',
+        imgPreviewContainer: '#categoryImgHolder',
+        imgUrl: 'https://static.bannerstack.com/img/categories'
+      }
+      listenForFileUploads(uploadData);
+
+    });
+
+}
+
 // listens for admin user edit/delete btn clicks and admin form submits
 function listenForAdminActions () {
 
   $('.js-admin-placeholder').click( event => {
-    event.preventDefault();
 
-    // for admin user edit click
-    if (event.target.id.search('admin-edit-btn') !== -1) {
-      const adminUserId = event.target.id.toString().split('_');
-      editAdminUser(adminUserId[1]);
-    }
+    // if this is not a file input
+    if (event.target.id !== 'fileupload') {
 
-    // if admin user delete click
-    else if (event.target.id.search('admin-delete-btn') !== -1) {
-      const adminUserId = event.target.id.toString().split('_');
-      deleteAdminUser(adminUserId[1]);
-    }
+      event.preventDefault();
 
-    // for admin form submits
-    else if (event.target.id === 'adminSubmit') {
-      handleAdminUserFormSubmit();
+      // for admin user edit click
+      if (event.target.id.search('admin-edit-btn') !== -1) {
+        const adminUserId = event.target.id.toString().split('_');
+        editAdminUser(adminUserId[1]);
+      }
+
+      // if admin user delete click
+      else if (event.target.id.search('admin-delete-btn') !== -1) {
+        const adminUserId = event.target.id.toString().split('_');
+        deleteAdminUser(adminUserId[1]);
+      }
+
+      // for admin form submits
+      else if (event.target.id === 'adminSubmit') {
+        handleAdminUserFormSubmit();
+      }
+
+
+      // if category edit click
+      else if (event.target.id.search('category-edit-btn') !== -1) {
+        const categoryId = event.target.id.toString().split('_');
+        editCategory(categoryId[1]);
+      }
+
+      // if category delete click
+      else if (event.target.id.search('category-delete-btn') !== -1) {
+        const categoryId = event.target.id.toString().split('_');
+        deleteCategory(categoryId[1]);
+      }
+
+      // for category form submits
+      else if (event.target.id === 'categorySubmit') {
+        handleCategoryFormSubmit();
+      }
+
     }
 
   });
 
 }
 
-// edit admin user
+// add/edit/delete admin user
 function editAdminUser (adminUserId) {
 
   // get user info
@@ -416,8 +593,6 @@ function editAdminUser (adminUserId) {
     });
 
 }
-
-// delete admin user
 function deleteAdminUser (adminUserId) {
 
   // confirm delete
@@ -435,7 +610,7 @@ function deleteAdminUser (adminUserId) {
 
         // if successful
         if (response === 'success') {
-          window.location.assign('/admin/users');
+          initAdmin();
         }
 
         // if not
@@ -447,8 +622,6 @@ function deleteAdminUser (adminUserId) {
   }
 
 }
-
-// handle admin user form submit
 function handleAdminUserFormSubmit () {
 
   const formAction = $('#adminSubmit').val();
@@ -467,7 +640,7 @@ function handleAdminUserFormSubmit () {
 
         // if successful, reload page
         if (response === 'success') {
-          window.location.assign('/admin/users');
+          loadAdminUsers();
         }
 
         // if not
@@ -497,7 +670,132 @@ function handleAdminUserFormSubmit () {
 
         // if successful, reload page
         if (response === 'success') {
-          window.location.assign('/admin/users');
+          loadAdminUsers();
+        }
+
+        // if not
+        else {
+
+          // display error
+          showErrorMsg(response);
+
+        }
+
+      });
+  }
+
+}
+
+// edit/delete category
+function editCategory (categoryId) {
+
+  // get user info
+  callProductsService({
+    method: 'getCategory',
+    categoryId: categoryId
+  })
+    .then( category => {
+
+      // update form content
+      $('#categoryId').val(category[0]);
+      $('#categoryName').val(category[1]);
+      $('#categoryImgHolder').html(`<img src="https://static.bannerstack.com/img/categories/${category[2]}">`);
+      $('#categoryShortDesc').val(category[3]);
+      $('#categoryLongDesc').val(category[4]);
+      $('#categoryFeatured').val(category[5]);
+      $('#categoryActive').val(category[6]);
+
+      // change for title and submit text
+      $('.js-form-title').html('Edit Category');
+      $('#categorySubmit').val('EDIT');
+
+    });
+
+}
+function deleteCategory (categoryId) {
+
+  // confirm delete
+  const confirmDelete = confirm('Delete this Category?');
+
+  // on confirm
+  if (confirmDelete) {
+
+    // get user info
+    callProductsService({
+      method: 'deleteCategory',
+      categoryId: categoryId
+    })
+      .then( response => {
+
+        // if successful
+        if (response === 'success') {
+          initAdmin();
+        }
+
+        // if not
+        else {
+          showErrorMsg(response);
+        }
+
+      });
+  }
+
+}
+function handleCategoryFormSubmit () {
+
+  const formAction = $('#categorySubmit').val();
+
+  // add category
+  if (formAction === 'Add') {
+
+    // send info to service
+    callProductsService({
+      method: 'addCategory',
+      categoryName: $('#categoryName').val(),
+      categoryThumb: $('#categoryThumb').val(),
+      categoryShortDesc: $('#categoryShortDesc').val(),
+      categoryLongDesc: $('#categoryLongDesc').val(),
+      categoryFeatured: $('#categoryFeatured').val(),
+      categoryActive: $('#categoryActive').val()
+    })
+      .then( response => {
+
+        // if successful, reload page
+        if (response === 'success') {
+          loadCategories();
+        }
+
+        // if not
+        else {
+
+          // display error
+          showErrorMsg(response);
+
+        }
+
+      });
+
+  }
+
+  // edit category
+  else {
+
+    // send info to service
+    callProductsService({
+      method: 'editCategory',
+      categoryId: $('#categoryId').val(),
+      categoryName: $('#categoryName').val(),
+      categoryThumb: $('#categoryThumb').val(),
+      categoryShortDesc: $('#categoryShortDesc').val(),
+      categoryLongDesc: $('#categoryLongDesc').val(),
+      categoryFeatured: $('#categoryFeatured').val(),
+      categoryActive: $('#categoryActive').val()
+    })
+      .then( response => {
+
+        // if successful, reload page
+        if (response === 'success') {
+          loadCategories();
         }
 
         // if not

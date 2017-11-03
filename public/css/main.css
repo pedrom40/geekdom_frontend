@@ -55,7 +55,7 @@ input, select, textarea {
 select:focus {
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="14" viewBox="0 0 29 14" width="29"><path fill="#fdaf17" d="M9.37727 3.625l5.08154 6.93523L19.54036 3.625"/></svg>'); }
 
-input[type='date'] {
+input[type='date'], input[type='file'] {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -180,6 +180,16 @@ img.full {
 
 .session-info {
   margin: 25px 0; }
+
+#progress {
+  height: 15px;
+  margin-top: -15px;
+  margin-bottom: 15px;
+  background: #ccc; }
+  #progress #bar {
+    width: 0%;
+    height: 15px;
+    background: black; }
 
 @media only screen and (min-width: 768px) {
   .pad-sides img {
@@ -490,8 +500,10 @@ footer {
   margin: 50px auto; }
 .admin .main-content {
   margin-top: 40px; }
-  .admin .main-content .admin-users-options {
+  .admin .main-content .admin-options {
     text-align: right; }
+    .admin .main-content .admin-options a:first-child {
+      padding-right: 15px; }
 .admin .admin-menu {
   display: inline-block;
   margin: 50px;

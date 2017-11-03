@@ -52,7 +52,10 @@ function checkForCategoryMatch (catName) {
     categoryName: catName[1].toString().replace(/-/g, ' '),
     method:'getCategoryFromUrl'
   }
-  callProductsService(qData, categoryResult);
+  callProductsService(qData)
+    .then( data => {
+      categoryResult(data);
+    });
 
 }
 function categoryResult (categoryId) {
@@ -79,7 +82,10 @@ function getProductsFromCategory (catId) {
     categoryId: catId,
     method:'getProductsFromCategory'
   }
-  callProductsService(qData, loadCategoryProducts);
+  callProductsService(qData)
+    .then( data => {
+      loadCategoryProducts(data);
+    });
 }
 function loadCategoryProducts (categories) {
 
@@ -148,7 +154,10 @@ function lookForProductMatch (productName) {
     productName: productName[2].toString().replace(/-/g, ' '),
     method:'getProductFromUrl'
   }
-  callProductsService(qData, productResult);
+  callProductsService(qData)
+    .then( data => {
+      productResult(data);
+    });
 
 }
 
@@ -181,7 +190,10 @@ function getProductDetails (prodId) {
     productId: prodId,
     method:'getProductDetails'
   }
-  callProductsService(qData, loadProductDetails);
+  callProductsService(qData)
+    .then( data => {
+      loadProductDetails(data);
+    });
 
 }
 
@@ -359,7 +371,10 @@ function populateProductSizesMenu (productId) {
     method:'getProductSizes',
     productId: productId
   }
-  callProductsService(qData, loadProductSizes);
+  callProductsService(qData)
+    .then( data => {
+      loadProductSizes(data);
+    });
 }
 function loadProductSizes (productSizes) {
 
@@ -553,7 +568,10 @@ function getProductCategories () {
   const qData = {
     method:'getProductCategories'
   }
-  callProductsService(qData, loadProductCategories);
+  callProductsService(qData)
+    .then( data => {
+      loadProductCategories(data);
+    });
 }
 // handle all categories
 function loadProductCategories (data) {
@@ -610,18 +628,17 @@ function updatePageTitle (title) {
 }
 
 // makes all calls to products service
-function callProductsService (data, callback) {
+function callProductsService (data) {
 
   const settings = {
     url: 'https://services.bannerstack.com/products.cfc',
     data: data,
     dataType: 'json',
     type: 'GET',
-    success: callback,
     fail: showAjaxError
   }
 
-  $.ajax(settings);
+  return $.ajax(settings);
 
 }
 

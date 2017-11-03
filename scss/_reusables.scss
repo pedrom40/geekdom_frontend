@@ -82,6 +82,19 @@ img.full {
   margin:25px 0;
 }
 
+#progress {
+  height:15px;
+  margin-top:-15px;
+  margin-bottom:15px;
+  background:#ccc;
+
+  #bar {
+    width:0%;
+    height:15px;
+    background:black;
+  }
+}
+
 @media only screen and (min-width:768px) {
 
   .pad-sides {

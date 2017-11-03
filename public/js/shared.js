@@ -129,6 +129,51 @@ function splitUrlIntoArray () {
 
 }
 
+// listen for file uploads
+function listenForFileUploads (uploadData) {
+
+  var _file = document.getElementById('fileupload'),
+  _progress = document.getElementById('bar');
+
+  var upload = function() {
+
+    if(_file.files.length === 0){
+      return;
+    }
+
+    var data = new FormData();
+    data.append('file', _file.files[0]);
+
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function(){
+      if (request.readyState == 4){
+        try {
+          const resp = JSON.parse(request.response);
+          $(uploadData.imgNamePlaceholder).val(resp);
+          $(uploadData.imgPreviewContainer).html(`<img src="${uploadData.imgUrl}/${resp}">`);
+        }
+        catch (e){
+          var resp = {
+            status: 'error',
+            data: 'Unknown error occurred: [' + request.responseText + ']'
+          };
+        }
+      }
+    };
+
+    request.upload.addEventListener('progress', function(e){
+      _progress.style.width = Math.ceil(e.loaded/e.total) * 100 + '%';
+    }, false);
+
+    request.open('POST', `https://services.bannerstack.com/${uploadData.methodUrl}`);
+    request.send(data);
+
+  }
+
+  _file.addEventListener('change', upload);
+
+}
+
 // handle error messages
 function showErrorMsg (msg) {
   $('.js-error-msg').html(`<h4>${msg}</h4>`);

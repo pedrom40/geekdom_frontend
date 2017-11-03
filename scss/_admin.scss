@@ -16,8 +16,13 @@
   .main-content {
     margin-top:40px;
 
-    .admin-users-options {
+    .admin-options {
       text-align: right;
+
+      a:first-child {
+        padding-right:15px;
+      }
+
     }
 
   }
