@@ -68,13 +68,18 @@ input[type='date'], input[type='file'] {
   padding: .6rem 1.0rem;
   width: 100%; }
 
-input[type=submit] {
+input[type=submit], button {
   width: 100%;
   font-family: "Montserrat", sans-serif;
   font-size: 1em;
   color: white;
   border: solid 1px #fdaf17;
+  border-radius: 0;
   background: #fdaf17; }
+
+button {
+  border: solid 1px #474644;
+  background: #474644; }
 
 textarea {
   height: 150px; }

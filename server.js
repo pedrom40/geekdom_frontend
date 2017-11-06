@@ -299,6 +299,11 @@ app.get('/getShippingRates', (req, res) => {
 
 /* admin endpoints */
 
+// admin login
+app.get('/admin/login', jsonParser, (req, res) => {
+  res.sendFile(__dirname + '/views/admin-login.html');
+});
+
 // get admin session info
 app.get('/getAdminUser', jsonParser, (req, res) => {
   res.json(req.session.adminUser);
@@ -324,14 +329,14 @@ app.get('/admin/dashboard', jsonParser, (req, res) => {
   res.sendFile(__dirname + '/views/admin.html');
 });
 
-// admin product categories
+// admin categories
 app.get('/admin/categories', jsonParser, (req, res) => {
   res.sendFile(__dirname + '/views/admin.html');
 });
 
-// admin login
-app.get('/admin/login', jsonParser, (req, res) => {
-  res.sendFile(__dirname + '/views/admin-login.html');
+// admin printers
+app.get('/admin/printers', jsonParser, (req, res) => {
+  res.sendFile(__dirname + '/views/admin.html');
 });
 
 // list admin users

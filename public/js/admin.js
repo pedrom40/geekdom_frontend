@@ -82,7 +82,7 @@ function getViewRequested (viewRequested) {
 
   }
 
-  // if product categories list view requested
+  // if categories list view requested
   else if (viewRequested === '/admin/categories') {
 
     // load admin users view
@@ -90,9 +90,17 @@ function getViewRequested (viewRequested) {
 
   }
 
+  // if printer list view requested
+  else if (viewRequested === '/admin/printers') {
+
+    // load printers view
+    loadPrinters();
+
+  }
+
 }
 
-// attempt to login admin user
+// admin user functions
 function loginAdminUser () {
 
   // create login obj
@@ -141,8 +149,6 @@ function handleLoginResponse (loginResponse) {
   }
 
 }
-
-// updates admin user session
 function updateAdminUserSession (adminUser) {
 
   // get user session info from express route
@@ -156,8 +162,6 @@ function updateAdminUserSession (adminUser) {
   return $.ajax(settings);
 
 }
-
-// get user session info from express route
 function getAdminSessionInfo () {
   const settings = {
     url: '/getAdminUser/',
@@ -321,7 +325,15 @@ function loadAdminUsers () {
               <label for="adminPassword">Password:</label>
               <input type="password" id="adminPassword" placeholder="******" required>
 
-              <input type="submit" id="adminSubmit" value="Add">
+              <div class="row">
+                <div class="column">
+                  <input type="submit" id="adminSubmit" value="Add">
+                </div>
+                <div class="column">
+                  <button onclick="loadAdminUsers()">Cancel</button>
+                </div>
+              </div>
+
               <input type="hidden" id="adminId">
 
             </form>
@@ -374,204 +386,6 @@ function loadAdminUsers () {
   listenForAdminActions();
 
 }
-
-// product categories
-function loadCategories () {
-
-  // setup member display
-  callProductsService({method: 'getCategories'})
-    .then( categories => {
-
-      // markup category rows
-      let categorRowsHtml = '';
-      categories.map( category => {
-
-        // setup value for featured
-        let categoryFeaturedStatus = '';
-        if (category[3] === 1) {
-          categoryFeaturedStatus = 'Yes';
-        }
-        else {
-          categoryFeaturedStatus = 'No';
-        }
-
-        // setup value for active
-        let categoryActiveStatus = '';
-        if (category[4] === 1) {
-          categoryActiveStatus = 'Yes';
-        }
-        else {
-          categoryActiveStatus = 'No';
-        }
-
-        // add the rows to the HTML placeholder
-        categorRowsHtml = `${categorRowsHtml}
-          <tr>
-            <td><img src="https://static.bannerstack.com/img/categories/${category[2]}"></td>
-            <td>${category[1]}</td>
-            <td>${categoryFeaturedStatus}</td>
-            <td>${categoryActiveStatus}</td>
-            <td class="admin-options">
-              <a href="#" title="Edit"><i id="category-edit-btn_${category[0]}" class="fa fa-pencil" aria-hidden="true"></i></a>
-              <a href="#" title="Delete"><i id="category-delete-btn_${category[0]}" class="fa fa-trash" aria-hidden="true"></i></a>
-            </td>
-          </tr>
-        `;
-      });
-
-      // start fresh
-      $('.js-admin-placeholder').empty();
-
-      // markup search form
-      const categorySearchForm = `
-        <div class="row">
-          <div class="column">
-            <label for="categorySearchTerm" class="sr-only">Category Search Term</label>
-            <input type="text" id="categorySearchTerm" placeholder="Search by Name">
-          </div>
-        </div>
-      `;
-
-      // markup category form
-      const categoryForm = `
-        <form class="js-admin-category-form" enctype="multipart/form-data">
-
-          <label for="categoryName">Name:</label>
-          <input type="text" id="categoryName" placeholder="New Category" required>
-
-          <div id="categoryImgHolder"></div>
-          <label for="categoryThumb">Thumbnail:</label>
-          <input type="file" id="fileupload" name="file" placeholder="jpg, gif and png files (RGB only)">
-          <div id="progress">
-            <div id="bar"></div>
-          </div>
-
-          <label for="categoryShortDesc">Short Description:</label>
-          <input type="text" id="categoryShortDesc" placeholder="Short description" required>
-
-          <label for="categoryLongDesc">Long Description:</label>
-          <textarea id="categoryLongDesc" placeholder="Detailed category description"></textarea>
-
-          <label for="categoryFeatured">Featured:</label>
-          <select id="categoryFeatured">
-            <option value="0">No</option>
-            <option value="1">Yes</option>
-          </select>
-
-          <label for="categoryActive">Active:</label>
-          <select id="categoryActive">
-            <option value="0">No</option>
-            <option value="1">Yes</option>
-          </select>
-
-          <input type="submit" id="categorySubmit" value="Add">
-          <input type="hidden" id="categoryId">
-          <input type="hidden" id="categoryThumb">
-
-        </form>
-      `;
-
-      // markup display
-      const displayHtml = `
-        <div class="row">
-          <div class="column">
-            <h4>Categories</h4>
-
-            ${categorySearchForm}
-            <table>
-              <thead>
-                <tr>
-                  <th>Thumb</th>
-                  <th>Name</th>
-                  <th>Featured</th>
-                  <th>Active</th>
-                  <th>Options</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${categorRowsHtml}
-              </tbody>
-            </table>
-          </div>
-          <div class="column column-10"></div>
-          <div class="column column-33">
-            <h4 class="js-form-title">Add Category</h4>
-            ${categoryForm}
-          </div>
-        </div>
-      `;
-
-      // load markup to page
-      $('.js-admin-placeholder').html(displayHtml);
-
-      // setup listeners
-      listenForAdminActions();
-
-      // init file upload listener
-      const uploadData = {
-        methodUrl: 'products.cfc?method=uploadCategoryPic',
-        imgNamePlaceholder: '#categoryThumb',
-        imgPreviewContainer: '#categoryImgHolder',
-        imgUrl: 'https://static.bannerstack.com/img/categories'
-      }
-      listenForFileUploads(uploadData);
-
-    });
-
-}
-
-// listens for admin user edit/delete btn clicks and admin form submits
-function listenForAdminActions () {
-
-  $('.js-admin-placeholder').click( event => {
-
-    // if this is not a file input
-    if (event.target.id !== 'fileupload') {
-
-      event.preventDefault();
-
-      // for admin user edit click
-      if (event.target.id.search('admin-edit-btn') !== -1) {
-        const adminUserId = event.target.id.toString().split('_');
-        editAdminUser(adminUserId[1]);
-      }
-
-      // if admin user delete click
-      else if (event.target.id.search('admin-delete-btn') !== -1) {
-        const adminUserId = event.target.id.toString().split('_');
-        deleteAdminUser(adminUserId[1]);
-      }
-
-      // for admin form submits
-      else if (event.target.id === 'adminSubmit') {
-        handleAdminUserFormSubmit();
-      }
-
-
-      // if category edit click
-      else if (event.target.id.search('category-edit-btn') !== -1) {
-        const categoryId = event.target.id.toString().split('_');
-        editCategory(categoryId[1]);
-      }
-
-      // if category delete click
-      else if (event.target.id.search('category-delete-btn') !== -1) {
-        const categoryId = event.target.id.toString().split('_');
-        deleteCategory(categoryId[1]);
-      }
-
-      // for category form submits
-      else if (event.target.id === 'categorySubmit') {
-        handleCategoryFormSubmit();
-      }
-
-    }
-
-  });
-
-}
-
-// add/edit/delete admin user
 function editAdminUser (adminUserId) {
 
   // get user info
@@ -690,7 +504,158 @@ function handleAdminUserFormSubmit () {
 
 }
 
-// edit/delete category
+// product categories
+function loadCategories () {
+
+  // setup member display
+  callProductsService({method: 'getCategories'})
+    .then( categories => {
+
+      // markup category rows
+      let categoryRowsHtml = '';
+      categories.map( category => {
+
+        // setup value for featured
+        let categoryFeaturedStatus = '';
+        if (category[3] === 1) {
+          categoryFeaturedStatus = 'Yes';
+        }
+        else {
+          categoryFeaturedStatus = 'No';
+        }
+
+        // setup value for active
+        let categoryActiveStatus = '';
+        if (category[4] === 1) {
+          categoryActiveStatus = 'Yes';
+        }
+        else {
+          categoryActiveStatus = 'No';
+        }
+
+        // add the rows to the HTML placeholder
+        categoryRowsHtml = `${categoryRowsHtml}
+          <tr>
+            <td><img src="https://static.bannerstack.com/img/categories/${category[2]}"></td>
+            <td>${category[1]}</td>
+            <td>${categoryFeaturedStatus}</td>
+            <td>${categoryActiveStatus}</td>
+            <td class="admin-options">
+              <a href="#" title="Edit"><i id="category-edit-btn_${category[0]}" class="fa fa-pencil" aria-hidden="true"></i></a>
+              <a href="#" title="Delete"><i id="category-delete-btn_${category[0]}" class="fa fa-trash" aria-hidden="true"></i></a>
+            </td>
+          </tr>
+        `;
+      });
+
+      // start fresh
+      $('.js-admin-placeholder').empty();
+
+      // markup search form
+      const categorySearchForm = `
+        <div class="row">
+          <div class="column">
+            <label for="categorySearchTerm" class="sr-only">Category Search Term</label>
+            <input type="text" id="categorySearchTerm" placeholder="Search by Name">
+          </div>
+        </div>
+      `;
+
+      // markup category form
+      const categoryForm = `
+        <form class="js-admin-category-form" enctype="multipart/form-data">
+
+          <label for="categoryName">Name:</label>
+          <input type="text" id="categoryName" placeholder="New Category" required>
+
+          <div id="categoryImgHolder"></div>
+          <label for="categoryThumb">Thumbnail:</label>
+          <input type="file" id="fileupload" name="file" placeholder="jpg, gif and png files (RGB only)">
+          <div id="progress">
+            <div id="bar"></div>
+          </div>
+
+          <label for="categoryShortDesc">Short Description:</label>
+          <input type="text" id="categoryShortDesc" placeholder="Short description" required>
+
+          <label for="categoryLongDesc">Long Description:</label>
+          <textarea id="categoryLongDesc" placeholder="Detailed category description"></textarea>
+
+          <label for="categoryFeatured">Featured:</label>
+          <select id="categoryFeatured">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+          </select>
+
+          <label for="categoryActive">Active:</label>
+          <select id="categoryActive">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+          </select>
+
+          <div class="row">
+            <div class="column">
+              <input type="submit" id="categorySubmit" value="Add">
+            </div>
+            <div class="column">
+              <button onclick="loadCategories()">Cancel</button>
+            </div>
+          </div>
+
+          <input type="hidden" id="categoryId">
+          <input type="hidden" id="categoryThumb">
+
+        </form>
+      `;
+
+      // markup display
+      const displayHtml = `
+        <div class="row">
+          <div class="column">
+            <h4>Categories</h4>
+
+            ${categorySearchForm}
+            <table>
+              <thead>
+                <tr>
+                  <th>Thumb</th>
+                  <th>Name</th>
+                  <th>Featured</th>
+                  <th>Active</th>
+                  <th>Options</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${categoryRowsHtml}
+              </tbody>
+            </table>
+          </div>
+          <div class="column column-10"></div>
+          <div class="column column-33">
+            <h4 class="js-form-title">Add Category</h4>
+            ${categoryForm}
+          </div>
+        </div>
+      `;
+
+      // load markup to page
+      $('.js-admin-placeholder').html(displayHtml);
+
+      // setup listeners
+      listenForAdminActions();
+
+      // init file upload listener
+      const uploadData = {
+        methodUrl: 'products.cfc?method=uploadCategoryPic',
+        imgNamePlaceholder: '#categoryThumb',
+        imgPreviewContainer: '#categoryImgHolder',
+        imgUrl: 'https://static.bannerstack.com/img/categories'
+      }
+      listenForFileUploads(uploadData);
+
+    });
+
+}
 function editCategory (categoryId) {
 
   // get user info
@@ -816,6 +781,326 @@ function handleCategoryFormSubmit () {
 
       });
   }
+
+}
+
+// printers
+function loadPrinters () {
+
+  // setup member display
+  callProductsService({method: 'getPrinters'})
+    .then( printers => {
+
+      // markup rows
+      let printerRowsHtml = '';
+      printers.map( printer => {
+
+        // setup value for active
+        let printerActiveStatus = '';
+        if (printer[2] === 1) {
+          printerActiveStatus = 'Yes';
+        }
+        else {
+          printerActiveStatus = 'No';
+        }
+
+        // add the rows to the HTML placeholder
+        printerRowsHtml = `${printerRowsHtml}
+          <tr>
+            <td>${printer[1]}</td>
+            <td>${printerActiveStatus}</td>
+            <td class="admin-options">
+              <a href="#" title="Edit"><i id="printer-edit-btn_${printer[0]}" class="fa fa-pencil" aria-hidden="true"></i></a>
+              <a href="#" title="Delete"><i id="printer-delete-btn_${printer[0]}" class="fa fa-trash" aria-hidden="true"></i></a>
+            </td>
+          </tr>
+        `;
+      });
+
+      // start fresh
+      $('.js-admin-placeholder').empty();
+
+      // markup search form
+      const printerSearchForm = `
+        <div class="row">
+          <div class="column">
+            <label for="printerSearchTerm" class="sr-only">Printer Search Term</label>
+            <input type="text" id="printerSearchTerm" placeholder="Search by Name">
+          </div>
+        </div>
+      `;
+
+      // markup form
+      const printerForm = `
+        <form class="js-admin-printer-form" enctype="multipart/form-data">
+
+          <label for="printerName">Name:</label>
+          <input type="text" id="printerName" placeholder="New Printer" required>
+
+          <label for="printerTimeToRunJobFactor">Time to Run Job Factor:</label>
+          <input type="text" id="printerTimeToRunJobFactor" placeholder="0.00000" required>
+
+          <label for="printerInkUsageFactor">Ink Usage Factor:</label>
+          <input type="text" id="printerInkUsageFactor" placeholder="0.0" required>
+
+          <label for="printerInkCostFactor">Ink Cost Factor:</label>
+          <input type="text" id="printerInkCostFactor" placeholder="0.00000" required>
+
+          <label for="printerOverheadFactor">Overhead Factor:</label>
+          <input type="text" id="printerOverheadFactor" placeholder="0.00" required>
+
+          <label for="printerActive">Active:</label>
+          <select id="printerActive">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+          </select>
+
+          <div class="row">
+            <div class="column">
+              <input type="submit" id="printerSubmit" value="Add">
+            </div>
+            <div class="column">
+              <button onclick="loadPrinters()">Cancel</button>
+            </div>
+          </div>
+
+          <input type="hidden" id="printerId">
+
+        </form>
+      `;
+
+      // markup display
+      const displayHtml = `
+        <div class="row">
+          <div class="column">
+            <h4>Printers</h4>
+
+            ${printerSearchForm}
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Active</th>
+                  <th>Options</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${printerRowsHtml}
+              </tbody>
+            </table>
+          </div>
+          <div class="column column-10"></div>
+          <div class="column column-33">
+            <h4 class="js-form-title">Add Printer</h4>
+            ${printerForm}
+          </div>
+        </div>
+      `;
+
+      // load markup to page
+      $('.js-admin-placeholder').html(displayHtml);
+
+      // setup listeners
+      listenForAdminActions();
+
+    });
+
+}
+function editPrinter (printerId) {
+
+  // get user info
+  callProductsService({
+    method: 'getPrinter',
+    printerId: printerId
+  })
+    .then( printer => {
+
+      // update form content
+      $('#printerId').val(printer[0]);
+      $('#printerName').val(printer[1]);
+      $('#printerTimeToRunJobFactor').val(printer[2]);
+      $('#printerInkUsageFactor').val(printer[3]);
+      $('#printerInkCostFactor').val(printer[4]);
+      $('#printerOverheadFactor').val(printer[5]);
+      $('#printerActive').val(printer[10]);
+
+      // change for title and submit text
+      $('.js-form-title').html('Edit Printer');
+      $('#printerSubmit').val('EDIT');
+
+    });
+
+}
+function deletePrinter (printerId) {
+
+  // confirm delete
+  const confirmDelete = confirm('Delete this Printer?');
+
+  // on confirm
+  if (confirmDelete) {
+
+    // get user info
+    callProductsService({
+      method: 'deletePrinter',
+      printerId: printerId
+    })
+      .then( response => {
+
+        // if successful
+        if (response === 'success') {
+          loadPrinters();
+        }
+
+        // if not
+        else {
+          showErrorMsg(response);
+        }
+
+      });
+
+  }
+  else {
+    return false;
+  }
+
+}
+function handlePrinterFormSubmit () {
+
+  const formAction = $('#printerSubmit').val();
+
+  // add printer
+  if (formAction === 'Add') {
+
+    // send info to service
+    callProductsService({
+      method: 'addPrinter',
+      printerName: $('#printerName').val(),
+      printerTimeToRunJobFactor: $('#printerTimeToRunJobFactor').val(),
+      printerInkUsageFactor: $('#printerInkUsageFactor').val(),
+      printerInkCostFactor: $('#printerInkCostFactor').val(),
+      printerOverheadFactor: $('#printerOverheadFactor').val(),
+      printerAddedBy: 0,
+      printerActive: $('#printerActive').val()
+    })
+      .then( response => {
+
+        // if successful, reload page
+        if (response === 'success') {
+          loadPrinters();
+        }
+
+        // if not
+        else {
+
+          // display error
+          showErrorMsg(response);
+
+        }
+
+      });
+
+  }
+
+  // edit printer
+  else {
+
+    // send info to service
+    callProductsService({
+      method: 'editPrinter',
+      printerId: $('#printerId').val(),
+      printerName: $('#printerName').val(),
+      printerTimeToRunJobFactor: $('#printerTimeToRunJobFactor').val(),
+      printerInkUsageFactor: $('#printerInkUsageFactor').val(),
+      printerInkCostFactor: $('#printerInkCostFactor').val(),
+      printerOverheadFactor: $('#printerOverheadFactor').val(),
+      printerUpdatedBy: 0,
+      printerActive: $('#printerActive').val()
+    })
+      .then( response => {
+
+        // if successful, reload page
+        if (response === 'success') {
+          loadPrinters();
+        }
+
+        // if not
+        else {
+
+          // display error
+          showErrorMsg(response);
+
+        }
+
+      });
+  }
+
+}
+
+// listens for admin user edit/delete btn clicks and admin form submits
+function listenForAdminActions () {
+
+  $('.js-admin-placeholder').click( event => {
+
+    // if this is not a file input
+    if (event.target.id !== 'fileupload') {
+
+      event.preventDefault();
+
+      // for admin user edit click
+      if (event.target.id.search('admin-edit-btn') !== -1) {
+        const adminUserId = event.target.id.toString().split('_');
+        editAdminUser(adminUserId[1]);
+      }
+
+      // if admin user delete click
+      else if (event.target.id.search('admin-delete-btn') !== -1) {
+        const adminUserId = event.target.id.toString().split('_');
+        deleteAdminUser(adminUserId[1]);
+      }
+
+      // for admin form submits
+      else if (event.target.id === 'adminSubmit') {
+        handleAdminUserFormSubmit();
+      }
+
+
+      // if category edit click
+      else if (event.target.id.search('category-edit-btn') !== -1) {
+        const categoryId = event.target.id.toString().split('_');
+        editCategory(categoryId[1]);
+      }
+
+      // if category delete click
+      else if (event.target.id.search('category-delete-btn') !== -1) {
+        const categoryId = event.target.id.toString().split('_');
+        deleteCategory(categoryId[1]);
+      }
+
+      // if printer edit click
+      else if (event.target.id.search('printer-edit-btn') !== -1) {
+        const printerId = event.target.id.toString().split('_');
+        editPrinter(printerId[1]);
+      }
+
+      // if category delete click
+      else if (event.target.id.search('printer-delete-btn') !== -1) {
+        const printerId = event.target.id.toString().split('_');
+        deletePrinter(printerId[1]);
+      }
+
+      // for category form submits
+      else if (event.target.id === 'categorySubmit') {
+        handleCategoryFormSubmit();
+      }
+
+      // for printer form submits
+      else if (event.target.id === 'printerSubmit') {
+        handlePrinterFormSubmit();
+      }
+
+    }
+
+  });
 
 }
 

@@ -80,13 +80,18 @@ input[type='date'], input[type='file'] {
   padding: .6rem 1.0rem;
   width: 100%;
 }
-input[type=submit] {
+input[type=submit], button {
   width:100%;
   font-family:$primary-font-family;
   font-size:1em;
   color:white;
   border:solid 1px $primary-color;
+  border-radius:0;
   background:$primary-color;
+}
+button {
+  border:solid 1px $darkBgColor;
+  background:$darkBgColor;
 }
 textarea {
   height:150px;
