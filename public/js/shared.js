@@ -177,7 +177,9 @@ function listenForFileUploads (uploadData) {
 // handle error messages
 function showErrorMsg (msg) {
   $('.js-error-msg').html(`<h4>${msg}</h4>`);
-  $('.js-error-msg').show()
-                    .delay(5000)
-                    .fadeOut(400);
+  $('.js-error-msg')
+    .show()
+    .delay(5000)
+    .fadeOut(400);
+  $(window).scrollTop(0);
 }

@@ -339,6 +339,11 @@ app.get('/admin/printers', jsonParser, (req, res) => {
   res.sendFile(__dirname + '/views/admin.html');
 });
 
+// admin media
+app.get('/admin/media', jsonParser, (req, res) => {
+  res.sendFile(__dirname + '/views/admin.html');
+});
+
 // list admin users
 app.get('/admin/users', jsonParser, (req, res) => {
   res.sendFile(__dirname + '/views/admin.html');
