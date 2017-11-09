@@ -344,6 +344,16 @@ app.get('/admin/media', jsonParser, (req, res) => {
   res.sendFile(__dirname + '/views/admin.html');
 });
 
+// admin flat charges
+app.get('/admin/flat-charges', jsonParser, (req, res) => {
+  res.sendFile(__dirname + '/views/admin.html');
+});
+
+// admin turnarounds
+app.get('/admin/turnarounds', jsonParser, (req, res) => {
+  res.sendFile(__dirname + '/views/admin.html');
+});
+
 // list admin users
 app.get('/admin/users', jsonParser, (req, res) => {
   res.sendFile(__dirname + '/views/admin.html');

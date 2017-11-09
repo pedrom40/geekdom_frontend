@@ -81,6 +81,10 @@ button {
   border: solid 1px #474644;
   background: #474644; }
 
+.button[disabled]:focus, .button[disabled]:hover, button[disabled]:focus, button[disabled]:hover, input[type='button'][disabled]:focus, input[type='button'][disabled]:hover, input[type='reset'][disabled]:focus, input[type='reset'][disabled]:hover, input[type='submit'][disabled]:focus, input[type='submit'][disabled]:hover {
+  background-color: #fed78b;
+  border-color: #fed78b; }
+
 textarea {
   height: 150px; }
 
