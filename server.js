@@ -354,6 +354,11 @@ app.get('/admin/turnarounds', jsonParser, (req, res) => {
   res.sendFile(__dirname + '/views/admin.html');
 });
 
+// admin finishing
+app.get('/admin/finishing', jsonParser, (req, res) => {
+  res.sendFile(__dirname + '/views/admin.html');
+});
+
 // list admin users
 app.get('/admin/users', jsonParser, (req, res) => {
   res.sendFile(__dirname + '/views/admin.html');
