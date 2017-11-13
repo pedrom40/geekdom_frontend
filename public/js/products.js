@@ -326,6 +326,7 @@ function loadProductDetails (product) {
               <input type="hidden" id="productPrice" value="">
               <input type="hidden" id="productName" value="${product[1]}">
               <input type="hidden" id="productThumb" value="${product[4][1]}">
+              <input type="hidden" id="pricePerSqFt" value="${product[7]}">
               <input type="hidden" id="productWidth" value="">
               <input type="hidden" id="productHeight" value="">
               <input type="hidden" id="productWeight" value="">
@@ -346,7 +347,7 @@ function loadProductDetails (product) {
   listenForCartClicks();
 
   // populate product sizes select menu
-  populateProductSizesMenu(product[0]);
+  loadProductSizes(product[6]);
 
   // populate product options select menu
   populateProductOptions(product[5]);
@@ -366,17 +367,7 @@ function loadProductDetails (product) {
 }
 
 // get and load product sizes
-function populateProductSizesMenu (productId) {
-  const qData = {
-    method:'getProductSizes',
-    productId: productId
-  }
-  callProductsService(qData)
-    .then( data => {
-      loadProductSizes(data);
-    });
-}
-function loadProductSizes (productSizes) {
+function loadProductSizes (productSizes) {console.log(productSizes);
 
   // go thru all sizes
   productSizes.map( (size, index) => {
@@ -385,15 +376,16 @@ function loadProductSizes (productSizes) {
     if (index === 0) {
       $('#productWidth').val(productSizes[index][1]);
       $('#productHeight').val(productSizes[index][2]);
-      $('#productPrice').val(productSizes[index][3]);
-      $('.js-order-total').html(`${productSizes[index][3]}`);
-      $('#productLength').val(productSizes[index][4]);
-      $('#productWeight').val(productSizes[index][5]);
+      $('#productLength').val(productSizes[index][3]);
+      $('#productWeight').val(productSizes[index][4]);
+
+      calculatePrice();
+
     }
 
     // add options
     const template = `
-      <option value="${productSizes[index][0]}" data-width="${productSizes[index][1]}" data-height="${productSizes[index][2]}" data-price="${productSizes[index][3]}">
+      <option value="${productSizes[index][0]}" data-width="${productSizes[index][1]}" data-height="${productSizes[index][2]}">
         ${productSizes[index][1]}" x ${productSizes[index][2]}"
       </option>
     `;
@@ -444,12 +436,12 @@ function listenForSizeChanges () {
 
   $('#productSize').change( event => {
 
-    // set price based on size selected
-    calculatePrice();
-
     // update width x height values
     $('#productWidth').val($('#productSize').find(':selected').attr('data-width'));
     $('#productHeight').val($('#productSize').find(':selected').attr('data-height'));
+
+    // set price based on size selected
+    calculatePrice();
 
   });
 
@@ -610,11 +602,15 @@ function loadProductCategories (data) {
 // calculate product price
 function calculatePrice () {
 
+  const productWidth = Number($('#productWidth').val()) / 12;
+  const productHeight = Number($('#productHeight').val()) / 12;
+  const pricePerSqFt = Number($('#pricePerSqFt').val());
+  const qty = Number($('#productQty').val());
+
   // calculate price
   const artworkCharge = Number($('#artworkFile').find(':selected').attr('data-price'));
-  const sizeCharge = Number($('#productSize').find(':selected').attr('data-price'));
-  const qtyNum = Number($('#productQty').val());
-  const productPrice = (artworkCharge  + sizeCharge) * qtyNum;
+  const sizeCharge = (productWidth * productHeight) * pricePerSqFt;
+  const productPrice = (artworkCharge + sizeCharge) * qty;
 
   // update price
   $('#productPrice').val(productPrice);
