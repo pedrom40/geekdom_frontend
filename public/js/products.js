@@ -202,9 +202,11 @@ function loadProductDetails (product) {
 
   // handle images
   let imgHTML = '';
-  product[4].map( img => {
-    imgHTML = `${imgHTML} <img src="https://static.bannerstack.com/img/products/${img}" alt="${product[1]}" class="thumb js-thumb">`;
-  });
+  product[4].map( img => imgHTML = `${imgHTML} <img src="https://static.bannerstack.com/img/products/${img}" alt="${product[1]}" class="thumb js-thumb">` );
+
+  // calc flat charges total
+  let flatChargeTotal = 0;
+  product[8].map( charge => flatChargeTotal = flatChargeTotal + charge[2] );
 
   // handle product details
   const template = `
@@ -237,11 +239,7 @@ function loadProductDetails (product) {
                 <div class="js-product-options"></div>
 
                 <label for="artworkFile">Design</label>
-                <select id="artworkFile">
-                  <option value="upload" data-price="0">I will upload my files</option>
-                  <option value="need" data-price="100">I need a design ($100)</option>
-                  <option value="create" data-price="0">I want to create a design</option>
-                </select>
+                <select id="artworkFile"></select>
 
                 <label for="productQty">Quantity</label>
                 <input type="number" id="productQty" value="1">
@@ -266,11 +264,7 @@ function loadProductDetails (product) {
                     <hr>
 
                     <label for="turnaroundTime">Turnaround Time</label>
-                    <select id="turnaroundTime" class="js-shipping-service-options">
-                      <option value="same">Same Day</option>
-                      <option value="next">Next Day</option>
-                      <option value="pickup">I'll Pick Up the Job</option>
-                    </select>
+                    <select id="turnaroundTime"></select>
 
                     <label for="shippingName">Ship to Name</label>
                     <input type="text" id="shippingName" maxlength="75" required placeholder="Home, Office">
@@ -323,15 +317,16 @@ function loadProductDetails (product) {
               </div>
 
               <input type="hidden" id="productId" value="${product[0]}">
-              <input type="hidden" id="productPrice" value="">
               <input type="hidden" id="productName" value="${product[1]}">
               <input type="hidden" id="productThumb" value="${product[4][1]}">
               <input type="hidden" id="pricePerSqFt" value="${product[7]}">
-              <input type="hidden" id="productWidth" value="">
-              <input type="hidden" id="productHeight" value="">
-              <input type="hidden" id="productWeight" value="">
-              <input type="hidden" id="productLength" value="">
-              <input type="hidden" id="productSpecs" value="">
+              <input type="hidden" id="productFlatCharges" value="${flatChargeTotal}">
+              <input type="hidden" id="productWidth">
+              <input type="hidden" id="productHeight">
+              <input type="hidden" id="productWeight">
+              <input type="hidden" id="productLength">
+              <input type="hidden" id="productSpecs">
+              <input type="hidden" id="productPrice">
 
             </form>
           </div>
@@ -343,17 +338,23 @@ function loadProductDetails (product) {
   // add it to page
   $('.js-category-list').append(template);
 
-  // listen for add to cart clicks
-  listenForCartClicks();
-
   // populate product sizes select menu
   loadProductSizes(product[6]);
 
-  // populate product options select menu
-  populateProductOptions(product[5]);
+  // populate product finishing select menu
+  populateProductFinishing(product[5]);
 
   // populate state select menu
   populateStateSelect('.js-states-select');
+
+  // populate production times select
+  populateTurnaroundsSelect();
+
+  // populate artwork options select
+  populateArtworkOptions();
+
+  // listen for add to cart clicks
+  listenForCartClicks();
 
   // listen for shipping setup clicks
   listenForShippingStepClicks();
@@ -361,13 +362,10 @@ function loadProductDetails (product) {
   // listen for back to details btn clicks
   listenForBackToDetailsClicks();
 
-  // listen for artowrk select menu changes
-  listenForArtworkChanges();
-
 }
 
 // get and load product sizes
-function loadProductSizes (productSizes) {console.log(productSizes);
+function loadProductSizes (productSizes) {
 
   // go thru all sizes
   productSizes.map( (size, index) => {
@@ -378,9 +376,6 @@ function loadProductSizes (productSizes) {console.log(productSizes);
       $('#productHeight').val(productSizes[index][2]);
       $('#productLength').val(productSizes[index][3]);
       $('#productWeight').val(productSizes[index][4]);
-
-      calculatePrice();
-
     }
 
     // add options
@@ -403,8 +398,8 @@ function loadProductSizes (productSizes) {console.log(productSizes);
 
 }
 
-// load product options
-function populateProductOptions (options) {
+// load product options and listen for changes
+function populateProductFinishing (options) {
 
   options.map( (option, index) => {
 
@@ -414,20 +409,111 @@ function populateProductOptions (options) {
     // set label and select menu
     const optionSelect = `
       <label id="productOptions_${optionEditedName}_label" for="productOptions_${optionEditedName}">${option[0]}</label>
-      <select id="productOptions_${optionEditedName}" name="productOptions">
-        <option value=''>No ${option[0]}</option>
+      <select id="productOptions_${optionEditedName}" name="productOptions" class="js-finishing-select">
+        <option value='' data-price="0" data-costtype="single">No ${option[0]}</option>
       </select>
     `;
 
     $('.js-product-options').append(`${optionSelect}`);
 
     // populate select options
-    const optionValues = option[1].split('|');
-    optionValues.map( item => {
-      $(`#productOptions_${optionEditedName}`).append(`<option value='${item}'>${item}</option>`);
+    option[2].map( item => {
+      $(`#productOptions_${optionEditedName}`).append(`
+        <option value="${item[0]}" data-price="${item[1]}" data-costType="${option[1]}">
+          ${item[0]}
+        </option>
+      `);
     });
 
   });
+
+  // activate listener for changes
+  listenForFinishingChanges();
+
+}
+function listenForFinishingChanges () {
+
+  $('.js-finishing-select').change( event => {
+    event.preventDefault();
+    calculatePrice();
+  });
+
+}
+
+// populate production times select
+function populateTurnaroundsSelect () {
+
+  const qData = {
+    method:'getTurnarounds'
+  }
+  callProductsService(qData)
+    .then( data => {
+      loadTurnarounds(data);
+    });
+}
+function loadTurnarounds (turnarounds) {
+
+  // loop thru each option
+  turnarounds.map( turnaround => {
+
+    // create options
+    const template = `<option value="${turnaround[0]}" data-price="${turnaround[2]}">${turnaround[1]}</option>`;
+
+    // add to select menu
+    $('#turnaroundTime').append(template);
+
+  });
+
+  // listen for turnaround select changes
+  listenForTurnaroundChanges();
+
+}
+function listenForTurnaroundChanges () {
+
+  $('#turnaroundTime').change( event => {
+
+    // set price based on size selected
+    calculatePrice();
+
+  });
+
+}
+
+// populate artwork options select
+function populateArtworkOptions () {
+
+  const qData = {
+    method:'getArtworkOptions'
+  }
+  callProductsService(qData)
+    .then( data => {
+      loadArtworkOptions(data);
+    });
+}
+function loadArtworkOptions (options) {
+
+  // loop thru each option
+  options.map( option => {
+
+    // setup option description
+    let optionDesc = `${option[1]}`;
+    if (option[2] > 0) {
+      optionDesc = `${option[1]} ($${option[2]})`;
+    }
+
+    // create options
+    const template = `<option value="${option[0]}" data-price="${option[2]}">${optionDesc}</option>`;
+
+    // add to select menu
+    $('#artworkFile').append(template);
+
+  });
+
+  // listen for artowrk select menu changes
+  listenForArtworkChanges();
+
+  // get initial cost
+  calculatePrice();
 
 }
 
@@ -602,15 +688,42 @@ function loadProductCategories (data) {
 // calculate product price
 function calculatePrice () {
 
+  // get all the values that attribute to cost
   const productWidth = Number($('#productWidth').val()) / 12;
   const productHeight = Number($('#productHeight').val()) / 12;
   const pricePerSqFt = Number($('#pricePerSqFt').val());
+  const flatCharges = Number($('#productFlatCharges').val());
+  const artworkCharge = Number($('#artworkFile').find(':selected').attr('data-price'));
+  const turnaroundMarkup = Number($('#turnaroundTime').find(':selected').attr('data-price'));
   const qty = Number($('#productQty').val());
 
+  // loop through finishing selects and calc added cost
+  let finishingTotal = 0;
+  $('.js-finishing-select').each( (index, data) => {
+
+    // get name
+    let finishingName = data.id.replace('productOptions_', '');
+    finishingName = finishingName.replace('_label', '');
+    finishingName = finishingName.replace(/_/g, ' ');
+
+    // get cost type
+    const finishingCostType = $(`#${data.id}`).find(':selected').attr('data-costtype');
+
+    // get cost
+    const finishingCost = Number($(`#${data.id}`).find(':selected').attr('data-price'));
+
+    // if adds cost to job
+    if (finishingCost > 0) {
+      finishingTotal = finishingTotal + finishingCost;
+    }
+
+  });
+
   // calculate price
-  const artworkCharge = Number($('#artworkFile').find(':selected').attr('data-price'));
   const sizeCharge = (productWidth * productHeight) * pricePerSqFt;
-  const productPrice = (artworkCharge + sizeCharge) * qty;
+  let productPrice = (artworkCharge + sizeCharge) * qty + flatCharges + finishingTotal;
+  const turnaroundMarkupTotal = productPrice * turnaroundMarkup;
+  productPrice = productPrice + turnaroundMarkupTotal;
 
   // update price
   $('#productPrice').val(productPrice);
