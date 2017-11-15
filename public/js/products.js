@@ -397,6 +397,30 @@ function loadProductSizes (productSizes) {
   listenForQtyChanges();
 
 }
+function listenForSizeChanges () {
+
+  $('#productSize').change( event => {
+
+    // update width x height values
+    $('#productWidth').val($('#productSize').find(':selected').attr('data-width'));
+    $('#productHeight').val($('#productSize').find(':selected').attr('data-height'));
+
+    // set price based on size selected
+    calculatePrice();
+
+  });
+
+}
+function listenForQtyChanges () {
+
+  $('#productQty').change( event => {
+
+    // set price based on size selected
+    calculatePrice();
+
+  });
+
+}
 
 // load product options and listen for changes
 function populateProductFinishing (options) {
@@ -516,36 +540,6 @@ function loadArtworkOptions (options) {
   calculatePrice();
 
 }
-
-// listen for size changes
-function listenForSizeChanges () {
-
-  $('#productSize').change( event => {
-
-    // update width x height values
-    $('#productWidth').val($('#productSize').find(':selected').attr('data-width'));
-    $('#productHeight').val($('#productSize').find(':selected').attr('data-height'));
-
-    // set price based on size selected
-    calculatePrice();
-
-  });
-
-}
-
-// listen for qty changes
-function listenForQtyChanges () {
-
-  $('#productQty').change( event => {
-
-    // set price based on size selected
-    calculatePrice();
-
-  });
-
-}
-
-// listen for qty changes
 function listenForArtworkChanges () {
 
   $('#artworkFile').change( event => {
