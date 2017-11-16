@@ -82,6 +82,22 @@ function getViewRequested (viewRequested) {
 
   }
 
+  // if products view requested
+  else if (viewRequested === '/admin/products') {
+
+    // load view
+    loadProducts();
+
+  }
+
+  // if product add view requested
+  else if (viewRequested === '/admin/products/add') {
+
+    // load view
+    addProduct();
+
+  }
+
   // if categories list view requested
   else if (viewRequested === '/admin/categories') {
 
@@ -135,6 +151,22 @@ function getViewRequested (viewRequested) {
 
     // load artwork options view
     loadArtworkOptions();
+
+  }
+
+  // if size list view requested
+  else if (viewRequested === '/admin/sizes') {
+
+    // load size view
+    loadSizes();
+
+  }
+
+  // if image list view requested
+  else if (viewRequested === '/admin/images') {
+
+    // load size view
+    loadImages();
 
   }
 
@@ -538,6 +570,386 @@ function handleAdminUserFormSubmit () {
 
       });
   }
+
+}
+
+// products
+function loadProducts () {
+
+  // setup member display
+  callProductsService({method: 'getProducts'})
+    .then( products => {
+
+      // markup rows
+      let productRowsHtml = '';
+      products.map( product => {
+
+        // setup value for featured
+        let productFeaturedStatus = '';
+        if (product[4] === 1) {
+          productFeaturedStatus = 'Yes';
+        }
+        else {
+          productFeaturedStatus = 'No';
+        }
+
+        // setup value for active
+        let productActiveStatus = '';
+        if (product[5] === 1) {
+          productActiveStatus = 'Yes';
+        }
+        else {
+          productActiveStatus = 'No';
+        }
+
+        // add the rows to the HTML placeholder
+        productRowsHtml = `${productRowsHtml}
+          <tr>
+            <td><img src="https://static.bannerstack.com/img/products/${product[3]}"></td>
+            <td>${product[1]}</td>
+            <td>${product[2]}</td>
+            <td>${productFeaturedStatus}</td>
+            <td>${productActiveStatus}</td>
+            <td class="admin-options">
+              <a href="/admin/products/${product[0]}" title="Edit"><i id="product-edit-btn_${product[0]}" class="fa fa-pencil" aria-hidden="true"></i></a>
+              <a href="#" title="Delete"><i id="product-delete-btn_${product[0]}" class="fa fa-trash" aria-hidden="true"></i></a>
+            </td>
+          </tr>
+        `;
+
+      });
+
+      // start fresh
+      $('.js-admin-placeholder').empty();
+
+      // markup search form
+      const productSearchForm = `
+        <div class="row">
+          <div class="column">
+            <label for="productSearchTerm" class="sr-only">Product Search Term</label>
+            <input type="text" id="productSearchTerm" placeholder="Search by Name, SKU or Description">
+          </div>
+        </div>
+      `;
+
+      // markup display
+      const displayHtml = `
+        <div class="row">
+          <div class="column">
+
+            <div id="js-product-add-btn" class="product-details-btn float-right">
+              <i class="fa fa-plus" aria-hidden="true"></i>
+              NEW PRODUCT
+              <i class="fa fa-caret-right" aria-hidden="true"></i>
+            </div>
+
+            <h4>Products</h4>
+
+            ${productSearchForm}
+            <table>
+              <thead>
+                <tr>
+                  <th width="85">Thumb</th>
+                  <th>Name</th>
+                  <th>SKU</th>
+                  <th>Featured</th>
+                  <th>Active</th>
+                  <th>Options</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${productRowsHtml}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      // load markup to page
+      $('.js-admin-placeholder').html(displayHtml);
+
+      // setup listeners
+      listenForAdminActions();
+
+    });
+
+}
+function addProduct () {
+
+  const addProductForm = `
+    <h4>New Product</h4>
+    <form class="js-admin-product-form" enctype="multipart/form-data">
+      <div class="row">
+        <div class="column">
+          <label for="name">Name:</label>
+          <input type="text" id="name" placeholder="Product Name" required>
+
+          <label for="sku">SKU:</label>
+          <input type="text" id="sku" placeholder="XXXXXX" required>
+
+          <label for="shortDesc">Short Description:</label>
+          <input type="text" id="shortDesc" placeholder="Short description, shows on list page" required>
+
+          <label for="featured">Featured:</label>
+          <select id="featured">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+          </select>
+
+          <label for="active">Active:</label>
+          <select id="active">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+          </select>
+        </div>
+        <div class="column">
+          <label for="longDesc">Detailed Description</label>
+          <textarea id="longDesc" placeholder="Description that shows on product details page only" style="height:370px;"></textarea>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="row">
+        <div class="column">
+          <div id="imgHolder"></div>
+          <label for="imgThumb">Thumbnail:</label>
+          <input type="file" id="fileupload" name="file" placeholder="jpg, gif and png files (RGB only)">
+          <div id="progress">
+            <div id="bar"></div>
+          </div>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="row">
+        <div class="column">
+          <label for="categoryId">Category:</label>
+          <select id="categoryId"></select>
+        </div>
+        <div class="column">
+          <label for="printerId">Printer:</label>
+          <select id="printerId"></select>
+        </div>
+        <div class="column">
+          <label for="mediaId">Media:</label>
+          <select id="mediaId"></select>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="row">
+        <div class="column">
+          <input type="submit" id="categorySubmit" value="Add">
+        </div>
+        <div class="column">
+          <button onclick="loadCategories()">Cancel</button>
+        </div>
+      </div>
+
+      <input type="hidden" id="imgList">
+    </form>
+  `;
+
+  $('.js-admin-placeholder').append(addProductForm);
+
+  // init file upload listener
+  const uploadData = {
+    methodUrl: 'products.cfc?method=uploadProductPic',
+    imgNamePlaceholder: '#imgThumb',
+    imgPreviewContainer: '#imgHolder',
+    imgUrl: 'https://static.bannerstack.com/img/products'
+  }
+  listenForFileUploads(uploadData);
+
+}
+/*function editProduct (productId) {
+
+  // get user info
+  callProductsService({
+    method: 'getCategory',
+    categoryId: categoryId
+  })
+    .then( category => {
+
+      // update form content
+      $('#categoryId').val(category[0]);
+      $('#categoryName').val(category[1]);
+      $('#categoryImgHolder').html(`<img src="https://static.bannerstack.com/img/categories/${category[2]}">`);
+      $('#categoryShortDesc').val(category[3]);
+      $('#categoryLongDesc').val(category[4]);
+      $('#categoryFeatured').val(category[5]);
+      $('#categoryActive').val(category[6]);
+
+      // change for title and submit text
+      $('.js-form-title').html('Edit Category');
+      $('#categorySubmit').val('EDIT');
+
+    });
+
+}
+function deleteProduct (productId) {
+
+  // confirm delete
+  const confirmDelete = confirm('Delete this Category?');
+
+  // on confirm
+  if (confirmDelete) {
+
+    // get user info
+    callProductsService({
+      method: 'deleteCategory',
+      categoryId: categoryId
+    })
+      .then( response => {
+
+        // if successful
+        if (response === 'success') {
+          loadCategories();
+        }
+
+        // if not
+        else {
+          showErrorMsg(response);
+        }
+
+      });
+
+  }
+
+}
+function handleProductFormSubmit () {
+
+  const formAction = $('#categorySubmit').val();
+
+  // add category
+  if (formAction === 'Add') {
+
+    // send info to service
+    callProductsService({
+      method: 'addCategory',
+      categoryName: $('#categoryName').val(),
+      categoryThumb: $('#categoryThumb').val(),
+      categoryShortDesc: $('#categoryShortDesc').val(),
+      categoryLongDesc: $('#categoryLongDesc').val(),
+      categoryFeatured: $('#categoryFeatured').val(),
+      categoryActive: $('#categoryActive').val()
+    })
+      .then( response => {
+
+        // if successful, reload page
+        if (response === 'success') {
+          loadCategories();
+        }
+
+        // if not
+        else {
+
+          // display error
+          showErrorMsg(response);
+
+        }
+
+      });
+
+  }
+
+  // edit category
+  else {
+
+    // send info to service
+    callProductsService({
+      method: 'editCategory',
+      categoryId: $('#categoryId').val(),
+      categoryName: $('#categoryName').val(),
+      categoryThumb: $('#categoryThumb').val(),
+      categoryShortDesc: $('#categoryShortDesc').val(),
+      categoryLongDesc: $('#categoryLongDesc').val(),
+      categoryFeatured: $('#categoryFeatured').val(),
+      categoryActive: $('#categoryActive').val()
+    })
+      .then( response => {
+
+        // if successful, reload page
+        if (response === 'success') {
+          loadCategories();
+        }
+
+        // if not
+        else {
+
+          // display error
+          showErrorMsg(response);
+
+        }
+
+      });
+  }
+
+}*/
+
+// product images
+function loadImages () {
+
+  // setup member display
+  callProductsService({method: 'getImages'})
+    .then( images => {
+
+      // markup rows
+      let imageRowsHtml = '';
+      images.map( image => {
+
+        // set in use
+        let inUse = '';
+        if (image[2]) {
+          inUse = '<i class="fa fa-check-circle-o" aria-hidden="true"></i> In Use';
+        }
+        else {
+          inUse = '<i class="fa fa-circle-o" aria-hidden="true"></i> Not In Use';
+        }
+        // add the rows to the HTML placeholder
+        imageRowsHtml = `${imageRowsHtml}
+          <div class="column">
+            <img src="https://static.bannerstack.com/img/products/${image[1]}">
+            <div class="column admin-options grey-bg">
+              <div class="use-btn">${inUse}</div>
+              <a href="#" title="Edit"><i id="category-edit-btn_${image[0]}" class="fa fa-pencil" aria-hidden="true"></i></a> &nbsp;
+              <a href="#" title="Delete"><i id="category-delete-btn_${image[0]}" class="fa fa-trash" aria-hidden="true"></i></a>
+            </div>
+          </div>
+        `;
+
+      });
+
+      // start fresh
+      $('.js-admin-placeholder').empty();
+
+      // markup display
+      const displayHtml = `
+        <div class="row">
+          <div class="column">
+            <h4>Product Images</h4>
+
+            <div class="row">
+              ${imageRowsHtml}
+            </div>
+          </div>
+          <div class="column column-10"></div>
+          <div class="column column-25">
+            <h4 class="js-form-title">Add Images</h4>
+            <div id="dropZone"></div>
+          </div>
+        </div>
+      `;
+
+      // load markup to page
+      $('.js-admin-placeholder').html(displayHtml);
+
+    });
+
+  dragAndDropUploads();
 
 }
 
@@ -2348,6 +2760,239 @@ function handleFinishingFormSubmit () {
 
 }
 
+// sizes
+function loadSizes () {
+
+  // setup member display
+  callProductsService({method: 'getSizes'})
+    .then( sizes => {
+
+      // markup rows
+      let sizeRowsHtml = '';
+      sizes.map( size => {
+
+        // setup value for active
+        let sizeActiveStatus = '';
+        if (size[3] === 1) {
+          sizeActiveStatus = 'Yes';
+        }
+        else {
+          sizeActiveStatus = 'No';
+        }
+
+        // add the rows to the HTML placeholder
+        sizeRowsHtml = `${sizeRowsHtml}
+          <tr>
+            <td>${size[1]}</td>
+            <td>${size[2]}</td>
+            <td>${sizeActiveStatus}</td>
+            <td class="admin-options">
+              <a href="#" title="Edit"><i id="size-edit-btn_${size[0]}" class="fa fa-pencil" aria-hidden="true"></i></a>
+              <a href="#" title="Delete"><i id="size-delete-btn_${size[0]}" class="fa fa-trash" aria-hidden="true"></i></a>
+            </td>
+          </tr>
+        `;
+      });
+
+      // start fresh
+      $('.js-admin-placeholder').empty();
+
+      // markup search form
+      const sizeSearchForm = `
+        <div class="row">
+          <div class="column">
+            <label for="sizeSearchTerm" class="sr-only">Size Search Term</label>
+            <input type="text" id="sizeSearchTerm" placeholder="Search by Width and Height">
+          </div>
+        </div>
+      `;
+
+      // markup form
+      const sizeForm = `
+        <form class="js-admin-size-form">
+
+          <label for="productWidth">Width:</label>
+          <input type="text" id="productWidth" placeholder="Inches, numbers only" required>
+
+          <label for="productHeight">Height:</label>
+          <input type="text" id="productHeight" placeholder="Inches, numbers only" required>
+
+          <label for="active">Active:</label>
+          <select id="active">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+          </select>
+
+          <div class="row">
+            <div class="column">
+              <input type="submit" id="sizeSubmit" value="Add">
+            </div>
+            <div class="column">
+              <button onclick="loadSizes()">Cancel</button>
+            </div>
+          </div>
+
+          <input type="hidden" id="sizeId">
+
+        </form>
+      `;
+
+      // markup display
+      const displayHtml = `
+        <div class="row">
+          <div class="column">
+            <h4>Sizes</h4>
+
+            ${sizeSearchForm}
+            <table>
+              <thead>
+                <tr>
+                  <th>Width</th>
+                  <th>Height</th>
+                  <th>Active</th>
+                  <th>Options</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${sizeRowsHtml}
+              </tbody>
+            </table>
+          </div>
+          <div class="column column-10"></div>
+          <div class="column column-33">
+            <h4 class="js-form-title">Add Size</h4>
+            ${sizeForm}
+          </div>
+        </div>
+      `;
+
+      // load markup to page
+      $('.js-admin-placeholder').html(displayHtml);
+
+      // setup listeners
+      listenForAdminActions();
+
+    });
+
+}
+function editSize (sizeId) {
+
+  // get user info
+  callProductsService({
+    method: 'getSize',
+    sizeId: sizeId
+  })
+    .then( size => {
+
+      // update form content
+      $('#sizeId').val(size[0]);
+      $('#productWidth').val(size[1]);
+      $('#productHeight').val(size[2]);
+      $('#active').val(size[3]);
+
+      // change for title and submit text
+      $('.js-form-title').html('Edit Size');
+      $('#sizeSubmit').val('EDIT');
+
+    });
+
+}
+function deleteSize (sizeId) {
+
+  // confirm delete
+  const confirmDelete = confirm('Delete this Size?');
+
+  // on confirm
+  if (confirmDelete) {
+
+    // get user info
+    callProductsService({
+      method: 'deleteSize',
+      sizeId: sizeId
+    })
+      .then( response => {
+
+        // if successful
+        if (response === 'success') {
+          loadSizes();
+        }
+
+        // if not
+        else {
+          showErrorMsg(response);
+        }
+
+      });
+
+  }
+
+}
+function handleSizeFormSubmit () {
+
+  const formAction = $('#sizeSubmit').val();
+
+  // add
+  if (formAction === 'Add') {
+
+    // send info to service
+    callProductsService({
+      method: 'addSize',
+      productWidth: $('#productWidth').val(),
+      productHeight: $('#productHeight').val(),
+      addedBy: 0,
+      active: $('#active').val()
+    })
+      .then( response => {
+
+        // if successful, reload page
+        if (response === 'success') {
+          loadSizes();
+        }
+
+        // if not
+        else {
+
+          // display error
+          showErrorMsg(response);
+
+        }
+
+      });
+
+  }
+
+  // edit
+  else {
+
+    // send info to service
+    callProductsService({
+      method: 'editSize',
+      sizeId: $('#sizeId').val(),
+      productWidth: $('#productWidth').val(),
+      productHeight: $('#productHeight').val(),
+      updatedBy: 0,
+      active: $('#active').val()
+    })
+      .then( response => {
+
+        // if successful, reload page
+        if (response === 'success') {
+          loadSizes();
+        }
+
+        // if not
+        else {
+
+          // display error
+          showErrorMsg(response);
+
+        }
+
+      });
+  }
+
+}
+
 
 // listens for admin user edit/delete btn clicks and admin form submits
 function listenForAdminActions () {
@@ -2377,6 +3022,11 @@ function listenForAdminActions () {
         handleAdminUserFormSubmit();
       }
 
+
+      // add new product click
+      else if (event.target.id === 'js-product-add-btn') {
+        window.location.assign('/admin/products/add');
+      }
 
       // if category edit click
       else if (event.target.id.search('category-edit-btn') !== -1) {
@@ -2462,6 +3112,18 @@ function listenForAdminActions () {
         deleteArtworkOption(artworkOptionId[1]);
       }
 
+      // if size edit click
+      else if (event.target.id.search('size-edit-btn') !== -1) {
+        const sizeId = event.target.id.toString().split('_');
+        editSize(sizeId[1]);
+      }
+
+      // if size delete click
+      else if (event.target.id.search('size-delete-btn') !== -1) {
+        const sizeId = event.target.id.toString().split('_');
+        deleteSize(sizeId[1]);
+      }
+
       // for category form submits
       else if (event.target.id === 'categorySubmit') {
         $('#categorySubmit').attr('disabled', 'disabled');
@@ -2502,6 +3164,12 @@ function listenForAdminActions () {
       else if (event.target.id === 'artworkOptionSubmit') {
         $('#artworkOptionSubmit').attr('disabled', 'disabled');
         handleArtworkOptionFormSubmit();
+      }
+
+      // for size form submits
+      else if (event.target.id === 'sizeSubmit') {
+        $('#sizeSubmit').attr('disabled', 'disabled');
+        handleSizeFormSubmit();
       }
 
     }

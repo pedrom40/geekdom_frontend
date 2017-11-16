@@ -174,6 +174,32 @@ function listenForFileUploads (uploadData) {
 
 }
 
+// drag and drop image uploads
+function dragAndDropUploads () {
+
+  const doc = $('#dropZone');
+
+  doc.ondragover = () => {
+    this.className = 'hover';
+    return false;
+  }
+
+  doc.ondragend = () => {
+    this.className = '';
+    return false;
+  }
+
+  doc.ondrop = (event) => {
+    event.preventDefault();
+
+    this.className = '';
+    const files = event.dataTransfer.files;
+
+    return false;
+  }
+
+}
+
 // handle error messages
 function showErrorMsg (msg) {
   $('.js-error-msg').html(`<h4>${msg}</h4>`);

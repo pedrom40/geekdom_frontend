@@ -329,6 +329,14 @@ app.get('/admin/dashboard', jsonParser, (req, res) => {
   res.sendFile(__dirname + '/views/admin.html');
 });
 
+// admin products
+app.get('/admin/products', jsonParser, (req, res) => {
+  res.sendFile(__dirname + '/views/admin.html');
+});
+app.get('/admin/products/add', jsonParser, (req, res) => {
+  res.sendFile(__dirname + '/views/admin.html');
+});
+
 // admin categories
 app.get('/admin/categories', jsonParser, (req, res) => {
   res.sendFile(__dirname + '/views/admin.html');
@@ -366,6 +374,16 @@ app.get('/admin/finishing', jsonParser, (req, res) => {
 
 // list admin users
 app.get('/admin/users', jsonParser, (req, res) => {
+  res.sendFile(__dirname + '/views/admin.html');
+});
+
+// list admin sizes
+app.get('/admin/sizes', jsonParser, (req, res) => {
+  res.sendFile(__dirname + '/views/admin.html');
+});
+
+// list admin images
+app.get('/admin/images', jsonParser, (req, res) => {
   res.sendFile(__dirname + '/views/admin.html');
 });
 
