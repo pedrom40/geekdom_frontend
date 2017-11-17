@@ -34,12 +34,15 @@
       padding:6px 10px;
     }
 
-    #dropZone {
+    .js-drop-zone {
       width:100%;
       height:100px;
-      padding:15px;
-      border:dashed 5px #ccc;
+      border: dashed 3px #ccc;
     }
+      .on-dragover {
+        background-color: #ccc;
+      }
+
 
   }
 

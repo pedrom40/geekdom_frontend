@@ -384,7 +384,7 @@ app.get('/admin/sizes', jsonParser, (req, res) => {
 
 // list admin images
 app.get('/admin/images', jsonParser, (req, res) => {
-  res.sendFile(__dirname + '/views/admin.html');
+  res.sendFile(__dirname + '/views/admin-images.html');
 });
 
 

@@ -926,26 +926,8 @@ function loadImages () {
       // start fresh
       $('.js-admin-placeholder').empty();
 
-      // markup display
-      const displayHtml = `
-        <div class="row">
-          <div class="column">
-            <h4>Product Images</h4>
-
-            <div class="row">
-              ${imageRowsHtml}
-            </div>
-          </div>
-          <div class="column column-10"></div>
-          <div class="column column-25">
-            <h4 class="js-form-title">Add Images</h4>
-            <div id="dropZone"></div>
-          </div>
-        </div>
-      `;
-
       // load markup to page
-      $('.js-admin-placeholder').html(displayHtml);
+      $('.js-admin-placeholder').html(imageRowsHtml);
 
     });
 
