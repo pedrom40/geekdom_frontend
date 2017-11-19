@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head', {title: 'Order Confirmation'}) -%>
+</head>
+<body>
+  <main role="main">
+    <%- include('../partials/header') -%>
+
+    <section class="cart">
+      <div class="container">
+
+        <h1>Order Complete</h1>
+        <p>
+          Your order has been placed, below is the information recorded. Confirmation has been sent to the email we have on file. If you need assistance,
+          please contact us at <a href="mailto:contact@bannerstack.com">contact@bannerstack.com</a>
+        </p><br>
+
+        <div class="row main-row">
+          <div class="column cart-product-rows">
+
+            <div class="row table-header">
+              <div class="column">PRODUCTS PURCHASED</div>
+            </div>
+
+            <div class="js-cart-display"></div>
+
+          </div>
+          <div class="column cart-form-rows">
+
+            <div class="row table-header">
+              <div class="column">ORDER INFORMATION</div>
+            </div>
+            <div class="session-info">
+              <div><strong>Ordered:</strong> <span id="order-date"></span></div>
+              <div><strong>Order#:</strong> <span id="order-number"></span></div>
+              <div><strong>Name:</strong> <span id="user-name"></span></div>
+              <div><strong>Phone:</strong> <span id="user-phone"></span></div>
+              <div><strong>Email:</strong> <span id="user-email"></span></div>
+              <div><strong>Comments:</strong> <span id="order-comments"></span></div>
+            </div>
+
+            <div class="row table-header">
+              <div class="column">PAYMENT INFORMATION</div>
+            </div>
+            <div class="session-info">
+              <div><strong>Name on Card:</strong> <span id="card-name"></span></div>
+              <div><strong>Card:</strong> <span id="card-info"></span></div>
+              <div><strong>Total Charge:</strong> <span id="card-charge"></span></div>
+              <div><strong>Transaction ID:</strong> <span id="transation-id"></span></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <%- include('../partials/footer') -%>
+
+  </main>
+
+  <%- include('../partials/final-scripts') -%>
+  <script src="/js/orders.js" type="text/javascript"></script>
+  <script src="/js/app.js" type="text/javascript"></script>
+
+</body>
+</html>

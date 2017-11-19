@@ -7,6 +7,7 @@ const jsonParser  = bodyParser.json();
 const upsAPI      = require('shipping-ups');
 const util        = require('util');
 const fs          = require('fs');
+const ejs         = require('ejs');
 
 // setup ups
 const ups = new upsAPI({
@@ -17,21 +18,17 @@ const ups = new upsAPI({
   imperial: true // set to false for metric
 });
 
-
 // mount express
 const app = express();
+
+// set the view engine to ejs
+app.set('view engine', 'ejs');
 
 // log the http layer
 app.use(morgan('common'));
 
 // setup session
-app.use(
-  session({
-    secret: 'keyboard cat',
-    resave: false,
-    saveUninitialized: true
-  })
-);
+app.use(session({secret:'keyboard cat', resave:false, saveUninitialized:true}));
 app.use( (req, res, next) => {
 
   // if cart is not setup yet
@@ -57,6 +54,11 @@ app.use( (req, res, next) => {
 
     }
 
+  }
+
+  // if adminUser is not setup yet
+  if (!req.session.adminUser) {
+
     // init admin session
     req.session.adminUser = {
       id: 0,
@@ -71,28 +73,32 @@ app.use( (req, res, next) => {
 
 });
 
+// setup routers
+const {router: adminRouter} = require('./admin/router');
+app.use('/admin/', adminRouter);
+
 // setup static assets
 app.use(express.static('public'));
 
 
 // handle root GET call
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/views/index.html');
+  res.render('pages/index');
 });
 
 // handle products GET call
 app.get('/products', (req, res) => {
-  res.sendFile(__dirname + '/views/products.html');
+  res.render('pages/products');
 });
 
 // handle product category call
 app.get('/products/:category/', (req, res) => {
-  res.sendFile(__dirname + '/views/products.html');
+  res.render('pages/products');
 });
 
 // handle product call
 app.get('/products/:category/:product', (req, res) => {
-  res.sendFile(__dirname + '/views/products.html');
+  res.render('pages/products');
 });
 
 // handle cart POST (adding an item to the cart)
@@ -148,7 +154,7 @@ app.put('/updateTemplateItemInfo', jsonParser, (req, res) => {
 
 // handle cart GET
 app.get('/cart', (req, res) => {
-  res.sendFile(__dirname + '/views/cart.html');
+  res.render('pages/cart');
 });
 
 // pass cart contents
@@ -193,20 +199,18 @@ app.post('/updateUser', jsonParser, (req, res) => {
   }
 
   // send success
-  res.json({
-    "userUpdated": "yes"
-  });
+  res.json({"userUpdated": "yes"});
 
 });
 
 // checkout
 app.get('/checkout', (req, res) => {
-  res.sendFile(__dirname + '/views/checkout.html');
+  res.render('pages/checkout');
 });
 
 // review order
 app.get('/review', (req, res) => {
-  res.sendFile(__dirname + '/views/review.html');
+  res.render('pages/review');
 });
 
 // order confirmation page
@@ -216,18 +220,18 @@ app.get('/confirmation', (req, res) => {
   req.session.cart = [];
 
   // send to confirmation page
-  res.sendFile(__dirname + '/views/confirmation.html');
+  res.render('pages/confirmation');
 
 });
 
 // get design templates
 app.get('/designs', (req, res) => {
-  res.sendFile(__dirname + '/views/designTemplates.html');
+  res.render('pages/designTemplates');
 });
 
 // get designer plugin
 app.get('/createDesign', (req, res) => {
-  res.sendFile(__dirname + '/views/design.html');
+  res.render('pages/design');
 });
 
 // validate address
@@ -294,97 +298,6 @@ app.get('/getShippingRates', (req, res) => {
 
   });
 
-});
-
-
-/* admin endpoints */
-
-// admin login
-app.get('/admin/login', jsonParser, (req, res) => {
-  res.sendFile(__dirname + '/views/admin-login.html');
-});
-
-// get admin session info
-app.get('/getAdminUser', jsonParser, (req, res) => {
-  res.json(req.session.adminUser);
-});
-
-// update admin session info
-app.get('/updateAdminUser', jsonParser, (req, res) => {
-
-  // update admin session
-  req.session.adminUser = {
-    id: req.query.id,
-    email: req.query.email,
-    name: req.query.name,
-    validated: req.query.validated
-  }
-
-  res.json(req.session.adminUser);
-
-});
-
-// admin dashboard
-app.get('/admin/dashboard', jsonParser, (req, res) => {
-  res.sendFile(__dirname + '/views/admin.html');
-});
-
-// admin products
-app.get('/admin/products', jsonParser, (req, res) => {
-  res.sendFile(__dirname + '/views/admin.html');
-});
-app.get('/admin/products/add', jsonParser, (req, res) => {
-  res.sendFile(__dirname + '/views/admin.html');
-});
-
-// admin categories
-app.get('/admin/categories', jsonParser, (req, res) => {
-  res.sendFile(__dirname + '/views/admin.html');
-});
-
-// admin printers
-app.get('/admin/printers', jsonParser, (req, res) => {
-  res.sendFile(__dirname + '/views/admin.html');
-});
-
-// admin media
-app.get('/admin/media', jsonParser, (req, res) => {
-  res.sendFile(__dirname + '/views/admin.html');
-});
-
-// admin flat charges
-app.get('/admin/flat-charges', jsonParser, (req, res) => {
-  res.sendFile(__dirname + '/views/admin.html');
-});
-
-// admin artwork options
-app.get('/admin/artwork-options', jsonParser, (req, res) => {
-  res.sendFile(__dirname + '/views/admin.html');
-});
-
-// admin turnarounds
-app.get('/admin/turnarounds', jsonParser, (req, res) => {
-  res.sendFile(__dirname + '/views/admin.html');
-});
-
-// admin finishing
-app.get('/admin/finishing', jsonParser, (req, res) => {
-  res.sendFile(__dirname + '/views/admin.html');
-});
-
-// list admin users
-app.get('/admin/users', jsonParser, (req, res) => {
-  res.sendFile(__dirname + '/views/admin.html');
-});
-
-// list admin sizes
-app.get('/admin/sizes', jsonParser, (req, res) => {
-  res.sendFile(__dirname + '/views/admin.html');
-});
-
-// list admin images
-app.get('/admin/images', jsonParser, (req, res) => {
-  res.sendFile(__dirname + '/views/admin-images.html');
 });
 
 

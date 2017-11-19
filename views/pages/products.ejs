@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head', {title: 'Products'}) -%>
+</head>
+<body>
+  <main role="main">
+    <%- include('../partials/header') -%>
+
+    <section class="banners hide js-banners">
+      <div class="img-slider">
+        <div><img src="https://static.bannerstack.com/img/products-banner-01.jpg" alt="Your Choice"></div>
+      </div>
+    </section>
+
+    <section class="yellow-title">
+      <div class="row">
+        <div class="column">
+          <h3 class="js-page-title"></h3>
+        </div>
+      </div>
+    </section>
+
+    <section class="products">
+      <div class="row">
+        <div class="column js-left-column-features"></div>
+        <div class="column js-right-column-features"></div>
+      </div>
+      <div class="hide error-msg js-error-msg"></div>
+      <div class="products-list js-category-list"></div>
+    </section>
+
+    <%- include('../partials/footer') -%>
+
+  </main>
+
+  <%- include('../partials/final-scripts') -%>
+  <script src="/js/products.js" type="text/javascript"></script>
+  <script src="/js/shipping.js" type="text/javascript"></script>
+  <script src="/js/app.js" type="text/javascript"></script>
+
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head', {title: 'Cart'}) -%>
+</head>
+<body>
+  <main role="main">
+    <%- include('../partials/header') -%>
+
+    <form id="payment-form" class="cart-form">
+      <section class="cart">
+        <div class="container">
+          <div class="row main-row">
+            <div class="column cart-product-rows">
+
+              <div class="row table-header">
+                <div class="column">PRODUCTS IN CART</div>
+              </div>
+
+              <div class="js-cart-display"></div>
+
+              <div class="order-total show-large">
+                <hr>
+                <div class="row">
+                  <div class="column">
+                    <strong>ORDER TOTAL:</strong> $<span class="js-order-total"></span>
+                  </div>
+                  <div class="column">
+                    <a href="/products" class="product-details-btn">
+                      <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+                      KEEP SHOPPING
+                      <i class="fa fa-caret-right" aria-hidden="true"></i>
+                    </a>
+                  </div>
+                  <div class="column">
+                    <a href="/checkout" class="product-details-btn">
+                      <i class="fa fa-credit-card" aria-hidden="true"></i>
+                      CHECKOUT
+                      <i class="fa fa-caret-right" aria-hidden="true"></i>
+                    </a>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </form>
+
+    <%- include('../partials/footer') -%>
+
+  </main>
+
+  <%- include('../partials/final-scripts') -%>
+  <script src="/js/shipping.js" type="text/javascript"></script>
+  <script src="/js/app.js" type="text/javascript"></script>
+
+</body>
+</html>

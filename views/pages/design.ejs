@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head', {title: 'Design'}) -%>
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="https://dta8vnpq1ae34.cloudfront.net/app/83/js/app.js"></script>
+</head>
+<body>
+  <main role="main">
+    <%- include('../partials/header') -%>
+
+    <section class="cart">
+      <div class="row main-row">
+        <div class="column">
+
+          <div class="table-header">
+            <div class="column">CUSTOMIZE YOUR DESIGN</div>
+          </div>
+
+          <div id="pp_inline_div" style="width:100%; height: 0; margin: 0 auto; position: relative; overflow: hidden;"></div>
+          <div id="pp_loader_div"><img src="//dta8vnpq1ae34.cloudfront.net/images/loaders/anim-ring.svg" ></div>
+          <a href="#" id="launch_btn" onclick="showDesigner();" class="product-details-btn">Launch Designer</a>
+          <div id="pp_preview_div"></div>
+
+        </div>
+      </div>
+    </section>
+
+    <%- include('../partials/footer') -%>
+
+  </main>
+
+  <%- include('../partials/final-scripts') -%>
+  <script src="/js/designer.js" type="text/javascript"></script>
+  <script src="/js/app.js" type="text/javascript"></script>
+
+</body>
+</html>

@@ -225,7 +225,7 @@ function updateAdminUserSession (adminUser) {
 
   // get user session info from express route
   const settings = {
-    url: '/updateAdminUser/',
+    url: '/admin/updateAdminUser/',
     data: adminUser,
     type: 'GET',
     fail: showAjaxError
@@ -236,7 +236,7 @@ function updateAdminUserSession (adminUser) {
 }
 function getAdminSessionInfo () {
   const settings = {
-    url: '/getAdminUser/',
+    url: '/admin/getAdminUser/',
     type: 'GET',
     fail: showAjaxError
   };

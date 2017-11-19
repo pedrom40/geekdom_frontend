@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head', {title: 'Admin Home'}) -%>
+</head>
+<body>
+  <main role="main">
+    <%- include('../partials/header') -%>
+
+    <section class="yellow-title">
+      <div class="row">
+        <div class="column">
+          <h3 class="js-page-title"></h3>
+        </div>
+      </div>
+    </section>
+
+    <section class="admin">
+      <div class="error-msg js-error-msg" style="display:none;"></div>
+      <div class="row">
+        <div class="column column-25">
+          <%- include('partials/nav') -%>
+        </div>
+        <div class="column">
+          <div class="main-content js-admin-placeholder"></div>
+        </div>
+        <div class="column column-10"></div>
+      </div>
+    </section>
+
+    <%- include('../partials/footer') -%>
+
+  </main>
+
+  <%- include('../partials/final-scripts') -%>
+  <script src="/js/shipping.js" type="text/javascript"></script>
+  <script src="/js/orders.js" type="text/javascript"></script>
+  <script src="/js/admin.js" type="text/javascript"></script>
+  <script src="/js/app.js" type="text/javascript"></script>
+
+</body>
+</html>
