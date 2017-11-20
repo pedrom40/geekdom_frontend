@@ -90,14 +90,6 @@ function getViewRequested (viewRequested) {
 
   }
 
-  // if product add view requested
-  else if (viewRequested === '/admin/products/add') {
-
-    // load view
-    addProduct();
-
-  }
-
   // if categories list view requested
   else if (viewRequested === '/admin/categories') {
 
@@ -576,6 +568,9 @@ function handleAdminUserFormSubmit () {
 // products
 function loadProducts () {
 
+  // start fresh
+  $('.js-admin-placeholder').empty();
+
   // setup member display
   callProductsService({method: 'getProducts'})
     .then( products => {
@@ -611,16 +606,13 @@ function loadProducts () {
             <td>${productFeaturedStatus}</td>
             <td>${productActiveStatus}</td>
             <td class="admin-options">
-              <a href="/admin/products/${product[0]}" title="Edit"><i id="product-edit-btn_${product[0]}" class="fa fa-pencil" aria-hidden="true"></i></a>
+              <a href="#" title="Edit"><i id="product-edit-btn_${product[0]}" class="fa fa-pencil" aria-hidden="true"></i></a>
               <a href="#" title="Delete"><i id="product-delete-btn_${product[0]}" class="fa fa-trash" aria-hidden="true"></i></a>
             </td>
           </tr>
         `;
 
       });
-
-      // start fresh
-      $('.js-admin-placeholder').empty();
 
       // markup search form
       const productSearchForm = `
@@ -668,17 +660,21 @@ function loadProducts () {
       // load markup to page
       $('.js-admin-placeholder').html(displayHtml);
 
-      // setup listeners
-      listenForAdminActions();
-
     });
+
+  // setup listeners
+  listenForAdminActions();
 
 }
 function addProduct () {
 
+  // send HTML to view
+  $('.js-admin-placeholder').empty();
+
+  // create main form
   const addProductForm = `
-    <h4>New Product</h4>
-    <form class="js-admin-product-form" enctype="multipart/form-data">
+    <h4 class="js-form-title">New Product</h4>
+    <form class="js-admin-product-form">
       <div class="row">
         <div class="column">
           <label for="name">Name:</label>
@@ -729,7 +725,7 @@ function addProduct () {
           <select id="categoryId"></select>
         </div>
         <div class="column">
-          <label for="printerId">Printer:</label>
+          <label for="printerIdList">Printer:</label>
           <select id="printerId"></select>
         </div>
         <div class="column">
@@ -742,50 +738,115 @@ function addProduct () {
 
       <div class="row">
         <div class="column">
-          <input type="submit" id="categorySubmit" value="Add">
+          <label for="sizeIdList">Sizes:</label>
+          <select id="sizeIdList" multiple></select>
         </div>
         <div class="column">
-          <button onclick="loadCategories()">Cancel</button>
+          <label for="finishingIdList">Finishing:</label>
+          <select id="finishingIdList" multiple></select>
         </div>
       </div>
 
+      <hr>
+
+      <div class="row">
+        <div class="column">
+          <label for="flatChargeIdList">Flat Charges:</label>
+          <select id="flatChargeIdList" multiple></select>
+        </div>
+        <div class="column">
+          <label for="artworkOptionsIdList">Artwork Options:</label>
+          <select id="artworkOptionsIdList" multiple></select>
+        </div>
+        <div class="column">
+          <label for="turnaroundIdList">Turnarounds:</label>
+          <select id="turnaroundIdList" multiple></select>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="row">
+        <div class="column">
+          <input type="submit" id="productSubmit" value="Add">
+        </div>
+        <div class="column">
+          <button onclick="loadProducts()">Cancel</button>
+        </div>
+      </div>
+
+      <input type="hidden" id="productId">
       <input type="hidden" id="imgList">
     </form>
   `;
 
+  // send HTML to view
   $('.js-admin-placeholder').append(addProductForm);
 
-  // init file upload listener
-  const uploadData = {
-    methodUrl: 'products.cfc?method=uploadProductPic',
-    imgNamePlaceholder: '#imgThumb',
-    imgPreviewContainer: '#imgHolder',
-    imgUrl: 'https://static.bannerstack.com/img/products'
-  }
-  listenForFileUploads(uploadData);
+  // setup select menus
+  const selectsToSetup = [
+    {service: 'getCategories',            selectId: 'categoryId'},
+    {service: 'getActivePrinters',        selectId: 'printerId'},
+    {service: 'getActiveMedias',          selectId: 'mediaId'},
+    {service: 'getActiveSizes',           selectId: 'sizeIdList'},
+    {service: 'getActiveFinishings',      selectId: 'finishingIdList'},
+    {service: 'getActiveFlatCharges',     selectId: 'flatChargeIdList'},
+    {service: 'getActiveArtworkOptions',  selectId: 'artworkOptionsIdList'},
+    {service: 'getActiveTurnarounds',     selectId: 'turnaroundIdList'}
+  ]
+  selectsToSetup.map( selectSettings => {
+    setupProductSelects(selectSettings.service, selectSettings.selectId);
+  });
+
+  // setup listeners
+  listenForAdminActions();
 
 }
-/*function editProduct (productId) {
+function setupProductSelects (service, selectId) {
+
+  // clear out select so we start fresh
+  $(`#${selectId}`).html('');
+
+  // get records and add them as options
+  callProductsService({method: service})
+    .then( records => {
+      records.map( record => $(`#${selectId}`).append(`<option value="${record[0]}">${record[1]}</option>`) );
+    });
+
+}
+function editProduct (productId) {
+
+  // load form
+  addProduct();
 
   // get user info
   callProductsService({
-    method: 'getCategory',
-    categoryId: categoryId
+    method: 'getProduct',
+    productId: productId
   })
-    .then( category => {
+    .then( product => {
 
       // update form content
-      $('#categoryId').val(category[0]);
-      $('#categoryName').val(category[1]);
-      $('#categoryImgHolder').html(`<img src="https://static.bannerstack.com/img/categories/${category[2]}">`);
-      $('#categoryShortDesc').val(category[3]);
-      $('#categoryLongDesc').val(category[4]);
-      $('#categoryFeatured').val(category[5]);
-      $('#categoryActive').val(category[6]);
+      $('#productId').val(product[0]);
+      $('#name').val(product[1]);
+      $('#sku').val(product[2]);
+      $('#shortDesc').val(product[3]);
+      $('#longDesc').val(product[4]);
+      $('#imgList').val(product[5]);
+      $('#categoryId').val(product[6]);
+      $('#printerId').val(product[9]);
+      $('#mediaId').val(product[7]);
+      $('#sizeIdList').val(product[8]);
+      $('#finishingIdList').val(product[10]);
+      $('#flatChargeIdList').val(product[11]);
+      $('#artworkOptionsIdList').val(product[13]);
+      $('#turnaroundIdList').val(product[12]);
+      $('#featured').val(product[14]);
+      $('#active').val(product[15]);
 
       // change for title and submit text
-      $('.js-form-title').html('Edit Category');
-      $('#categorySubmit').val('EDIT');
+      $('.js-form-title').html('Edit Product');
+      $('#productSubmit').val('EDIT');
 
     });
 
@@ -793,21 +854,21 @@ function addProduct () {
 function deleteProduct (productId) {
 
   // confirm delete
-  const confirmDelete = confirm('Delete this Category?');
+  const confirmDelete = confirm('Delete this Product?');
 
   // on confirm
   if (confirmDelete) {
 
     // get user info
     callProductsService({
-      method: 'deleteCategory',
-      categoryId: categoryId
+      method: 'deleteProduct',
+      productId: productId
     })
       .then( response => {
 
         // if successful
         if (response === 'success') {
-          loadCategories();
+          loadProducts();
         }
 
         // if not
@@ -822,26 +883,36 @@ function deleteProduct (productId) {
 }
 function handleProductFormSubmit () {
 
-  const formAction = $('#categorySubmit').val();
+  const formAction = $('#productSubmit').val();
 
   // add category
   if (formAction === 'Add') {
 
     // send info to service
     callProductsService({
-      method: 'addCategory',
-      categoryName: $('#categoryName').val(),
-      categoryThumb: $('#categoryThumb').val(),
-      categoryShortDesc: $('#categoryShortDesc').val(),
-      categoryLongDesc: $('#categoryLongDesc').val(),
-      categoryFeatured: $('#categoryFeatured').val(),
-      categoryActive: $('#categoryActive').val()
+      method: 'addProduct',
+      name: $('#name').val(),
+      sku: $('#sku').val(),
+      shortDesc: $('#shortDesc').val(),
+      featured: $('#featured').val(),
+      active: $('#active').val(),
+      longDesc: $('#longDesc').val(),
+      imgList: $('#imgList').val().toString(),
+      categoryId: $('#categoryId').val(),
+      printerId: $('#printerId').val(),
+      mediaId: $('#mediaId').val(),
+      sizeIdList: $('#sizeIdList').val().toString(),
+      finishingIdList: $('#finishingIdList').val().toString(),
+      flatChargeIdList: $('#flatChargeIdList').val().toString(),
+      artworkOptionsIdList: $('#artworkOptionsIdList').val().toString(),
+      turnaroundIdList: $('#turnaroundIdList').val().toString(),
+      addedBy: 0
     })
       .then( response => {
 
         // if successful, reload page
         if (response === 'success') {
-          loadCategories();
+          loadProducts();
         }
 
         // if not
@@ -861,20 +932,30 @@ function handleProductFormSubmit () {
 
     // send info to service
     callProductsService({
-      method: 'editCategory',
+      method: 'editProduct',
+      productId: $('#productId').val(),
+      name: $('#name').val(),
+      sku: $('#sku').val(),
+      shortDesc: $('#shortDesc').val(),
+      featured: $('#featured').val(),
+      active: $('#active').val(),
+      longDesc: $('#longDesc').val(),
+      imgList: $('#imgList').val().toString(),
       categoryId: $('#categoryId').val(),
-      categoryName: $('#categoryName').val(),
-      categoryThumb: $('#categoryThumb').val(),
-      categoryShortDesc: $('#categoryShortDesc').val(),
-      categoryLongDesc: $('#categoryLongDesc').val(),
-      categoryFeatured: $('#categoryFeatured').val(),
-      categoryActive: $('#categoryActive').val()
+      printerId: $('#printerId').val(),
+      mediaId: $('#mediaId').val(),
+      sizeIdList: $('#sizeIdList').val().toString(),
+      finishingIdList: $('#finishingIdList').val().toString(),
+      flatChargeIdList: $('#flatChargeIdList').val().toString(),
+      artworkOptionsIdList: $('#artworkOptionsIdList').val().toString(),
+      turnaroundIdList: $('#turnaroundIdList').val().toString(),
+      updatedBy: 0
     })
       .then( response => {
 
         // if successful, reload page
         if (response === 'success') {
-          loadCategories();
+          loadProducts();
         }
 
         // if not
@@ -888,7 +969,7 @@ function handleProductFormSubmit () {
       });
   }
 
-}*/
+}
 
 // product images
 function loadImages () {
@@ -2979,6 +3060,10 @@ function handleSizeFormSubmit () {
 // listens for admin user edit/delete btn clicks and admin form submits
 function listenForAdminActions () {
 
+  // remove any existing listeners for this
+  $('.js-admin-placeholder').off();
+
+  // create new click listener
   $('.js-admin-placeholder').click( event => {
 
     // if this is not a file input
@@ -3002,12 +3087,6 @@ function listenForAdminActions () {
       else if (event.target.id === 'adminSubmit') {
         $('#adminSubmit').attr('disabled', 'disabled');
         handleAdminUserFormSubmit();
-      }
-
-
-      // add new product click
-      else if (event.target.id === 'js-product-add-btn') {
-        window.location.assign('/admin/products/add');
       }
 
       // if category edit click
@@ -3106,6 +3185,23 @@ function listenForAdminActions () {
         deleteSize(sizeId[1]);
       }
 
+      // add new product click
+      else if (event.target.id === 'js-product-add-btn') {
+        addProduct();
+      }
+
+      // if product edit click
+      else if (event.target.id.search('product-edit-btn') !== -1) {
+        const productId = event.target.id.toString().split('_');
+        editProduct(productId[1]);
+      }
+
+      // if product delete click
+      else if (event.target.id.search('product-delete-btn') !== -1) {
+        const productId = event.target.id.toString().split('_');
+        deleteProduct(productId[1]);
+      }
+
       // for category form submits
       else if (event.target.id === 'categorySubmit') {
         $('#categorySubmit').attr('disabled', 'disabled');
@@ -3152,6 +3248,12 @@ function listenForAdminActions () {
       else if (event.target.id === 'sizeSubmit') {
         $('#sizeSubmit').attr('disabled', 'disabled');
         handleSizeFormSubmit();
+      }
+
+      // for product form submits
+      else if (event.target.id === 'productSubmit') {
+        $('#productSubmit').attr('disabled', 'disabled');
+        handleProductFormSubmit();
       }
 
     }
