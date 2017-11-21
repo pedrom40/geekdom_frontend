@@ -396,6 +396,12 @@ function listenForAdminActions () {
         deleteProduct(productId[1]);
       }
 
+      // if iamge delete click
+      else if (event.target.id.search('image-delete-btn') !== -1) {
+        const imageId = event.target.id.toString().split('_');
+        deleteImage(imageId[1]);
+      }
+
       // for category form submits
       else if (event.target.id === 'categorySubmit') {
         $('#categorySubmit').attr('disabled', 'disabled');

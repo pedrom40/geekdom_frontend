@@ -519,9 +519,23 @@ footer {
       float: left; }
     .admin .main-content .admin-options a:first-child {
       padding-right: 15px; }
+  .admin .main-content .padTop {
+    padding-top: 74px; }
   .admin .main-content .grey-bg {
-    background: #ccc;
-    padding: 6px 10px; }
+    position: absolute;
+    bottom: 0;
+    margin: 0;
+    padding: 6px 10px;
+    background: #ccc; }
+  .admin .main-content .img-thumb {
+    position: relative;
+    display: inline-block;
+    width: 194px;
+    height: 170px;
+    margin: 10px;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover; }
   .admin .main-content .dnd-area {
     width: 100%;
     height: 75px;

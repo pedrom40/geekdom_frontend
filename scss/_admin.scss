@@ -29,9 +29,27 @@
 
     }
 
+    .padTop {
+      padding-top: 74px;
+    }
+
     .grey-bg {
-      background:#ccc;
+      position: absolute;
+      bottom:0;
+      margin:0;
       padding:6px 10px;
+      background:#ccc;
+    }
+
+    .img-thumb {
+      position: relative;
+      display: inline-block;
+      width: 194px;
+      height: 170px;
+      margin: 10px;
+      background-position:center center;
+      background-repeat: no-repeat;
+      background-size: cover;
     }
 
     .dnd-area {

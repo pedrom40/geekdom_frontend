@@ -180,94 +180,49 @@ function uploadFiles (files) {
   // setup init vars
   const productImgUrl = 'https://static.bannerstack.com/img/products';
   const _progress = document.getElementById('bar');
-  let totalUploadProgress = 0;
-  let progressTracker = 0;
-
-  // reset progress bar
-  _progress.style.width = 0;
-
-  // track activity for all calls
-  var
-    request = [],
-    successfulRequests = 1,
-    responseString = "";
 
   // if no files found
-  if(files.length === 0){
+  if (files.length === 0){
     return;
   }
 
-  // if files found
-  else {
+  // loop thru files
+  for (let i=0; i < files.length; i++) {
 
-    // calc total upload progress
-    totalUploadProgress = files.length * 100;
+    let data = new FormData();
+    data.append('file', files[i]);
 
-    // loop thru files
-    for (let i=0; i < files.length; i++) {
-
-      if (i === 0) {
-        progressTracker = 0;
+    request = new XMLHttpRequest();
+    request.onreadystatechange = function(){
+      if (request.readyState == 4 && request.status == 200){
+        try {
+          const resp = JSON.parse(request.response);
+        }
+        catch (e){
+          let resp = {
+            status: 'error',
+            data: 'Unknown error occurred: [' + request.responseText + ']'
+          };
+        }
       }
+    };
 
-      let data = new FormData();
-      data.append('file', files[i]);
+    request.upload.addEventListener('progress', (e) => {
 
-      request = new XMLHttpRequest();
-      request.onreadystatechange = function(){
-        if (request.readyState == 4 && request.status == 200){
+      // calc progress
+      let progNum = ((e.loaded/e.total) * 100).toFixed(0);
+      let uploadProgress = `${progNum}%`;
 
-          try {
-            const resp = JSON.parse(request.response);
+      // set width of progress bar
+      _progress.style.width = uploadProgress;
 
-            if (progressTracker === totalUploadProgress) {
-              loadImages();
-            }
+      // add uploading msg
+      $('.js-dnd-msg').html(`... uploading files (${uploadProgress}) ...`);
 
-          }
-          catch (e){
-            let resp = {
-              status: 'error',
-              data: 'Unknown error occurred: [' + request.responseText + ']'
-            };
-          }
-        }
-      };
+    }, false);
 
-      request.upload.addEventListener('progress', (e) => {
-
-        // calc progress
-        let progNum = ((e.loaded/e.total) * 100).toFixed(0);
-        let uploadProgress = `${progNum}%`;
-
-        if (progNum < 99) {
-
-          // set width of progress bar
-          _progress.style.width = uploadProgress;
-
-          // add uploading msg
-          $('.js-dnd-msg').html(`... uploading files (${uploadProgress}) ...`);
-
-        }
-        else {
-
-          // reset width of progress bar
-          _progress.style.width = 0;
-
-          // reset uploading msg
-          $('.js-dnd-msg').html(`Drag and drop new images here`);
-
-          // update progress tracker
-          progressTracker = progressTracker + 100;
-
-        }
-
-      }, false);
-
-      request.open('POST', `https://services.bannerstack.com/products.cfc?method=uploadProductImage`);
-      request.send(data);
-
-    }
+    request.open('POST', `https://services.bannerstack.com/products.cfc?method=uploadProductImage`);
+    request.send(data);
 
   }
 

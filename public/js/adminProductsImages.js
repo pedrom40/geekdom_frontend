@@ -15,16 +15,16 @@ function loadImages () {
           inUse = '<i class="fa fa-check-circle-o" aria-hidden="true"></i> In Use';
         }
         else {
-          inUse = '<i class="fa fa-circle-o" aria-hidden="true"></i> Not In Use';
+          inUse = `
+            <div class="use-btn"><i class="fa fa-circle-o" aria-hidden="true"></i> Not In Use</div>
+            <a href="#" title="Delete"><i id="image-delete-btn_${image[0]}" class="fa fa-trash" aria-hidden="true"></i></a>
+          `;
         }
         // add the rows to the HTML placeholder
         imageRowsHtml = `${imageRowsHtml}
-          <div class="column">
-            <img src="https://static.bannerstack.com/img/products/${image[1]}">
+          <div class="img-thumb" style="background-image: url('https://static.bannerstack.com/img/products/${image[1]}');">
             <div class="column admin-options grey-bg">
-              <div class="use-btn">${inUse}</div>
-              <a href="#" title="Edit"><i id="category-edit-btn_${image[0]}" class="fa fa-pencil" aria-hidden="true"></i></a> &nbsp;
-              <a href="#" title="Delete"><i id="category-delete-btn_${image[0]}" class="fa fa-trash" aria-hidden="true"></i></a>
+              ${inUse}
             </div>
           </div>
         `;
@@ -40,5 +40,36 @@ function loadImages () {
     });
 
   dragAndDropUploads();
+  listenForAdminActions();
+
+}
+function deleteImage (imageId) {
+
+  // confirm delete
+  const confirmDelete = confirm('Delete this Image?');
+
+  // on confirm
+  if (confirmDelete) {
+
+    // get user info
+    callProductsService({
+      method: 'deleteImage',
+      imageId: imageId
+    })
+      .then( response => {
+
+        // if successful
+        if (response === 'success') {
+          loadImages();
+        }
+
+        // if not
+        else {
+          showErrorMsg(response);
+        }
+
+      });
+
+  }
 
 }
