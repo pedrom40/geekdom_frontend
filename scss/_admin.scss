@@ -51,6 +51,20 @@
       background-repeat: no-repeat;
       background-size: cover;
     }
+    .product-images {
+      display: inline-block;
+      width: 150px;
+      height: 100px;
+      margin: 10px;
+
+      img {
+        width:100%;
+      }
+    }
+
+    .img-selected {
+      border:solid 5px $primary-color;
+    }
 
     .dnd-area {
       width:100%;

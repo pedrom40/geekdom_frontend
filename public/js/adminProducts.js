@@ -139,16 +139,22 @@ function addProduct () {
         </div>
       </div>
 
+      <div class="js-current-images-container" style="display:none">
+        <hr>
+        <div class="row">
+          <div class="column">
+            <label>Current Images:</label>
+            <div id="currentImgHolder"></div>
+          </div>
+        </div>
+      </div>
+
       <hr>
 
       <div class="row">
         <div class="column">
+          <label>Available Images:</label>
           <div id="imgHolder"></div>
-          <label for="imgThumb">Thumbnail:</label>
-          <input type="file" id="fileupload" name="file" placeholder="jpg, gif and png files (RGB only)">
-          <div id="progress">
-            <div id="bar"></div>
-          </div>
         </div>
       </div>
 
@@ -233,6 +239,9 @@ function addProduct () {
     setupProductSelects(selectSettings.service, selectSettings.selectId);
   });
 
+  // get unused images
+  getNewImages();
+
   // setup listeners
   listenForAdminActions();
 
@@ -258,6 +267,9 @@ function editProduct (productId) {
   // load form
   addProduct();
 
+  // show current images container
+  $('.js-current-images-container').show();
+
   // get user info
   callProductsService({
     method: 'getProduct',
@@ -271,7 +283,7 @@ function editProduct (productId) {
       $('#sku').val(product[2]);
       $('#shortDesc').val(product[3]);
       $('#longDesc').val(product[4]);
-      $('#imgList').val(product[5]);
+      $('#imgList').val(product[5].toString());
       $('#categoryId').val(product[6]);
       $('#printerId').val(product[9]);
       $('#mediaId').val(product[7]);
@@ -282,6 +294,9 @@ function editProduct (productId) {
       $('#turnaroundIdList').val(product[12]);
       $('#featured').val(product[14]);
       $('#active').val(product[15]);
+
+      // get current images
+      getProductImages(product[5].toString());
 
       // change for title and submit text
       $('.js-form-title').html('Edit Product');

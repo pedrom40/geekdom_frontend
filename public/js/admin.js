@@ -396,10 +396,18 @@ function listenForAdminActions () {
         deleteProduct(productId[1]);
       }
 
-      // if iamge delete click
+      // if image delete click
       else if (event.target.id.search('image-delete-btn') !== -1) {
         const imageId = event.target.id.toString().split('_');
         deleteImage(imageId[1]);
+      }
+
+      // if "claiming" an image delete click
+      else if (event.target.id.search('productImg_') !== -1) {
+
+        const imageId = event.target.id.toString().split('_');
+        toggleImageSelection(imageId[1]);
+
       }
 
       // for category form submits

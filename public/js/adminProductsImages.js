@@ -43,6 +43,103 @@ function loadImages () {
   listenForAdminActions();
 
 }
+
+// get all unclaimed images
+function getNewImages () {
+
+  callProductsService({method: 'getNewImages'})
+    .then( images => {
+
+      images.map( img => {
+        $('#imgHolder').append(`
+          <div class="product-images">
+            <img id="productImg_${img[0]}" src="https://static.bannerstack.com/img/products/${img[1]}">
+          </div>
+        `);
+      });
+
+    });
+
+  // setup listeners
+  listenForAdminActions();
+
+}
+
+// get products current images
+function getProductImages (imgList) {
+  callProductsService({
+    method: 'getProductImages',
+    imgList: imgList
+  })
+    .then( images => {
+
+      images.map( img => {
+        $('#currentImgHolder').append(`
+          <div class="product-images img-selected">
+            <img id="productImg_${img[0]}" src="https://static.bannerstack.com/img/products/${img[1]}">
+          </div>
+        `);
+      });
+
+    });
+
+  // setup listeners
+  listenForAdminActions();
+}
+
+// toggle "img-selected" class on click
+function toggleImageSelection (imageId) {
+
+  // get the initial value of the image list
+  let currentValue = $('#imgList').val();
+  let imgObj = $(`#productImg_${imageId}`).closest('div');
+
+  // if image being deselected
+  if (imgObj.attr('class') === 'product-images img-selected') {
+
+    // update class
+    imgObj.removeClass('img-selected');
+
+    // if it's the last value in the list
+    if (currentValue.search(`,${imageId}`) !== -1) {
+      currentValue = currentValue.toString().replace(`,${imageId}`, '');
+    }
+
+    // if it's the first selection
+    else if (currentValue.search(`${imageId},`) !== -1) {
+      currentValue = currentValue.toString().replace(`${imageId},`, '');
+    }
+
+    // if it's the only value
+    else {
+      currentValue = currentValue.toString().replace(`${imageId}`, '');
+    }
+
+  }
+
+  // if selecting image
+  else {
+
+    // update class
+    imgObj.addClass('img-selected');
+
+    // if it's empty
+    if  (currentValue.length === 0) {
+      currentValue = `${imageId}`;
+    }
+
+    // if there's at least one value already
+    else {
+      currentValue = `${currentValue},${imageId}`;
+    }
+
+  }
+
+  // update the img list value
+  $('#imgList').val(currentValue);
+
+}
+
 function deleteImage (imageId) {
 
   // confirm delete
