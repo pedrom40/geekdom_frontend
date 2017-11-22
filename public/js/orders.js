@@ -5,7 +5,7 @@ function initOrder () {
   const currentPath = window.location.pathname;
 
   // if this is not an admin page
-  if (currentPath.search('admin') === -1) {
+  if (currentPath.search('admin') === -1 && currentPath !== '/review') {
     getOrderId();
   }
 
@@ -22,9 +22,13 @@ function getOrderId () {
     method: 'getNewOrderDetails',
     orderId: urlData[1]
   }
-  callOrderService(qData).then( (data) => {
-    displayOrderInfo(data);
-  });
+  callOrderService(qData)
+    .then( data => {
+      displayOrderInfo(data);
+    })
+    .fail( err => {
+      console.log(err);
+    });
 
 }
 
@@ -39,6 +43,9 @@ function displayOrderInfo (order) {
 
   // display payment info
   displayPaymentInfo(order[2]);
+
+  // user action
+  checkUserStatus(order[3], order[4]);
 
 }
 function displayMainOrderInfo (mainOrderInfo) {
@@ -78,7 +85,7 @@ function displayCartItems (cartInfo) {
             <div class="column">
               ${specs}
               <label>Quantity: ${cartItem.product_quantity}</label>
-              <label>Price: $${cartItem.product_price}</label>
+              <label>Price: $${Number(cartItem.product_price).toFixed(2)}</label>
             </div>
             <div class="column">
               <label>Ship to</label>
@@ -86,7 +93,7 @@ function displayCartItems (cartInfo) {
                 <em>${cartItem.shipping_name}</em><br>
                 ${cartItem.shipping_address}<br>
                 ${cartItem.shipping_city}, ${cartItem.shipping_state} ${cartItem.shipping_zip}<br>
-                <em>(${cartItem.shipping_service})</em>
+                <em>(${cartItem.shipping_service}: $${Number(cartItem.shipping_cost).toFixed(2)})</em>
               </p>
             </div>
           </div>
@@ -107,7 +114,7 @@ function displayPaymentInfo (customerInfo) {
   $('#card-info').html(`${customerInfo.card_type} (${customerInfo.card_last_four})`);
 
   const dollarAmt = customerInfo.total_charge / 100;
-  $('#card-charge').html(`$${dollarAmt}`);
+  $('#card-charge').html(`$${Number(dollarAmt).toFixed(2)}`);
 
 }
 
@@ -279,12 +286,11 @@ function saveOrder (chargeInfo) {
 // makes all calls to orders.cfc
 function callOrderService (data) {
 
-  var settings = {
+  const settings = {
     url: 'https://services.bannerstack.com/orders.cfc',
     data: data,
     dataType: 'json',
-    type: 'GET',
-    fail: showAjaxError
+    type: 'GET'
   }
 
   return $.ajax(settings);

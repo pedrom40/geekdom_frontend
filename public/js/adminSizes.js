@@ -11,7 +11,7 @@ function loadSizes () {
 
         // setup value for active
         let sizeActiveStatus = '';
-        if (size[3] === 1) {
+        if (size[4] === 1) {
           sizeActiveStatus = 'Yes';
         }
         else {
@@ -23,6 +23,7 @@ function loadSizes () {
           <tr>
             <td>${size[1]}</td>
             <td>${size[2]}</td>
+            <td>${size[3]}</td>
             <td>${sizeActiveStatus}</td>
             <td class="admin-options">
               <a href="#" title="Edit"><i id="size-edit-btn_${size[0]}" class="fa fa-pencil" aria-hidden="true"></i></a>
@@ -54,6 +55,9 @@ function loadSizes () {
 
           <label for="productHeight">Height:</label>
           <input type="text" id="productHeight" placeholder="Inches, numbers only" required>
+
+          <label for="productWeight">Weight:</label>
+          <input type="text" id="productWeight" placeholder="Pounds, numbers only" required>
 
           <label for="active">Active:</label>
           <select id="active">
@@ -87,6 +91,7 @@ function loadSizes () {
                 <tr>
                   <th>Width</th>
                   <th>Height</th>
+                  <th>Weight</th>
                   <th>Active</th>
                   <th>Options</th>
                 </tr>
@@ -127,7 +132,8 @@ function editSize (sizeId) {
       $('#sizeId').val(size[0]);
       $('#productWidth').val(size[1]);
       $('#productHeight').val(size[2]);
-      $('#active').val(size[3]);
+      $('#productWeight').val(size[3]);
+      $('#active').val(size[4]);
 
       // change for title and submit text
       $('.js-form-title').html('Edit Size');
@@ -180,6 +186,7 @@ function handleSizeFormSubmit () {
       method: 'addSize',
       productWidth: $('#productWidth').val(),
       productHeight: $('#productHeight').val(),
+      productWeight: Number($('#productWeight').val()).toFixed(2),
       addedBy: 0,
       active: $('#active').val()
     })
@@ -211,6 +218,7 @@ function handleSizeFormSubmit () {
       sizeId: $('#sizeId').val(),
       productWidth: $('#productWidth').val(),
       productHeight: $('#productHeight').val(),
+      productWeight: Number($('#productWeight').val()).toFixed(2),
       updatedBy: 0,
       active: $('#active').val()
     })

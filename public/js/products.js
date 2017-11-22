@@ -374,13 +374,12 @@ function loadProductSizes (productSizes) {
     if (index === 0) {
       $('#productWidth').val(productSizes[index][1]);
       $('#productHeight').val(productSizes[index][2]);
-      $('#productLength').val(productSizes[index][3]);
-      $('#productWeight').val(productSizes[index][4]);
+      $('#productWeight').val(productSizes[index][3]);
     }
 
     // add options
     const template = `
-      <option value="${productSizes[index][0]}" data-width="${productSizes[index][1]}" data-height="${productSizes[index][2]}">
+      <option value="${productSizes[index][0]}" data-width="${productSizes[index][1]}" data-height="${productSizes[index][2]}"  data-weight="${productSizes[index][3]}">
         ${productSizes[index][1]}" x ${productSizes[index][2]}"
       </option>
     `;

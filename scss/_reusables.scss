@@ -31,6 +31,9 @@
   padding:0 20px;
   font-size:0;
 }
+.cut-top {
+  margin-top: 0 !important;
+}
 
 .yellow-txt {
   color:$primary-color;
@@ -97,6 +100,11 @@ img.full {
 
 select[multiple] {
   height:150px;
+}
+
+a.darkLink {
+  color:$secondary-color;
+  text-decoration: underline;
 }
 
 @media only screen and (min-width:768px) {

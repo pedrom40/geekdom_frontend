@@ -17,6 +17,82 @@ function initUser () {
 
 }
 
+// checks if we need this user to add a password to their account
+function checkUserStatus (status, memberId) {
+
+  if (status === 'New') {
+
+    const template = `
+      <h4>Account Update</h4>
+      <p>
+        We've created an account for you so you can login and check your order status.
+        To complete this process, please enter a password below.
+      </p>
+
+      <div class="row">
+        <div class="column">
+          <label for="userPassword" class="sr-only">Enter a Password</label>
+          <input type="password" id="userPassword" placeholder="Minimum of 6 characters">
+        </div>
+        <div class="column">
+          <div id="js-add-user-password-btn" class="product-details-btn cut-top">
+            SUBMIT
+            <i class="fa fa-caret-right" aria-hidden="true"></i>
+          </div>
+        </div>
+        <div class="column column-50"></div>
+      </div>
+    `;
+
+    $('.js-user-actions').html(template);
+
+    listenForUserPasswordUpdates(memberId);
+
+  }
+
+}
+function listenForUserPasswordUpdates (memberId) {
+
+  $('.js-user-actions').click( event => {console.log(event.target.id);
+    event.preventDefault();
+
+    if (
+        event.target.id === 'js-add-user-password-btn' &&
+        $('#userPassword').val().length >= 6
+      ) {
+
+      const data = {
+        method: 'addUserPassword',
+        userId: memberId,
+        userPassword: $('#userPassword').val()
+      }
+      callUserService(data)
+        .then( result => {
+
+          // show user as logged in
+          updateUserLoggedInStatus(true);
+
+          // take to member's home page
+          window.location.assign(`/member/${memberId}`)
+
+        })
+        .fail( err => {
+          console.log(err);
+        });
+
+    }
+
+    else if (
+      event.target.id === 'js-add-user-password-btn' &&
+      $('#userPassword').val().length < 6
+    ) {
+      showErrorMsg('Please enter a valid password');
+    }
+
+  });
+
+}
+
 // load the data to the dom
 function displayUserSession (data) {
 
@@ -50,6 +126,24 @@ function displayUserSession (data) {
     $('#billing-last4').html(`${data.cardLastFour}`);
 
   }
+
+}
+
+// update user logged in status
+function updateUserLoggedInStatus (loggedIn) {
+
+  const data = {
+    loggedIn: loggedIn
+  }
+  const settings = {
+    url: '/updateUserStatus',
+    contentType: 'application/json',
+    dataType: 'json',
+    data: JSON.stringify(data),
+    type: 'POST'
+  };
+
+  return $.ajax(settings);
 
 }
 

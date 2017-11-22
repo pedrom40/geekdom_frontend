@@ -77,6 +77,11 @@ function displayCartContents (cart) {
         productImgSrc = cartItem.template.preview;
       }
 
+      let shippingServiceInfo = '';
+      if (cartItem.shippingService !== '') {
+        shippingServiceInfo = `(${cartItem.shippingService}: $${Number(cartItem.shippingCost).toFixed(2)})`;
+      }
+
       const template = `
         <div class="row cart-contents">
           <div class="column column-25 product-name">
@@ -100,6 +105,7 @@ function displayCartContents (cart) {
                   <em>${cartItem.shippingName}</em><br>
                   ${cartItem.shippingAddress}<br>
                   ${cartItem.shippingCity}, ${cartItem.shippingState} ${cartItem.shippingZip}
+                  ${shippingServiceInfo}
                 </p>
               </div>
             </div>
@@ -111,7 +117,7 @@ function displayCartContents (cart) {
       $('.js-cart-display').append(template);
 
       // previous total + item price + shipping cost
-      orderTotal = orderTotal + Number(cartItem.productPrice);
+      orderTotal = orderTotal + Number(cartItem.productPrice) + Number(cartItem.shippingCost);
 
     });
 

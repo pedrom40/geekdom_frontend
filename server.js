@@ -52,6 +52,8 @@ app.use( (req, res, next) => {
       cardToken: '',
       cardLastFour: '',
 
+      loggedIn: false
+
     }
 
   }
@@ -162,9 +164,27 @@ app.get('/getCart', (req, res) => {
   res.json(req.session.cart);
 });
 
+// update cart item shipping cost
+app.post('/updateCart', jsonParser, (req, res) => {
+  req.session.cart[req.body.cartIndex].shippingCost = Number(req.body.shippingCost).toFixed(2);
+  req.session.cart[req.body.cartIndex].shippingService = req.body.shippingMethod;
+  res.json(req.session.cart);
+});
+
 // pass user contents
 app.get('/getUser', (req, res) => {
   res.json(req.session.user);
+});
+
+// update cart item shipping cost
+app.post('/updateUserStatus', jsonParser, (req, res) => {
+  req.session.user.loggedIn = req.body.loggedIn;
+  res.json(req.session.user);
+});
+
+// member home
+app.get('/member/:memberId', (req, res) => {
+  res.json(req.params.memberId);
 });
 
 // delete cart itme

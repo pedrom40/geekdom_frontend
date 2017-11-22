@@ -70,38 +70,6 @@ function getShippingRates (shipTo) {
 
 }
 
-// populate shipping select menus
-function populateShippingOptions (rates) {
-
-  $('#shippingService').empty();
-
-  // loop thru rates
-  rates.RatedShipment.map( (rate, index) => {
-
-    // get service name, "UPS Ground"
-    const serviceName = getServiceName(rate.Service.Code);
-
-    // setup select options tag
-    const template =`
-      <option value="${rate.Service.Code}" data-price="${rate.TotalCharges.MonetaryValue}">
-        ${serviceName} ($${rate.TotalCharges.MonetaryValue})
-      </option>
-    `;
-
-    // add it to shipping select menu
-    $('#shippingService').append(template);
-
-    // calculate cost
-    if (index === 0) {
-      calculatePrice();
-    }
-
-  });
-
-  $('#shippingSelectContainer').show();
-
-}
-
 // update shipping options for cart item
 function populateCartItemShippingOptions (rates, itemIndex) {
 
@@ -109,10 +77,13 @@ function populateCartItemShippingOptions (rates, itemIndex) {
 
   // add pickup option
   $(`#${itemIndex}-shipping-service`).append(`
-    <option value="pickup" data-price="0">
+    <option value="pickup" data-price="0" data-method="Pickup" data-cart-index="${itemIndex}">
       I'll Pick Up My Order (Free)
     </option>
   `);
+
+  // init shipping info
+  updateShippingCost(itemIndex, 'Pickup', 0);
 
   // loop thru rates
   rates.RatedShipment.map( rate => {
@@ -122,7 +93,7 @@ function populateCartItemShippingOptions (rates, itemIndex) {
 
     // setup select options tag
     const template = `
-      <option value="${rate.Service.Code}" data-price="${rate.TotalCharges.MonetaryValue}">
+      <option value="${rate.Service.Code}" data-price="${rate.TotalCharges.MonetaryValue}" data-method="${serviceName}" data-cart-index="${itemIndex}">
         ${serviceName} ($${rate.TotalCharges.MonetaryValue})
       </option>
     `;
@@ -146,8 +117,15 @@ function listenForShippingServiceChanges () {
     // go through each shipping item
     $('.js-shipping-cart').each( function(index) {
 
+      // get cost
+      const currentCost = Number($(`#${index}-shipping-service`).find(':selected').attr('data-price'));
+      const shippingMethod = $(`#${index}-shipping-service`).find(':selected').attr('data-method');
+
       // calc shipping cost
-      shippingCost = shippingCost + Number($(`#${index}-shipping-service`).find(':selected').attr('data-price'));
+      shippingCost = shippingCost + currentCost;
+
+      // update cart item with shipping cost changes
+      updateShippingCost(index, shippingMethod, currentCost);
 
     });
 
@@ -156,6 +134,26 @@ function listenForShippingServiceChanges () {
     setOrderTotal(orderTotal);
 
   });
+
+}
+
+// update the cart item's shipping cost in session
+function updateShippingCost(cartIndex, shippingMethod, shippingCost) {
+
+  const data = {
+    cartIndex: cartIndex,
+    shippingMethod, shippingMethod,
+    shippingCost: shippingCost
+  }
+  const settings = {
+    url: '/updateCart',
+    type: 'POST',
+    contentType: 'application/json',
+    dataType: 'json',
+    data: JSON.stringify(data)
+  }
+
+  return $.ajax(settings);
 
 }
 
