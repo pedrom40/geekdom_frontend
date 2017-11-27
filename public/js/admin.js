@@ -174,14 +174,67 @@ function loadAdminDashboard () {
 
       // markup order rows
       orders.map( order => {
+
+        // init order total
+        let orderTotal = 0;
+
+        // loop over order items
+        let orderItems = '';
+        order[6].map( item => {
+
+          orderTotal = Number(orderTotal) + Number(item[6]);
+
+          // setup tracking number
+          let trackingNumber = item[5];
+          if (item[5] === ''){
+            trackingNumber = 'N/A';
+          }
+
+          orderItems = `${orderItems}
+            <tr>
+              <td>${item[1]}</td>
+              <td>${item[2]}</td>
+              <td>${item[3]}</td>
+              <td>${item[4]}</td>
+              <td>${trackingNumber}</td>
+              <td>$${Number(item[6]).toFixed(2)}</td>
+            </tr>
+          `;
+        });
+
         orderRowsHtml = `${orderRowsHtml}
           <tr>
-            <td>${order[0]}</td>
-            <td>${order[2]}</td>
             <td>${order[1]}</td>
+            <td>${order[2].toUpperCase()}</td>
             <td>${order[3]}</td>
-            <td>${order[4]}</td>
+            <td>
+              ${order[4]}<br>
+              ${order[5]}
+            </td>
+            <td class="admin-options">
+              <a href="#" title="View Items" id="order_${order[0]}" class="js-order-row"><i id="order-view-btn_${order[0]}" class="fa fa-eye" aria-hidden="true"></i></a>
+              <a href="#" title="Edit" style="padding-right:15px"><i id="order-edit-btn_${order[0]}" class="fa fa-pencil" aria-hidden="true"></i></a>
+              <a href="#" title="Delete"><i id="order-delete-btn_${order[0]}" class="fa fa-trash" aria-hidden="true"></i></a>
+            </td>
+          </tr>
+          <tr class="js-item-row_${order[0]}" style="display:none;">
+            <td colspan="5" class="item-row">
+              <table>
+                <thead>
+                  <th>Product</th>
+                  <th>Qty.</th>
+                  <th>Ship To</th>
+                  <th>Service</th>
+                  <th>Tracking No.</th>
+                  <th>Price</th>
+                </thead>
+                <tbody>
+                  ${orderItems}
+                </tbody>
+              </table>
+            <td>
           </tr>`;
+
       });
 
       // start fresh
@@ -225,14 +278,14 @@ function loadAdminDashboard () {
             <h4>Orders</h4>
 
             ${searchForm}
-            <table>
+            <table class="member-orders">
               <thead>
                 <tr>
                   <th>Date</th>
-                  <th>Customer</th>
                   <th>Order</th>
-                  <th>Email</th>
-                  <th>Phone</th>
+                  <th>Customer</th>
+                  <th>Email/Phone</th>
+                  <th style="width:100px;">Options</th>
                 </tr>
               </thead>
               <tbody>
@@ -246,6 +299,9 @@ function loadAdminDashboard () {
 
       // start fresh
       $('.js-admin-placeholder').html(recentOrderList);
+
+      // listen for order row clicks
+      listenForAdminActions();
 
     });
 
@@ -396,6 +452,24 @@ function listenForAdminActions () {
         deleteProduct(productId[1]);
       }
 
+      // if order view click
+      else if (event.target.id.search('order-view-btn') !== -1) {
+        const orderId = event.target.id.toString().split('_');
+        $(`.js-item-row_${orderId[1]}`).toggle();
+      }
+
+      // if order edit click
+      else if (event.target.id.search('order-edit-btn') !== -1) {
+        const orderId = event.target.id.toString().split('_');
+        editOrder(orderId[1]);
+      }
+
+      // if order delete click
+      else if (event.target.id.search('order-delete-btn') !== -1) {
+        const orderId = event.target.id.toString().split('_');
+        deleteOrder(orderId[1]);
+      }
+
       // if image delete click
       else if (event.target.id.search('image-delete-btn') !== -1) {
         const imageId = event.target.id.toString().split('_');
@@ -464,10 +538,34 @@ function listenForAdminActions () {
         handleProductFormSubmit();
       }
 
+      // for order form submits
+      else if (event.target.id === 'orderSubmit') {
+        $('#orderSubmit').attr('disabled', 'disabled');
+        handleOrderFormSubmit();
+      }
+
     }
 
   });
 
+}
+function editOrder (orderId) {
+
+  const data = {
+    method: 'getOrderDetails',
+    orderId: orderId
+  }
+  callOrderService(data)
+    .then( order => {
+      console.log(order);
+    })
+    .fail( err => {
+      console.log(err);
+    });
+
+}
+function deleteOrder (orderId) {
+  console.log(`delete ${orderId}`);
 }
 
 // makes all calls to admin service

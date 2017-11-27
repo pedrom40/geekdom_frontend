@@ -517,11 +517,13 @@ footer {
 
 .member-home {
   padding: 35px; }
-  .member-home .member-orders .order-row:hover {
-    cursor: pointer;
-    background-color: #dadada; }
-  .member-home .member-orders .item-row {
-    padding-left: 25px; }
+
+.order-row:hover {
+  cursor: pointer;
+  background-color: #dadada; }
+
+.item-row {
+  padding-left: 25px; }
 
 .admin a {
   color: #252525; }

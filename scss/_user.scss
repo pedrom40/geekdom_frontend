@@ -5,18 +5,16 @@
 
 .member-home {
   padding:35px;
+}
 
-  .member-orders {
-    .order-row {
+.order-row {
 
-      &:hover {
-        cursor: pointer;
-        background-color:rgb(218, 218, 218);
-      }
-    }
-
-    .item-row {
-      padding-left:25px;
-    }
+  &:hover {
+    cursor: pointer;
+    background-color:rgb(218, 218, 218);
   }
+}
+
+.item-row {
+  padding-left:25px;
 }

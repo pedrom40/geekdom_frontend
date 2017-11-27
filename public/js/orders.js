@@ -345,7 +345,7 @@ function showMemberHomeInfo (userId) {
                   <th>Qty.</th>
                   <th>Ship To</th>
                   <th>Service</th>
-                  <th>Tracking Number</th>
+                  <th>Tracking No.</th>
                   <th>Price</th>
                 </thead>
                 <tbody>
