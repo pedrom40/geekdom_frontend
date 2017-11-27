@@ -4,8 +4,12 @@ function initOrder () {
   // get current view
   const currentPath = window.location.pathname;
 
-  // if this is not an admin page
-  if (currentPath.search('admin') === -1 && currentPath !== '/review') {
+  // if this is not the admin, review or member page
+  if (
+      currentPath.search('admin') === -1 &&
+      currentPath !== '/review' &&
+      currentPath !== '/member'
+     ) {
     getOrderId();
   }
 
@@ -278,6 +282,127 @@ function saveOrder (chargeInfo) {
       }
 
     });
+
+  });
+
+}
+
+// member's home info
+function showMemberHomeInfo (userId) {
+
+  // setup order display
+  let orderRowsHtml = '';
+  callOrderService({
+    method: 'getMemberOrders',
+    userId: userId
+  })
+    .then( orders => {
+
+      // markup order rows
+      orders.map( order => {
+
+        // init order total
+        let orderTotal = 0;
+
+        // loop over order items
+        let orderItems = '';
+        order[3].map( item => {
+
+          orderTotal = Number(orderTotal) + Number(item[6]);
+
+          // setup tracking number
+          let trackingNumber = item[5];
+          if (item[5] === ''){
+            trackingNumber = 'N/A';
+          }
+
+          orderItems = `${orderItems}
+            <tr>
+              <td>${item[1]}</td>
+              <td>${item[2]}</td>
+              <td>${item[3]}</td>
+              <td>${item[4]}</td>
+              <td>${trackingNumber}</td>
+              <td>$${Number(item[6]).toFixed(2)}</td>
+            </tr>
+          `;
+        });
+
+        orderRowsHtml = `${orderRowsHtml}
+          <tr id="order_${order[0]}" class="order-row js-order-row">
+            <td>${order[1]}</td>
+            <td>${order[2].toUpperCase()}</td>
+            <td>${order[3][0][0]}</td>
+            <td>${order[4]}</td>
+            <td>$${Number(orderTotal).toFixed(2)}</td>
+          </tr>
+          <tr class="js-item-row_${order[0]}" style="display:none;">
+            <td colspan="4" class="item-row">
+              <table>
+                <thead>
+                  <th>Product</th>
+                  <th>Qty.</th>
+                  <th>Ship To</th>
+                  <th>Service</th>
+                  <th>Tracking Number</th>
+                  <th>Price</th>
+                </thead>
+                <tbody>
+                  ${orderItems}
+                </tbody>
+              </table>
+            <td>
+          </tr>`;
+
+      });
+
+      // start fresh
+      $('.js-member-content').empty();
+
+      // markup display
+      const recentOrderList = `
+        <div class="row">
+          <div class="column">
+            <h4>Your Orders</h4>
+            <table class="member-orders">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Order</th>
+                  <th>Status</th>
+                  <th>Comments</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${orderRowsHtml}
+              </tbody>
+            </table>
+
+          </div>
+        </div>
+      `;
+
+      // send markup to view
+      $('.js-member-content').html(recentOrderList);
+
+      // listen for order row clicks
+      listenForOrderRowClicks();
+
+    });
+
+}
+
+// opens the item rows for an order
+function listenForOrderRowClicks () {
+
+  $('.js-order-row').click( event => {
+    event.preventDefault();
+
+    // isolate id number
+    const idNumber = event.currentTarget.id.split('_');
+
+    $(`.js-item-row_${idNumber[1]}`).toggle();
 
   });
 

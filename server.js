@@ -40,6 +40,7 @@ app.use( (req, res, next) => {
     // init user session var
     req.session.user = {
 
+      id: 0,
       name: '',
       phone: '',
       email: '',
@@ -183,8 +184,33 @@ app.post('/updateUserStatus', jsonParser, (req, res) => {
 });
 
 // member home
-app.get('/member/:memberId', (req, res) => {
-  res.json(req.params.memberId);
+app.get('/member', (req, res) => {
+
+  // check if user is logged in
+  if (req.session.user.loggedIn) {
+    res.render('pages/member');
+  }
+  else {
+    res.redirect('/login');
+  }
+
+});
+
+// member login
+app.get('/login', (req, res) => {
+  res.render('pages/login');
+});
+
+// update user info after successful login
+app.post('/updateUserFromLogin', jsonParser, (req, res) => {
+  req.session.user = {
+    id: req.body.id,
+    name: req.body.name,
+    phone: req.body.phone,
+    email: req.body.email,
+    loggedIn: true
+  }
+  res.json(req.session.user);
 });
 
 // delete cart itme

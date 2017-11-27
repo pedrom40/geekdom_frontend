@@ -1,12 +1,27 @@
 // start all things user
 function initUser () {
 
+  const currentUrl = window.location.pathname;
+
+  // if on login page, listen for logins
+  if (currentUrl === '/login') {
+    listenForUserLogin();
+  }
+
   // check for existing info
   getUserSessionInfo()
-    .then( (data) => {
+    .then( data => {
+
+      // if member logged in
+      if (currentUrl === '/member' && data.loggedIn) {
+
+        // display member's home content
+        showMemberHomeInfo(data.id);
+
+      }
 
       // if data exists
-      if (data.name !== '') {
+      else if (data.name !== '') {
 
         // load session info to cart form
         displayUserSession(data);
@@ -15,6 +30,65 @@ function initUser () {
 
     });
 
+}
+
+// handle user logins
+function listenForUserLogin () {
+
+  $('.js-member-login-form').submit( event => {
+    event.preventDefault();
+
+    // if required values are sent
+    if ($('#userEmail').val() !== '' && $('#userPassword').val() !== '') {
+
+      const data = {
+        method: 'loginUser',
+        email: $('#userEmail').val(),
+        password: $('#userPassword').val()
+      }
+      callUserService(data)
+        .then( result => {
+
+          if (result[0] === 'success') {
+
+            // update user session
+            const userInfo = {id: result[1], name: result[2], email: result[3], phone: result[4]}
+            updateUserSessionInfoFromLogin(userInfo)
+              .then( result =>  window.location.assign(`/member`))
+              .fail( err =>  console.log(err));
+
+          }
+          else {
+            showErrorMsg('The email/password combination you entered was not found, please try again.');
+          }
+
+        })
+        .fail( err => {
+          console.log(err);
+          showErrorMsg('An unexpected error occurred. We have been notified and will resolve the issue immediately.');
+        });
+
+    }
+
+    // if required values not entered
+    else {
+      showErrorMsg('Enter your email and password before logging in.');
+    }
+
+  });
+
+}
+function updateUserSessionInfoFromLogin (userInfo) {
+
+  const settings = {
+    url: '/updateUserFromLogin',
+    type: 'POST',
+    dataType: 'json',
+    contentType: 'application/json',
+    data: JSON.stringify(userInfo)
+  }
+
+  return $.ajax(settings);
 }
 
 // checks if we need this user to add a password to their account
