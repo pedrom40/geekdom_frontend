@@ -130,15 +130,6 @@ app.post('/cart', jsonParser, (req, res) => {
 
   }
 
-  // if user is uploading a file
-  else if (artworkSetting === 'upload') {
-
-    jsonResponse = {
-      nextStep: `/upload/?cartItemIndex=${newItemIndex}`
-    }
-
-  }
-
   // send to cart page
   res.json(jsonResponse);
 

@@ -264,6 +264,7 @@ function addProductToCart () {
       projectId: ''
     },
     artworkFile: $('#artworkFile').val(),
+    artworkFileName: $('#artworkFileName').val(),
     shippingName: $('#shippingName').val(),
     shippingAddress: $('#shippingAddress').val(),
     shippingCity: $('#shippingCity').val(),
@@ -271,7 +272,7 @@ function addProductToCart () {
     shippingZip: $('#shippingZip').val(),
     shippingCost: 0,
     shippingService: ''
-  };
+  }
 
   // add it to cart, then show cart page
   addItemToCart(productInfo)

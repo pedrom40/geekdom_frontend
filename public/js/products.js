@@ -244,7 +244,7 @@ function loadProductDetails (product) {
                 <div class="js-file-upload-container" style="display:none;">
                   <div id="artworkThumbHolder" style="display:none;"></div>
                   <label for="fileupload">Artwork:</label>
-                  <input type="file" id="fileupload" name="file" placeholder="AI, PSD, INDD, JPG, PNG, TIFF, EPS and ZIP files">
+                  <input type="file" id="fileupload" name="file" placeholder="PDF, AI, PSD, INDD, JPG, PNG, TIFF, EPS and ZIP files">
                   <div id="progress">
                     <div id="bar"></div>
                   </div>
@@ -336,7 +336,7 @@ function loadProductDetails (product) {
               <input type="hidden" id="productLength">
               <input type="hidden" id="productSpecs">
               <input type="hidden" id="productPrice">
-              <input type="hidden" id="artworkNameHolder">
+              <input type="hidden" id="artworkFileName">
 
             </form>
           </div>
@@ -375,7 +375,7 @@ function loadProductDetails (product) {
   // init file upload listener
   const uploadData = {
     methodUrl: 'orders.cfc?method=uploadArtwork',
-    imgNamePlaceholder: '#artworkNameHolder',
+    imgNamePlaceholder: '#artworkFileName',
     imgPreviewContainer: '#artworkThumbHolder',
     imgUrl: 'https://artwork.bannerstack.com'
   }

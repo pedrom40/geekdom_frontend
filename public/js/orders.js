@@ -109,6 +109,7 @@ function displayCartItems (cartInfo) {
     $('.js-cart-display').append(template);
 
   });
+
 }
 function displayPaymentInfo (customerInfo) {
 
@@ -127,7 +128,7 @@ function placeOrder (amountToCharge) {
 
   // get user info for cart token
   getUserSessionInfo()
-    .then( (data) => {
+    .then( data => {
 
       // pass to DB for processing
       const qData = {
