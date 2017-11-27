@@ -137,7 +137,7 @@ function listenForFileUploads (uploadData) {
 
   var upload = function() {
 
-    if(_file.files.length === 0){
+    if (_file.files.length === 0){
       return;
     }
 

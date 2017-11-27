@@ -230,7 +230,7 @@ function loadProductDetails (product) {
             <div class="product-description">${product[3]}</div>
           </div>
           <div class="column">
-            <form class="js-add-to-cart-form">
+            <form class="js-add-to-cart-form" enctype="multipart/form-data">
 
               <div class="js-product-detail-form-elements">
                 <label for="productSize">Select Size</label>
@@ -240,6 +240,15 @@ function loadProductDetails (product) {
 
                 <label for="artworkFile">Design</label>
                 <select id="artworkFile"></select>
+
+                <div class="js-file-upload-container" style="display:none;">
+                  <div id="artworkThumbHolder" style="display:none;"></div>
+                  <label for="fileupload">Artwork:</label>
+                  <input type="file" id="fileupload" name="file" placeholder="AI, PSD, INDD, JPG, PNG, TIFF, EPS and ZIP files">
+                  <div id="progress">
+                    <div id="bar"></div>
+                  </div>
+                </div>
 
                 <label for="productQty">Quantity</label>
                 <input type="number" id="productQty" value="1">
@@ -327,6 +336,7 @@ function loadProductDetails (product) {
               <input type="hidden" id="productLength">
               <input type="hidden" id="productSpecs">
               <input type="hidden" id="productPrice">
+              <input type="hidden" id="artworkNameHolder">
 
             </form>
           </div>
@@ -361,6 +371,15 @@ function loadProductDetails (product) {
 
   // listen for back to details btn clicks
   listenForBackToDetailsClicks();
+
+  // init file upload listener
+  const uploadData = {
+    methodUrl: 'orders.cfc?method=uploadArtwork',
+    imgNamePlaceholder: '#artworkNameHolder',
+    imgPreviewContainer: '#artworkThumbHolder',
+    imgUrl: 'https://artwork.bannerstack.com'
+  }
+  listenForFileUploads(uploadData);
 
 }
 
@@ -546,6 +565,14 @@ function listenForArtworkChanges () {
     // set price based on size selected
     calculatePrice();
 
+    // toggle file upload input
+    if ($('#artworkFile').val() === '1') {
+      $('.js-file-upload-container').show();
+    }
+    else {
+      $('.js-file-upload-container').hide();
+    }
+
   });
 
 }
@@ -554,49 +581,53 @@ function listenForArtworkChanges () {
 function listenForCartClicks () {
 
   $('.js-category-list').click( event => {
-    event.preventDefault();
 
-    // if img thumbnail clicked
-    if ($(event.target).attr('class') === 'thumb js-thumb') {
-      updateMainImage(event.target.src);
-    }
+    if (event.target.id !== 'fileupload')  {
 
-    // if add to cart button was clicked
-    else if ($(event.target).attr('class') === 'product-details-btn js-add-to-cart-btn') {
+      event.preventDefault();
 
-      // setup ship to address
-      const shipTo = {
-        customerName: $('#shippingName').val(),
-        address: $('#shippingAddress').val(),
-        city: $('#shippingCity').val(),
-        state: $('#shippingState').val(),
-        zip: $('#shippingZip').val(),
-        countryCode: 'US',
-        pkgWeight: $('#productWeight').val()
+      // if img thumbnail clicked
+      if ($(event.target).attr('class') === 'thumb js-thumb') {
+        updateMainImage(event.target.src);
       }
 
-      // validate address
-      validateShippingAddress(shipTo)
-        .then( addressResponse => {
+      // if add to cart button was clicked
+      else if ($(event.target).attr('class') === 'product-details-btn js-add-to-cart-btn') {
 
-          // if address unknown
-          if (addressResponse.AddressClassification.Code === "0") {
+        // setup ship to address
+        const shipTo = {
+          customerName: $('#shippingName').val(),
+          address: $('#shippingAddress').val(),
+          city: $('#shippingCity').val(),
+          state: $('#shippingState').val(),
+          zip: $('#shippingZip').val(),
+          countryCode: 'US',
+          pkgWeight: $('#productWeight').val()
+        }
 
-            // load ups suggestions
-            loadAddressAlternatives(addressResponse);
+        // validate address
+        validateShippingAddress(shipTo)
+          .then( addressResponse => {
 
-          }
+            // if address unknown
+            if (addressResponse.AddressClassification.Code === "0") {
 
-          // if address good, then add item to cart
-          else {
+              // load ups suggestions
+              loadAddressAlternatives(addressResponse);
 
-            // add product to cart
-            addProductToCart();
+            }
 
-          }
+            // if address good, then add item to cart
+            else {
 
-        });
+              // add product to cart
+              addProductToCart();
 
+            }
+
+          });
+
+      }
     }
 
   });
