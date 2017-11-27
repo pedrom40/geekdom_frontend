@@ -12,6 +12,14 @@ function initUser () {
   getUserSessionInfo()
     .then( data => {
 
+      // setup member link
+      if (data.loggedIn) {
+        $('.js-member-link').html('<a href="/member">Member Home</a>');
+      }
+      else {
+        $('.js-member-link').html('<a href="/login">Login</a>');
+      }
+
       // if member logged in
       if (currentUrl === '/member' && data.loggedIn) {
 
