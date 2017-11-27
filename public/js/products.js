@@ -751,7 +751,7 @@ function calculatePrice () {
 
   // update price
   $('#productPrice').val(productPrice);
-  $('.js-order-total').html(`${productPrice.toFixed(2)}`);
+  $('.js-order-total').html(`${Number(productPrice).toFixed(2)}`);
 
 }
 

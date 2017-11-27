@@ -93,7 +93,6 @@ function displayCartContents (cart) {
             <div class="row">
               <div class="column">
                 <p>
-                  <strong>Size:</strong> ${cartItem.productWidth}"W X ${cartItem.productHeight}"H<br>
                   <strong>Quantity:</strong> ${cartItem.productQty}<br>
                   <strong>Price:</strong> $${Number(cartItem.productPrice).toFixed(2)}
                 </p>
@@ -222,6 +221,9 @@ function addProductToCart () {
 
   // var to hold options
   let productOptionsArray = [];
+
+  // add size as spec
+  productOptionsArray.push(`<strong>Size:</strong> ${$('#productWidth').val()}" x ${$('#productHeight').val()}"`);
 
   // get all options
   const productOptions = $("select[name='productOptions']");
