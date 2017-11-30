@@ -75,6 +75,11 @@ router.get('/turnarounds', jsonParser, (req, res) => {
   res.render('admin/main');
 });
 
+// order statuses
+router.get('/orderStatuses', jsonParser, (req, res) => {
+  res.render('admin/main');
+});
+
 // finishing
 router.get('/finishing', jsonParser, (req, res) => {
   res.render('admin/main');

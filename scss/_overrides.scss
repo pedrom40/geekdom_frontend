@@ -98,6 +98,16 @@ button {
   background-color:#fed78b;
   border-color:#fed78b;
 }
+.button-outline {
+  width: 100%;
+  border-color: #606c76;
+  color: #606c76 !important;
+  border-radius: 0;
+
+  &:hover {
+    color:black !important;
+  }
+}
 
 textarea {
   height:150px;

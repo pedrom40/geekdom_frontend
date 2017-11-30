@@ -384,7 +384,7 @@ function loadProductDetails (product) {
 }
 
 // get and load product sizes
-function loadProductSizes (productSizes) {
+function loadProductSizes (productSizes) {console.log(productSizes);
 
   // go thru all sizes
   productSizes.map( (size, index) => {

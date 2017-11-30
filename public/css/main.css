@@ -85,6 +85,14 @@ button {
   background-color: #fed78b;
   border-color: #fed78b; }
 
+.button-outline {
+  width: 100%;
+  border-color: #606c76;
+  color: #606c76 !important;
+  border-radius: 0; }
+  .button-outline:hover {
+    color: black !important; }
+
 textarea {
   height: 150px; }
 
@@ -582,6 +590,12 @@ footer {
     height: 75px;
     text-align: center;
     background-color: #f0f0f0; }
+  .admin .main-content .orderQty {
+    width: 85px; }
+  .admin .main-content .orderStatus {
+    width: 125px; }
+  .admin .main-content .shipping-info-container {
+    cursor: pointer; }
 .admin .admin-menu {
   display: inline-block;
   margin: 50px;
