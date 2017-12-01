@@ -173,88 +173,50 @@ function saveOrder (chargeInfo) {
   let qData = {};
 
   // get user session info
-  getUserSessionInfo().then( data => {
+  getUserSessionInfo()
+    .then( data => {
 
-    // pass to service to save to DB
-    qData = {
-      method: 'saveOrderToDb',
-      chargeDesc: chargeInfo.description,
-      userName: data.name,
-      userEmail: data.email,
-      userPhone: data.phone
-    }
-    callCartService(qData).then( data => {
-
-      // parse JSON string from CF service
-      data = JSON.parse(data);
-
-      // if error
-      if (data.orderId === 0) {
-
-        // display error msg
-        showErrorMsg(data.errorMsg);
-
+      // pass to service to save to DB
+      qData = {
+        method: 'saveOrderToDb',
+        chargeDesc: chargeInfo.description,
+        userName: data.name,
+        userEmail: data.email,
+        userPhone: data.phone
       }
+      callCartService(qData)
+        .then( data => {
 
-      // no errors
-      else {
+          // parse JSON string from CF service
+          data = JSON.parse(data);
 
-        // save new order ID
-        orderId = data.orderId;
+          // if error
+          if (data.orderId === 0) {
 
-        // get cart items
-        getExpressCartContents().then( cartItems => {
+            // display error msg
+            showErrorMsg(data.errorMsg);
 
-          // convert to string for CF
-          const newCartArray = rebuildArrayOfObjectsForColdfusion(cartItems);
-
-          // pass to service to save order items
-          qData = {
-            method:'saveOrderItemsToDb',
-            orderId: orderId,
-            cartItems: newCartArray
           }
-          callCartService(qData).then( data => {
 
-            // if error
-            if (data !== 'success') {
+          // no errors
+          else {
 
-              // display error msg
-              showErrorMsg(data);
+            // save new order ID
+            orderId = data.orderId;
 
-            }
+            // get cart items
+            getExpressCartContents().then( cartItems => {
 
-            // no errors
-            else {
+              // convert to string for CF
+              const newCartArray = rebuildArrayOfObjectsForColdfusion(cartItems);
 
-              // take out items we're saving
-              let chargeInfoToSend = {
-                order_id: orderId,
-                total_charge: chargeInfo.amount,
-                balance_transaction: chargeInfo.balance_transaction,
-                created: chargeInfo.created,
-                description: chargeInfo.description,
-                charge_id: chargeInfo.id,
-                card_id: chargeInfo.source.id,
-                card_type: chargeInfo.source.brand,
-                card_name: chargeInfo.source.name,
-                card_address: chargeInfo.source.address_line1,
-                card_city: chargeInfo.source.address_city,
-                card_state: chargeInfo.source.address_state,
-                card_zip: chargeInfo.source.address_zip,
-                card_country: chargeInfo.source.country,
-                card_exp_month: chargeInfo.source.exp_month,
-                card_exp_year: chargeInfo.source.exp_year,
-                card_last_four: chargeInfo.source.last4,
-                fingerprint: chargeInfo.source.fingerprint
-              }
-
-              // save payment info to Db
+              // pass to service to save order items
               qData = {
-                method: 'saveOrderPaymentInfoToDb',
-                chargeInfo: JSON.stringify(chargeInfoToSend)
+                method:'saveOrderItemsToDb',
+                orderId: orderId,
+                cartItems: newCartArray
               }
-              callCartService(qData).then( (data) => {
+              callCartService(qData).then( data => {
 
                 // if error
                 if (data !== 'success') {
@@ -267,24 +229,64 @@ function saveOrder (chargeInfo) {
                 // no errors
                 else {
 
-                  // go to confirmation page
-                  window.location.assign(`/confirmation/?orderId=${orderId}`);
+                  // take out items we're saving
+                  let chargeInfoToSend = {
+                    order_id: orderId,
+                    total_charge: chargeInfo.amount,
+                    balance_transaction: chargeInfo.balance_transaction,
+                    created: chargeInfo.created,
+                    description: chargeInfo.description,
+                    charge_id: chargeInfo.id,
+                    card_id: chargeInfo.source.id,
+                    card_type: chargeInfo.source.brand,
+                    card_name: chargeInfo.source.name,
+                    card_address: chargeInfo.source.address_line1,
+                    card_city: chargeInfo.source.address_city,
+                    card_state: chargeInfo.source.address_state,
+                    card_zip: chargeInfo.source.address_zip,
+                    card_country: chargeInfo.source.country,
+                    card_exp_month: chargeInfo.source.exp_month,
+                    card_exp_year: chargeInfo.source.exp_year,
+                    card_last_four: chargeInfo.source.last4,
+                    fingerprint: chargeInfo.source.fingerprint
+                  }
+
+                  // save payment info to Db
+                  qData = {
+                    method: 'saveOrderPaymentInfoToDb',
+                    chargeInfo: JSON.stringify(chargeInfoToSend)
+                  }
+                  callCartService(qData).then( (data) => {
+
+                    // if error
+                    if (data !== 'success') {
+
+                      // display error msg
+                      showErrorMsg(data);
+
+                    }
+
+                    // no errors
+                    else {
+
+                      // go to confirmation page
+                      window.location.assign(`/confirmation/?orderId=${orderId}`);
+
+                    }
+
+                  });
 
                 }
 
               });
 
-            }
+            });
 
-          });
+          }
 
         });
 
-      }
-
     });
-
-  });
 
 }
 

@@ -79,7 +79,7 @@ function displayCartContents (cart) {
 
       let shippingServiceInfo = '';
       if (cartItem.shippingService !== '') {
-        shippingServiceInfo = `(${cartItem.shippingService}: $${Number(cartItem.shippingCost).toFixed(2)})`;
+        shippingServiceInfo = `<br>(${cartItem.shippingService}: $${Number(cartItem.shippingCost).toFixed(2)})`;
       }
 
       const template = `

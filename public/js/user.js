@@ -152,10 +152,10 @@ function listenForUserPasswordUpdates (memberId) {
         .then( result => {
 
           // show user as logged in
-          updateUserLoggedInStatus(true);
+          updateUserLoggedInStatus(true)
 
-          // take to member's home page
-          window.location.assign(`/member/${memberId}`)
+            // take to member's home page
+            .then( res => window.location.assign('/member/') );
 
         })
         .fail( err => {
