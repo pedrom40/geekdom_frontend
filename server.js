@@ -170,6 +170,7 @@ app.get('/getUser', (req, res) => {
 
 // update cart item shipping cost
 app.post('/updateUserStatus', jsonParser, (req, res) => {
+  req.session.user.id = req.body.userId;
   req.session.user.loggedIn = req.body.loggedIn;
   res.json(req.session.user);
 });
