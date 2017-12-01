@@ -37,7 +37,6 @@ function showCartItems (cart) {
         </div>
         <div class="column">
           <p>
-            <strong>Size:</strong> ${cartItem.productWidth}"W X ${cartItem.productHeight}"H<br>
             <strong>Quantity:</strong> ${cartItem.productQty}<br>
             <strong>Price:</strong> $${Number(cartItem.productPrice).toFixed(2)}
           </p>
