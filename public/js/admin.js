@@ -29,6 +29,9 @@ function checkForAdminSession () {
       // if user is already validated
       else if (adminUser.validated) {
 
+        // show nav
+        $('#admin-menu-container').show();
+
         // get view requested
         getViewRequested(viewRequested);
 

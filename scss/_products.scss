@@ -90,6 +90,13 @@
     border:solid 1px $primary-font-color;
   }
 
+  .address-suggestions {
+
+    p {
+      cursor: pointer;
+    }
+  }
+
   .thumbnails {
 
     .thumb {

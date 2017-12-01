@@ -384,7 +384,7 @@ function loadProductDetails (product) {
 }
 
 // get and load product sizes
-function loadProductSizes (productSizes) {console.log(productSizes);
+function loadProductSizes (productSizes) {
 
   // go thru all sizes
   productSizes.map( (size, index) => {
@@ -477,8 +477,30 @@ function listenForFinishingChanges () {
 
   $('.js-finishing-select').change( event => {
     event.preventDefault();
+
+    finishingsHack(event.target);
     calculatePrice();
+
   });
+
+}
+function finishingsHack (selectMenuId) {
+
+  // if grommets selected
+  if (selectMenuId.id === 'productOptions_Grommets' && selectMenuId.id.value !== '') {
+
+    // set pole pockets to null
+    $('#productOptions_Pole_Pockets').val('');
+
+  }
+
+  // if pole pockets being selected
+  else if (selectMenuId.id === 'productOptions_Pole_Pockets' && selectMenuId.id.value !== '') {
+
+    // set grommets to null
+    $('#productOptions_Grommets').val('');
+
+  }
 
 }
 
@@ -577,7 +599,7 @@ function listenForArtworkChanges () {
 
 }
 
-// listen for cart clicks
+// listen for image thumbnail clicks, add to cart button clicks
 function listenForCartClicks () {
 
   $('.js-category-list').click( event => {
@@ -628,6 +650,7 @@ function listenForCartClicks () {
           });
 
       }
+
     }
 
   });

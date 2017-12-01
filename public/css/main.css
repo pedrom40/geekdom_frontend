@@ -408,6 +408,8 @@ footer {
   .product-details img {
     padding: 15px;
     border: solid 1px #252525; }
+  .product-details .address-suggestions p {
+    cursor: pointer; }
   .product-details .thumbnails .thumb {
     display: inline-block;
     width: 23%;

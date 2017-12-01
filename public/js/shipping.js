@@ -23,12 +23,14 @@ function loadAddressAlternatives (upsSuggestions) {
   // if there is more than one suggestion
   if (Array.isArray(upsSuggestions.AddressKeyFormat)) {
 
-    upsSuggestions.AddressKeyFormat.map( addr => {
+    upsSuggestions.AddressKeyFormat.map( (addr, index) => {
 
       const addressSuggestion = `
-        <p>
-          ${addr.AddressLine}<br>
-          ${addr.Region}
+        <p class="js-addr-suggestion" id="addrSuggestion_${index}">
+          <span class="addr">${addr.AddressLine}</span><br>
+          <span class="city">${addr.PoliticalDivision2}</span>,
+          <span class="state">${addr.PoliticalDivision1}</span>
+          <span class="zip">${addr.PostcodePrimaryLow}</span>
         </p>
       `;
 
@@ -43,9 +45,11 @@ function loadAddressAlternatives (upsSuggestions) {
   else {
 
     const addressSuggestion = `
-      <p>
-        ${upsSuggestions.AddressKeyFormat.AddressLine}<br>
-        ${upsSuggestions.AddressKeyFormat.Region}
+      <p class="js-addr-suggestion" id="addrSuggestion_0">
+        <span class="addr">${upsSuggestions.AddressKeyFormat.AddressLine}</span><br>
+        <span class="city">${upsSuggestions.AddressKeyFormat.PoliticalDivision2}</span>,
+        <span class="state">${upsSuggestions.AddressKeyFormat.PoliticalDivision1}</span>
+        <span class="zip">${upsSuggestions.AddressKeyFormat.PostcodePrimaryLow}</span>
       </p>
     `;
 
@@ -53,6 +57,22 @@ function loadAddressAlternatives (upsSuggestions) {
     $('.address-suggestions').append(addressSuggestion);
 
   }
+
+  listenForAddressSuggestionClicks();
+
+}
+function listenForAddressSuggestionClicks () {
+
+  $('.js-addr-suggestion').click( event => {
+    event.preventDefault();
+
+    // overwrite address fields
+    $('#shippingAddress').val($(`#${event.currentTarget.id} .addr`).html());
+    $('#shippingCity').val($(`#${event.currentTarget.id} .city`).html());
+    $('#shippingState').val($(`#${event.currentTarget.id} .state`).html());
+    $('#shippingZip').val($(`#${event.currentTarget.id} .zip`).html());
+
+  });
 
 }
 
