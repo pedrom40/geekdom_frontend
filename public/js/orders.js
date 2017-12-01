@@ -340,7 +340,7 @@ function showMemberHomeInfo (userId) {
             <td>$${Number(orderTotal).toFixed(2)}</td>
           </tr>
           <tr class="js-item-row_${order[0]}" style="display:none;">
-            <td colspan="4" class="item-row">
+            <td colspan="5" class="item-row">
               <table>
                 <thead>
                   <th>Product</th>
