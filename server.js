@@ -94,6 +94,11 @@ app.get('/products', (req, res) => {
   res.render('pages/products');
 });
 
+// handle contacts GET call
+app.get('/contact', (req, res) => {
+  res.render('pages/contact');
+});
+
 // handle product category call
 app.get('/products/:category/', (req, res) => {
   res.render('pages/products');

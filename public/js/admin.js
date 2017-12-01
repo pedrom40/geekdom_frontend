@@ -29,11 +29,20 @@ function checkForAdminSession () {
       // if user is already validated
       else if (adminUser.validated) {
 
-        // show nav
-        $('#admin-menu-container').show();
+        // if on login page
+        if (window.location.pathname === '/admin/login') {
+          window.location.assign('/admin/dashboard');
+        }
 
-        // get view requested
-        getViewRequested(viewRequested);
+        else {
+
+          // show nav
+          $('#admin-menu-container').show();
+
+          // get view requested
+          getViewRequested(viewRequested);
+
+        }
 
       }
 
