@@ -138,10 +138,7 @@ function listenForUserPasswordUpdates (memberId) {
   $('.js-user-actions').click( event => {console.log(event.target.id);
     event.preventDefault();
 
-    if (
-        event.target.id === 'js-add-user-password-btn' &&
-        $('#userPassword').val().length >= 6
-      ) {
+    if (event.target.id === 'js-add-user-password-btn' && $('#userPassword').val().length >= 6) {
 
       const data = {
         method: 'addUserPassword',
@@ -164,10 +161,7 @@ function listenForUserPasswordUpdates (memberId) {
 
     }
 
-    else if (
-      event.target.id === 'js-add-user-password-btn' &&
-      $('#userPassword').val().length < 6
-    ) {
+    else if (event.target.id === 'js-add-user-password-btn' && $('#userPassword').val().length < 6) {
       showErrorMsg('Please enter a valid password');
     }
 
