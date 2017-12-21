@@ -1,22 +1,14 @@
+'use strict';
+
 // includes
 const express     = require('express');
 const morgan      = require('morgan');
 const session     = require('express-session');
 const bodyParser  = require('body-parser');
 const jsonParser  = bodyParser.json();
-const upsAPI      = require('shipping-ups');
 const util        = require('util');
 const fs          = require('fs');
 const ejs         = require('ejs');
-
-// setup ups
-const ups = new upsAPI({
-  environment: 'live', // or sandbox
-  username: 'mikemorgan6603',
-  password: 'N@tPr1nT',
-  access_key: '5D34F61318AFE568',
-  imperial: true // set to false for metric
-});
 
 // mount express
 const app = express();
@@ -210,7 +202,7 @@ app.post('/updateUserFromLogin', jsonParser, (req, res) => {
   res.json(req.session.user);
 });
 
-// delete cart itme
+// delete cart item
 app.get('/deleteCartItem/:itemIndex', (req, res) => {
 
   // remove item at the passed index
@@ -275,72 +267,6 @@ app.get('/designs', (req, res) => {
 // get designer plugin
 app.get('/createDesign', (req, res) => {
   res.render('pages/design');
-});
-
-// validate address
-app.get('/validateAddress', (req, res) => {
-
-  // pass to ups api
-  ups.address_validation({
-      name: req.query.customerName,
-      address_line_1: req.query.address,
-      city: req.query.city,
-      state_code: req.query.state,
-      postal_code: req.query.zip,
-      country_code: req.query.countryCode
-    }, function(err, response) {
-
-      // handle errors
-      if(err) {console.log(err);}
-
-      // send it back
-      res.json(response);
-
-  });
-
-});
-
-// get shipping rate
-app.get('/getShippingRates', (req, res) => {
-
-  // pass to ups api
-  ups.rates({
-    shipper: {
-      name: 'BannerStack',
-      address: {
-        address_line_1: '53 Camellia Way',
-        city: 'San Antonio',
-        state_code: 'TX',
-        country_code: 'US',
-        postal_code: '78209'
-      }
-    },
-    ship_to: {
-      name: req.query.customerName,
-      address: {
-        address_line_1: req.query.address,
-        city: req.query.city,
-        state_code: req.query.state,
-        postal_code: req.query.zip,
-        country_code: req.query.countryCode
-      }
-    },
-    packages: [
-      {
-        description: 'My Package',
-        weight: req.query.pkgWeight
-      }
-    ]
-  }, function(err, response) {
-
-    // handle errors
-    if(err) {return console.log(err);}
-
-    // send response
-    res.json(response);
-
-  });
-
 });
 
 
